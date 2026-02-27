@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\ArticleStatus;
+use App\Notifications\ArticlePublished; // Added
+use App\Notifications\RevisionRequested; // Added
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Gate;
@@ -59,7 +61,9 @@ class EditorController extends Controller
             'comments' => $validated['comments'],
         ]);
 
-        // (Phase 5: You would trigger the RevisionRequestedNotification here)
+        // --- TRIGGER NOTIFICATION ---
+        // Notify the writer and pass the comments to the email
+        $article->writer->notify(new RevisionRequested($article, $validated['comments']));
 
         return redirect()->back()->with('success', 'Revision requested successfully.');
     }
@@ -78,7 +82,9 @@ class EditorController extends Controller
             'editor_id' => $request->user()->id,
         ]);
 
-        // (Phase 5: You would trigger the ArticlePublishedNotification here)
+        // --- TRIGGER NOTIFICATION ---
+        // Notify the writer that their work is now live
+        $article->writer->notify(new ArticlePublished($article));
 
         return redirect()->back()->with('success', 'Article published successfully!');
     }

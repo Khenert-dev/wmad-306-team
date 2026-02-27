@@ -13,16 +13,23 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 
-// Redirect root to login
+// --- PUBLIC ROUTES ---
+// Display the Welcome Landing Page
 Route::get('/', function () {
-    return redirect()->route('login');
-});
+    return Inertia::render('Welcome');
+})->name('home');
 
-// All platform routes require the user to be logged in
+// --- AUTHENTICATED ROUTES ---
+// All platform routes below require the user to be logged in and verified
 Route::middleware(['auth', 'verified'])->group(function () {
 
+    // Main Hub Dashboard (Routes users to their respective workspaces)
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
+
     // ---------------------------------------------------------
-    // WRITER ROUTES [cite: 69]
+    // WRITER ROUTES
     // ---------------------------------------------------------
     Route::middleware(['role:writer'])->group(function () {
         Route::get('/writer/dashboard', [WriterController::class, 'index'])->name('writer.dashboard');
@@ -36,7 +43,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ---------------------------------------------------------
-    // EDITOR ROUTES [cite: 70-71]
+    // EDITOR ROUTES
     // ---------------------------------------------------------
     Route::middleware(['role:editor'])->group(function () {
         Route::get('/editor/dashboard', [EditorController::class, 'index'])->name('editor.dashboard');
@@ -47,7 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ---------------------------------------------------------
-    // STUDENT ROUTES [cite: 72]
+    // STUDENT ROUTES
     // ---------------------------------------------------------
     Route::middleware(['role:student'])->group(function () {
         Route::get('/student/dashboard', [StudentController::class, 'studentDashboard'])->name('student.dashboard');
@@ -64,5 +71,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Load the Auth routes (Login / Register) provided by Laravel Breeze 
+// Load the standard Auth routes (Login / Register / Password Reset) provided by Laravel Breeze
 require __DIR__.'/auth.php';

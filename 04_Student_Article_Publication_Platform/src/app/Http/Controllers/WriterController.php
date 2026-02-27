@@ -5,15 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\ArticleStatus;
 use App\Models\Category;
+use App\Models\User; // Added for finding editors
+use App\Notifications\ArticleSubmitted; // Added
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Gate;
 
 class WriterController extends Controller
 {
-    /**
-     * Display the Writer Dashboard
-     */
     public function index(Request $request)
     {
         $articles = $request->user()->articles()->with(['status', 'category'])->latest()->get();
@@ -25,9 +24,6 @@ class WriterController extends Controller
         ]);
     }
 
-    /**
-     * Store a new Draft
-     */
     public function store(Request $request)
     {
         Gate::authorize('create', Article::class);
@@ -50,9 +46,6 @@ class WriterController extends Controller
         return redirect()->back()->with('success', 'Draft saved successfully!');
     }
 
-    /**
-     * Submit an article for review
-     */
     public function submit(Article $article)
     {
         Gate::authorize('submit', $article);
@@ -61,14 +54,18 @@ class WriterController extends Controller
         
         $article->update(['status_id' => $submittedStatus->id]);
 
-        // (Phase 5: You would trigger the ArticleSubmittedNotification here)
+        // --- TRIGGER NOTIFICATION ---
+        // Find all users who have the 'editor' role
+        $editors = User::role('editor')->get();
+        
+        // Notify each editor
+        foreach ($editors as $editor) {
+            $editor->notify(new ArticleSubmitted($article));
+        }
 
         return redirect()->back()->with('success', 'Article submitted for review!');
     }
 
-    /**
-     * Update/Revise an article
-     */
     public function revise(Request $request, Article $article)
     {
         Gate::authorize('update', $article);
