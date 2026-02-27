@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles; // <-- Added Spatie Import
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles; // <-- Added HasRoles trait
 
     /**
      * The attributes that are mass assignable.
@@ -44,5 +45,39 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // --- Added Inverse Relationships for your Application ---
+
+    /**
+     * Get the articles written by this user (Writer role).
+     */
+    public function articles()
+    {
+        return $this->hasMany(Article::class, 'writer_id');
+    }
+
+    /**
+     * Get the articles edited by this user (Editor role).
+     */
+    public function editedArticles()
+    {
+        return $this->hasMany(Article::class, 'editor_id');
+    }
+
+    /**
+     * Get the revisions made by this user (Editor role).
+     */
+    public function revisions()
+    {
+        return $this->hasMany(Revision::class, 'editor_id');
+    }
+
+    /**
+     * Get the comments made by this user (Student role).
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'student_id');
     }
 }
