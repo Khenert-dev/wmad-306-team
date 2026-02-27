@@ -13,6 +13,7 @@ import {
     Stack,
     TextField,
     Typography,
+    Button,
 } from '@mui/material';
 import JoditEditor from 'jodit-react';
 import { useMemo, useState } from 'react';
@@ -40,6 +41,21 @@ export default function WriterDashboard({ articles, categories, flash }) {
     const drafts = articles.filter((article) => article.status?.name === 'draft');
     const submitted = articles.filter((article) => article.status?.name === 'submitted');
     const needsRevision = articles.filter((article) => article.status?.name === 'needs_revision');
+
+    const [statusFilter, setStatusFilter] = useState('all');
+
+    const visibleArticles = useMemo(() => {
+        if (statusFilter === 'draft') {
+            return drafts;
+        }
+        if (statusFilter === 'submitted') {
+            return submitted;
+        }
+        if (statusFilter === 'needs_revision') {
+            return needsRevision;
+        }
+        return articles;
+    }, [articles, drafts, submitted, needsRevision, statusFilter]);
 
     const joditConfig = useMemo(
         () => ({
@@ -82,10 +98,18 @@ export default function WriterDashboard({ articles, categories, flash }) {
                 {flash?.success && <Alert severity="success">{flash.success}</Alert>}
 
                 <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', lg: 'row' } }}>
-                    <Stack spacing={2} sx={{ width: { xs: '100%', lg: 300 }, alignSelf: 'flex-start', position: { lg: 'sticky' }, top: { lg: 92 } }}>
+                    <Stack
+                        spacing={2}
+                        sx={{
+                            width: { xs: '100%', lg: 280 },
+                            alignSelf: 'flex-start',
+                            position: { lg: 'sticky' },
+                            top: { lg: 92 },
+                        }}
+                    >
                         <Paper sx={{ p: 2 }}>
                             <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>
-                                Status Summary
+                                Status summary
                             </Typography>
                             <Stack spacing={1}>
                                 <Chip label={`Drafts: ${drafts.length}`} size="small" />
@@ -94,7 +118,7 @@ export default function WriterDashboard({ articles, categories, flash }) {
                             </Stack>
                         </Paper>
                         <Paper sx={{ p: 2 }}>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>Workflow Tips</Typography>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>Workflow tips</Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
                                 1. Save your draft first.
                             </Typography>
@@ -107,11 +131,11 @@ export default function WriterDashboard({ articles, categories, flash }) {
                         </Paper>
                     </Stack>
 
-                    <Stack spacing={2} sx={{ flex: 1, minWidth: 0 }}>
-                        <Card>
+                    <Stack spacing={2.5} sx={{ flex: 1, minWidth: 0 }}>
+                        <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom>
-                                    New Article Form
+                                    New article
                                 </Typography>
                                 <Box component="form" onSubmit={handleCreate}>
                                     <Stack spacing={2}>
@@ -154,24 +178,49 @@ export default function WriterDashboard({ articles, categories, flash }) {
                                             )}
                                         </Box>
                                         <CoolButton type="submit" disabled={createForm.processing} sx={{ alignSelf: 'flex-start' }}>
-                                            Save Draft
+                                            Save draft
                                         </CoolButton>
                                     </Stack>
                                 </Box>
                             </CardContent>
                         </Card>
 
-                        <Typography variant="h6">Article Workspace</Typography>
+                        <Stack
+                            direction={{ xs: 'column', sm: 'row' }}
+                            spacing={1.5}
+                            alignItems={{ xs: 'flex-start', sm: 'center' }}
+                            justifyContent="space-between"
+                        >
+                            <Typography variant="h6">Article workspace</Typography>
+                            <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                                {[
+                                    { key: 'all', label: 'All' },
+                                    { key: 'draft', label: 'Drafts' },
+                                    { key: 'submitted', label: 'Submitted' },
+                                    { key: 'needs_revision', label: 'Needs revision' },
+                                ].map((option) => (
+                                    <Button
+                                        key={option.key}
+                                        size="small"
+                                        variant={statusFilter === option.key ? 'contained' : 'outlined'}
+                                        onClick={() => setStatusFilter(option.key)}
+                                    >
+                                        {option.label}
+                                    </Button>
+                                ))}
+                            </Stack>
+                        </Stack>
+
                         <Stack spacing={2}>
-                            {articles.length === 0 ? (
+                            {visibleArticles.length === 0 ? (
                                 <Paper sx={{ p: 2.5 }}>
                                     <Typography color="text.secondary">
-                                        No articles yet. Create your first draft above.
+                                        No articles in this view. Create a draft above or switch filters to see other articles.
                                     </Typography>
                                 </Paper>
                             ) : (
-                                articles.map((article) => (
-                                    <Card key={article.id}>
+                                visibleArticles.map((article) => (
+                                    <Card key={article.id} elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
                                         <CardContent>
                                             <Stack spacing={2}>
                                                 <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1}>

@@ -26,12 +26,7 @@ export default function Welcome() {
 
     const navItems = [
         { label: 'Product', href: '#product' },
-        { label: 'Features', href: '#features' },
-        { label: 'Workflow', href: '#workflow' },
-        { label: 'Blog', href: '#blog' },
-        { label: 'Team', href: '#team' },
-        { label: 'FAQs', href: '#faqs' },
-        { label: 'Contact', href: '#contact' },
+        { label: 'Publications', href: '#recent-publications' },
     ];
 
     return (
@@ -187,95 +182,6 @@ export default function Welcome() {
                 </div>
             </div>
 
-            <SectionBreak />
-
-            <div id="features" className="bg-gray-900 py-24 sm:py-32 welcome-fade-up">
-                <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
-                    <h2 className="text-center text-base/7 font-semibold text-indigo-400">Platform Features</h2>
-                    <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl">
-                        Everything your student journal needs
-                    </p>
-
-                    <div className="mt-10 grid gap-4 sm:mt-16 lg:grid-cols-3 lg:grid-rows-2" id="workflow">
-                        <div className="relative lg:row-span-2">
-                            <div className="absolute inset-px rounded-lg bg-gray-800 lg:rounded-l-[2rem]"></div>
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] lg:rounded-l-[calc(2rem+1px)] welcome-glow-card">
-                                <div className="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
-                                    <p className="mt-2 text-lg font-medium tracking-tight text-white max-lg:text-center">Mobile friendly</p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
-                                        Write, review, and comment from any device with responsive pages for students and editors.
-                                    </p>
-                                </div>
-                                <div className="relative min-h-80 w-full grow max-lg:mx-auto max-lg:max-w-sm">
-                                    <div className="absolute inset-x-10 top-10 bottom-0 overflow-hidden rounded-t-[3rem] border-x-8 border-t-8 border-gray-700 bg-gray-900 outline outline-white/20">
-                                        <img src="https://tailwindcss.com/plus-assets/img/component-images/bento-03-mobile-friendly.png" alt="Mobile preview" className="size-full object-cover object-top" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-white/15 lg:rounded-l-[2rem]"></div>
-                        </div>
-
-                        <div className="relative max-lg:row-start-1">
-                            <div className="absolute inset-px rounded-lg bg-gray-800 max-lg:rounded-t-[2rem]"></div>
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] max-lg:rounded-t-[calc(2rem+1px)] welcome-glow-card">
-                                <div className="px-8 pt-8 sm:px-10 sm:pt-10">
-                                    <p className="mt-2 text-lg font-medium tracking-tight text-white max-lg:text-center">Performance</p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
-                                        Fast role-based dashboards keep publication flow smooth from draft to published.
-                                    </p>
-                                </div>
-                                <div className="flex flex-1 items-center justify-center px-8 pt-10 pb-12 sm:px-10 lg:pb-2">
-                                    <img src="https://tailwindcss.com/plus-assets/img/component-images/dark-bento-03-performance.png" alt="Performance preview" className="w-full max-w-xs" />
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-white/15 max-lg:rounded-t-[2rem]"></div>
-                        </div>
-
-                        <div className="relative max-lg:row-start-3 lg:col-start-2 lg:row-start-2">
-                            <div className="absolute inset-px rounded-lg bg-gray-800"></div>
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] welcome-glow-card">
-                                <div className="px-8 pt-8 sm:px-10 sm:pt-10">
-                                    <p className="mt-2 text-lg font-medium tracking-tight text-white max-lg:text-center">Security</p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
-                                        Protected routes, role middleware, and policy checks keep workflows properly scoped.
-                                    </p>
-                                </div>
-                                <div className="flex flex-1 items-center max-lg:py-6 lg:pb-2">
-                                    <img src="https://tailwindcss.com/plus-assets/img/component-images/dark-bento-03-security.png" alt="Security preview" className="h-40 object-cover" />
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-white/15"></div>
-                        </div>
-
-                        <div className="relative lg:row-span-2" id="company">
-                            <div className="absolute inset-px rounded-lg bg-gray-800 max-lg:rounded-b-[2rem] lg:rounded-r-[2rem]"></div>
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-r-[calc(2rem+1px)] welcome-glow-card">
-                                <div className="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
-                                    <p className="mt-2 text-lg font-medium tracking-tight text-white max-lg:text-center">Powerful APIs</p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
-                                        Extend notifications, publishing logic, and editorial tools with clean Laravel architecture.
-                                    </p>
-                                </div>
-                                <div className="relative min-h-80 w-full grow">
-                                    <div className="absolute top-10 right-0 bottom-0 left-10 overflow-hidden rounded-tl-xl bg-gray-900/60 outline outline-white/10">
-                                        <div className="flex bg-gray-900 outline outline-white/5">
-                                            <div className="border-r border-b border-r-white/10 border-b-white/20 bg-white/5 px-4 py-2 text-white text-sm">PublicationFlow.tsx</div>
-                                            <div className="border-r border-gray-600/10 px-4 py-2 text-sm text-gray-300">Notifications</div>
-                                        </div>
-                                        <div className="px-6 pt-6 pb-14">
-                                            <pre className="text-xs leading-6 text-gray-300 whitespace-pre-wrap">{`draft -> submitted -> needs_revision\n-> published -> commented`}</pre>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-white/15 max-lg:rounded-b-[2rem] lg:rounded-r-[2rem]"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <SectionBreak />
-
             <div id="recent-publications" className="bg-gray-950 py-24 sm:py-32 welcome-fade-up">
                 <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
                     <h2 className="text-center text-base/7 font-semibold text-indigo-400">Recently Published</h2>
@@ -331,122 +237,12 @@ export default function Welcome() {
                 </div>
             </div>
 
-            <SectionBreak />
-
-            <div className="bg-gray-900 py-16 welcome-fade-up" id="blog">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-10 text-white shadow-lg welcome-glow-card">
-                        <p className="text-sm font-semibold uppercase tracking-wide text-indigo-100">Editorial Banner</p>
-                        <h3 className="mt-2 text-3xl font-semibold tracking-tight">Weekly Campus Highlights</h3>
-                        <p className="mt-3 max-w-2xl text-indigo-100">
-                            Discover fresh stories from writers, curated by editors, and shared with the student community every week.
-                        </p>
-                        <div className="mt-5">
-                            <a href="#recent-publications" className="inline-flex rounded-md bg-white px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-50">
-                                Explore latest publications
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <SectionBreak />
-
-            <div id="team" className="bg-gray-900 py-24 sm:py-32 welcome-fade-up">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <h2 className="text-center text-base font-semibold text-indigo-400">Team</h2>
-                    <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                        Meet the Publication Team
-                    </p>
-                    <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                        {[
-                            { name: 'Lead Editor', role: 'Editorial Review', initials: 'LE' },
-                            { name: 'Content Writer', role: 'Draft & Submit', initials: 'CW' },
-                            { name: 'Student Reviewer', role: 'Community Feedback', initials: 'SR' },
-                            { name: 'Platform Admin', role: 'Workflow Management', initials: 'PA' },
-                        ].map((member) => (
-                            <div key={member.name} className="rounded-2xl border border-white/10 bg-gray-800/80 p-6 text-center welcome-glow-card">
-                                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500 text-lg font-bold text-white">
-                                    {member.initials}
-                                </div>
-                                <h3 className="mt-4 text-lg font-semibold text-white">{member.name}</h3>
-                                <p className="mt-1 text-sm text-indigo-200">{member.role}</p>
-                                <a href="#contact" className="mt-4 inline-block text-sm font-semibold text-indigo-300 hover:text-indigo-200">
-                                    Contact <span aria-hidden="true">&rarr;</span>
-                                </a>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            <SectionBreak />
-
-            <div id="faqs" className="bg-gray-950 py-24 sm:py-32 welcome-fade-up">
-                <div className="mx-auto max-w-4xl px-6 lg:px-8">
-                    <h2 className="text-center text-base font-semibold text-indigo-400">FAQs</h2>
-                    <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                        Frequently Asked Questions
-                    </p>
-                    <div className="mt-12 space-y-4">
-                        {[
-                            {
-                                q: 'Can guests read journals without an account?',
-                                a: 'Yes. Guests can open published journals and read a limited preview before logging in for full access.',
-                            },
-                            {
-                                q: 'How does an article get published?',
-                                a: 'Writers submit drafts, editors review or request revision, and approved articles are published for students.',
-                            },
-                            {
-                                q: 'Who can comment on articles?',
-                                a: 'Only users with the student role can post comments, and only on published articles.',
-                            },
-                        ].map((faq) => (
-                            <div key={faq.q} className="rounded-xl border border-white/10 bg-gray-800/80 p-5 welcome-glow-card">
-                                <h3 className="text-lg font-semibold text-white">{faq.q}</h3>
-                                <p className="mt-2 text-sm/6 text-gray-300">{faq.a}</p>
-                                <a href="#contact" className="mt-3 inline-block text-sm font-semibold text-indigo-300 hover:text-indigo-200">
-                                    Need more help? Contact us
-                                </a>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            <SectionBreak />
-
-            <div id="contact" className="bg-gray-900 py-24 sm:py-32 welcome-fade-up">
-                <div className="mx-auto max-w-4xl px-6 lg:px-8">
-                    <h2 className="text-center text-base font-semibold text-indigo-400">Contact</h2>
-                    <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                        Get in touch with the team
-                    </p>
-                    <div className="mt-12 rounded-2xl border border-white/10 bg-gray-800/80 p-8 welcome-glow-card">
-                        <div className="grid gap-6 sm:grid-cols-2">
-                            <div>
-                                <p className="text-sm font-semibold text-indigo-300">Email</p>
-                                <a href="mailto:editorial@campuspress.edu" className="mt-1 block text-white hover:text-indigo-200">
-                                    editorial@campuspress.edu
-                                </a>
-                            </div>
-                            <div>
-                                <p className="text-sm font-semibold text-indigo-300">Office Hours</p>
-                                <p className="mt-1 text-white">Mon - Fri, 9:00 AM - 5:00 PM</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <footer className="border-t border-white/10 bg-gray-950 py-8">
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 text-sm text-gray-400 lg:flex-row lg:px-8">
                     <p>© {new Date().getFullYear()} Campus Press. Student Article Publication Platform.</p>
                     <div className="flex items-center gap-4">
-                        <a href="#features" className="hover:text-gray-200">Features</a>
+                        <a href="#product" className="hover:text-gray-200">Product</a>
                         <a href="#recent-publications" className="hover:text-gray-200">Publications</a>
-                        <a href="#contact" className="hover:text-gray-200">Contact</a>
                     </div>
                 </div>
             </footer>
