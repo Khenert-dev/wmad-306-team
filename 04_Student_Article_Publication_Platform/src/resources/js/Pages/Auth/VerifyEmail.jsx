@@ -1,7 +1,7 @@
-import CoolButton from '@/Components/CoolButton';
+import ActionButtonGroup from '@/Components/ActionButtonGroup';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Alert, Stack, Typography } from '@mui/material';
+import { Alert, Box, Stack, Typography } from '@mui/material';
 
 export default function VerifyEmail({ status }) {
     const { post, processing } = useForm({});
@@ -14,26 +14,36 @@ export default function VerifyEmail({ status }) {
     return (
         <GuestLayout>
             <Head title="Email Verification" />
-            <Stack spacing={2} component="form" onSubmit={submit}>
-                <Typography variant="h5">Verify your email</Typography>
-                <Typography color="text.secondary">
-                    Before getting started, please verify your email by clicking the link we just sent.
-                </Typography>
+            <Stack spacing={2.25} component="form" onSubmit={submit}>
+                <Box>
+                    <Typography variant="h4">Verify your email</Typography>
+                    <Typography color="text.secondary">
+                        Check your inbox and click the verification link before you continue.
+                    </Typography>
+                </Box>
 
                 {status === 'verification-link-sent' && (
-                    <Alert severity="success">
-                        A new verification link has been sent to your email address.
-                    </Alert>
+                    <Alert severity="success">A new verification link has been sent to your email address.</Alert>
                 )}
 
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-                    <CoolButton type="submit" disabled={processing}>
-                        Resend Verification Email
-                    </CoolButton>
-                    <CoolButton tone="outline" component={Link} href={route('logout')} method="post" as="button">
-                        Log Out
-                    </CoolButton>
-                </Stack>
+                <ActionButtonGroup
+                    actions={[
+                        {
+                            key: 'resend',
+                            label: 'Resend Verification Email',
+                            type: 'submit',
+                            disabled: processing,
+                        },
+                        {
+                            key: 'logout',
+                            label: 'Log Out',
+                            component: Link,
+                            href: route('logout'),
+                            method: 'post',
+                            as: 'button',
+                        },
+                    ]}
+                />
             </Stack>
         </GuestLayout>
     );

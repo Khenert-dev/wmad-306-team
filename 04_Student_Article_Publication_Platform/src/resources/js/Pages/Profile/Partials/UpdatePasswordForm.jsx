@@ -1,5 +1,6 @@
+import CoolButton from '@/Components/CoolButton';
 import { useForm } from '@inertiajs/react';
-import { Box, Button, Stack, TextField, Typography } from '@mui/material';
+import { Box, Stack, TextField, Typography } from '@mui/material';
 
 export default function UpdatePasswordForm() {
     const { data, setData, errors, put, reset, processing, recentlySuccessful } = useForm({
@@ -20,8 +21,8 @@ export default function UpdatePasswordForm() {
     return (
         <Box component="section">
             <Typography variant="h6">Update Password</Typography>
-            <Typography color="text.secondary" sx={{ mb: 2 }}>
-                Ensure your account uses a strong, unique password.
+            <Typography color="text.secondary" sx={{ mb: 2.25 }}>
+                Keep your account secure with a strong and unique password.
             </Typography>
 
             <Stack component="form" onSubmit={updatePassword} spacing={2}>
@@ -55,10 +56,8 @@ export default function UpdatePasswordForm() {
                     fullWidth
                 />
 
-                <Stack direction="row" spacing={1.5} alignItems="center">
-                    <Button type="submit" variant="contained" disabled={processing}>
-                        Save Password
-                    </Button>
+                <Stack direction="row" spacing={1.25} alignItems="center">
+                    <CoolButton type="submit" disabled={processing}>Save Password</CoolButton>
                     {recentlySuccessful && <Typography color="success.main">Saved.</Typography>}
                 </Stack>
             </Stack>

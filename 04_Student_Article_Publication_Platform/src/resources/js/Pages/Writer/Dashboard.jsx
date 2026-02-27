@@ -1,6 +1,6 @@
+import CoolButton from '@/Components/CoolButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
-import CoolButton from '@/Components/CoolButton';
 import {
     Alert,
     Box,
@@ -8,9 +8,6 @@ import {
     CardContent,
     Chip,
     Divider,
-    List,
-    ListItem,
-    ListItemText,
     MenuItem,
     Paper,
     Stack,
@@ -48,6 +45,7 @@ export default function WriterDashboard({ articles, categories, flash }) {
         () => ({
             readonly: false,
             minHeight: 220,
+            placeholder: 'Write your article content here...',
         }),
         []
     );
@@ -69,43 +67,49 @@ export default function WriterDashboard({ articles, categories, flash }) {
 
     return (
         <AuthenticatedLayout
-            header={<Typography variant="h4">Writer Dashboard</Typography>}
+            header={
+                <Stack spacing={0.25}>
+                    <Typography variant="h4">Writer Dashboard</Typography>
+                    <Typography color="text.secondary">
+                        Create drafts, submit for review, and handle revisions from editors.
+                    </Typography>
+                </Stack>
+            }
         >
             <Head title="Writer Dashboard" />
 
             <Stack spacing={2.5}>
                 {flash?.success && <Alert severity="success">{flash.success}</Alert>}
 
-                <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
-                    <Paper sx={{ p: 2, width: { xs: '100%', md: 280 }, alignSelf: 'flex-start', position: { md: 'sticky' }, top: { md: 96 } }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
-                            Navigation
-                        </Typography>
-                        <List dense>
-                            <ListItem>
-                                <ListItemText primary="Create Article" secondary="New draft form" />
-                            </ListItem>
-                            <ListItem>
-                                <ListItemText primary="My Drafts" secondary={`${drafts.length} draft(s)`} />
-                            </ListItem>
-                            <ListItem>
-                                <ListItemText primary="Submitted Articles" secondary={`${submitted.length} submitted`} />
-                            </ListItem>
-                            <ListItem>
-                                <ListItemText primary="Needs Revision" secondary={`${needsRevision.length} article(s)`} />
-                            </ListItem>
-                        </List>
-                    </Paper>
+                <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', lg: 'row' } }}>
+                    <Stack spacing={2} sx={{ width: { xs: '100%', lg: 300 }, alignSelf: 'flex-start', position: { lg: 'sticky' }, top: { lg: 92 } }}>
+                        <Paper sx={{ p: 2 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>
+                                Status Summary
+                            </Typography>
+                            <Stack spacing={1}>
+                                <Chip label={`Drafts: ${drafts.length}`} size="small" />
+                                <Chip label={`Submitted: ${submitted.length}`} size="small" />
+                                <Chip label={`Needs Revision: ${needsRevision.length}`} size="small" />
+                            </Stack>
+                        </Paper>
+                        <Paper sx={{ p: 2 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>Workflow Tips</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
+                                1. Save your draft first.
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                2. Submit only when your title, category, and content are finalized.
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                3. If revision is requested, update fields then submit revision.
+                            </Typography>
+                        </Paper>
+                    </Stack>
 
                     <Stack spacing={2} sx={{ flex: 1, minWidth: 0 }}>
                         <Card>
                             <CardContent>
-                                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ mb: 2 }}>
-                                    <Chip label={`Drafts: ${drafts.length}`} size="small" />
-                                    <Chip label={`Submitted: ${submitted.length}`} size="small" />
-                                    <Chip label={`Needs Revision: ${needsRevision.length}`} size="small" />
-                                </Stack>
-
                                 <Typography variant="h6" gutterBottom>
                                     New Article Form
                                 </Typography>
@@ -134,7 +138,7 @@ export default function WriterDashboard({ articles, categories, flash }) {
                                                 </MenuItem>
                                             ))}
                                         </TextField>
-                                        <div>
+                                        <Box>
                                             <Typography variant="subtitle2" gutterBottom>
                                                 Content
                                             </Typography>
@@ -148,7 +152,7 @@ export default function WriterDashboard({ articles, categories, flash }) {
                                                     {createForm.errors.content}
                                                 </Typography>
                                             )}
-                                        </div>
+                                        </Box>
                                         <CoolButton type="submit" disabled={createForm.processing} sx={{ alignSelf: 'flex-start' }}>
                                             Save Draft
                                         </CoolButton>
@@ -159,91 +163,91 @@ export default function WriterDashboard({ articles, categories, flash }) {
 
                         <Typography variant="h6">Article Workspace</Typography>
                         <Stack spacing={2}>
-                            {articles.map((article) => (
-                                <Card key={article.id}>
-                                    <CardContent>
-                                        <Stack spacing={2}>
-                                            <Stack
-                                                direction={{ xs: 'column', sm: 'row' }}
-                                                justifyContent="space-between"
-                                                spacing={1}
-                                            >
-                                                <div>
-                                                    <Typography variant="h6">{article.title}</Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {article.category?.name} • Updated {new Date(article.updated_at).toLocaleString()}
-                                                    </Typography>
-                                                </div>
-                                                <Chip label={article.status?.label ?? 'Unknown'} color="primary" variant="outlined" />
-                                            </Stack>
+                            {articles.length === 0 ? (
+                                <Paper sx={{ p: 2.5 }}>
+                                    <Typography color="text.secondary">
+                                        No articles yet. Create your first draft above.
+                                    </Typography>
+                                </Paper>
+                            ) : (
+                                articles.map((article) => (
+                                    <Card key={article.id}>
+                                        <CardContent>
+                                            <Stack spacing={2}>
+                                                <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1}>
+                                                    <Box>
+                                                        <Typography variant="h6">{article.title}</Typography>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {article.category?.name} • Updated {new Date(article.updated_at).toLocaleString()}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Chip label={article.status?.label ?? 'Unknown'} color="primary" variant="outlined" />
+                                                </Stack>
 
-                                            {(article.status?.name === 'needs_revision' || article.status?.name === 'draft') && (
-                                                <>
-                                                    <Divider />
-                                                    <TextField
-                                                        label="Title"
-                                                        value={revisionDrafts[article.id]?.title ?? ''}
-                                                        onChange={(event) =>
-                                                            updateRevisionField(article.id, 'title', event.target.value)
-                                                        }
-                                                        fullWidth
-                                                    />
-                                                    <TextField
-                                                        select
-                                                        label="Category"
-                                                        value={revisionDrafts[article.id]?.category_id ?? ''}
-                                                        onChange={(event) =>
-                                                            updateRevisionField(article.id, 'category_id', event.target.value)
-                                                        }
-                                                        fullWidth
-                                                    >
-                                                        {categories.map((category) => (
-                                                            <MenuItem key={category.id} value={category.id}>
-                                                                {category.name}
-                                                            </MenuItem>
-                                                        ))}
-                                                    </TextField>
-                                                    <JoditEditor
-                                                        value={revisionDrafts[article.id]?.content ?? ''}
-                                                        config={joditConfig}
-                                                        onBlur={(value) => updateRevisionField(article.id, 'content', value)}
-                                                    />
-                                                </>
-                                            )}
-
-                                            <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-                                                {article.status?.name === 'draft' && (
-                                                    <CoolButton
-                                                        onClick={() => router.post(route('articles.submit', article.id))}
-                                                    >
-                                                        Submit
-                                                    </CoolButton>
+                                                {(article.status?.name === 'needs_revision' || article.status?.name === 'draft') && (
+                                                    <>
+                                                        <Divider />
+                                                        <TextField
+                                                            label="Title"
+                                                            value={revisionDrafts[article.id]?.title ?? ''}
+                                                            onChange={(event) => updateRevisionField(article.id, 'title', event.target.value)}
+                                                            fullWidth
+                                                        />
+                                                        <TextField
+                                                            select
+                                                            label="Category"
+                                                            value={revisionDrafts[article.id]?.category_id ?? ''}
+                                                            onChange={(event) =>
+                                                                updateRevisionField(article.id, 'category_id', event.target.value)
+                                                            }
+                                                            fullWidth
+                                                        >
+                                                            {categories.map((category) => (
+                                                                <MenuItem key={category.id} value={category.id}>
+                                                                    {category.name}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </TextField>
+                                                        <JoditEditor
+                                                            value={revisionDrafts[article.id]?.content ?? ''}
+                                                            config={joditConfig}
+                                                            onBlur={(value) => updateRevisionField(article.id, 'content', value)}
+                                                        />
+                                                    </>
                                                 )}
-                                                {article.status?.name === 'needs_revision' && (
-                                                    <CoolButton
-                                                        onClick={() =>
-                                                            router.put(route('articles.revise', article.id), revisionDrafts[article.id])
-                                                        }
-                                                    >
-                                                        Submit Revision
-                                                    </CoolButton>
+
+                                                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                                                    {article.status?.name === 'draft' && (
+                                                        <CoolButton onClick={() => router.post(route('articles.submit', article.id))}>
+                                                            Submit
+                                                        </CoolButton>
+                                                    )}
+                                                    {article.status?.name === 'needs_revision' && (
+                                                        <CoolButton
+                                                            onClick={() =>
+                                                                router.put(route('articles.revise', article.id), revisionDrafts[article.id])
+                                                            }
+                                                        >
+                                                            Submit Revision
+                                                        </CoolButton>
+                                                    )}
+                                                </Stack>
+
+                                                {article.revisions?.length > 0 && (
+                                                    <Box sx={{ bgcolor: 'rgba(47,111,219,0.04)', borderRadius: 2, p: 1.5 }}>
+                                                        <Typography variant="subtitle2" gutterBottom>
+                                                            Latest Editor Feedback
+                                                        </Typography>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {article.revisions[article.revisions.length - 1]?.comments}
+                                                        </Typography>
+                                                    </Box>
                                                 )}
                                             </Stack>
-
-                                            {article.revisions?.length > 0 && (
-                                                <Box>
-                                                    <Typography variant="subtitle2" gutterBottom>
-                                                        Latest Editor Feedback
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {article.revisions[article.revisions.length - 1]?.comments}
-                                                    </Typography>
-                                                </Box>
-                                            )}
-                                        </Stack>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                                        </CardContent>
+                                    </Card>
+                                ))
+                            )}
                         </Stack>
                     </Stack>
                 </Box>
@@ -251,7 +255,7 @@ export default function WriterDashboard({ articles, categories, flash }) {
                 <Paper sx={{ p: 2 }}>
                     <Typography variant="subtitle2">Footer: Status messages / notifications</Typography>
                     <Typography variant="body2" color="text.secondary">
-                        Track draft progress, revision requests, and latest submission updates here.
+                        Submission and revision notifications are delivered by the platform notification channels.
                     </Typography>
                 </Paper>
             </Stack>

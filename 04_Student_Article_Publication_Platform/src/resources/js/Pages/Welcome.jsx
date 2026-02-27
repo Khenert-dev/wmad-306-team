@@ -2,9 +2,20 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
+function SectionBreak() {
+    return (
+        <div aria-hidden="true" className="bg-gray-950 px-6">
+            <div className="mx-auto max-w-7xl">
+                <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/55 to-transparent" />
+            </div>
+        </div>
+    );
+}
+
 export default function Welcome() {
     const { auth, recentPublications = [] } = usePage().props;
     const [mobileOpen, setMobileOpen] = useState(false);
+
     const publicationCards = recentPublications.length > 0 ? recentPublications : [
         { id: 'placeholder-1', title: 'Campus Sustainability Initiatives', content: 'Sample publication preview text.', writer: { name: 'Editorial Team' }, category: { name: 'Campus Life' }, cover_image_url: null },
         { id: 'placeholder-2', title: 'Research Spotlight: AI in Education', content: 'Sample publication preview text.', writer: { name: 'Editorial Team' }, category: { name: 'Technology' }, cover_image_url: null },
@@ -128,14 +139,14 @@ export default function Welcome() {
                         <div style={{ clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)' }} className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-30 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"></div>
                     </div>
 
-                    <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+                    <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 welcome-fade-up">
                         <div className="hidden sm:mb-8 sm:flex sm:justify-center">
                             <div className="relative rounded-full px-3 py-1 text-sm/6 text-gray-400 ring-1 ring-white/10 hover:ring-white/20">
-                                The student journal platform is live.
-                                <Link href={route('register')} className="font-semibold text-indigo-400">
+                                Guest readers can now preview published journals.
+                                <a href="#recent-publications" className="font-semibold text-indigo-400">
                                     <span aria-hidden="true" className="absolute inset-0"></span>
-                                    Join now <span aria-hidden="true">&rarr;</span>
-                                </Link>
+                                    Browse previews <span aria-hidden="true">&rarr;</span>
+                                </a>
                             </div>
                         </div>
 
@@ -156,9 +167,9 @@ export default function Welcome() {
                                         <Link href={route('register')} className="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400">
                                             Get started
                                         </Link>
-                                        <Link href={route('login')} className="text-sm/6 font-semibold text-white">
-                                            Learn more <span aria-hidden="true">→</span>
-                                        </Link>
+                                        <a href="#recent-publications" className="text-sm/6 font-semibold text-white">
+                                            Read previews <span aria-hidden="true">&rarr;</span>
+                                        </a>
                                     </>
                                 )}
                             </div>
@@ -171,7 +182,9 @@ export default function Welcome() {
                 </div>
             </div>
 
-            <div id="features" className="bg-gray-900 py-24 sm:py-32">
+            <SectionBreak />
+
+            <div id="features" className="bg-gray-900 py-24 sm:py-32 welcome-fade-up">
                 <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
                     <h2 className="text-center text-base/7 font-semibold text-indigo-400">Platform Features</h2>
                     <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl">
@@ -181,7 +194,7 @@ export default function Welcome() {
                     <div className="mt-10 grid gap-4 sm:mt-16 lg:grid-cols-3 lg:grid-rows-2" id="workflow">
                         <div className="relative lg:row-span-2">
                             <div className="absolute inset-px rounded-lg bg-gray-800 lg:rounded-l-[2rem]"></div>
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] lg:rounded-l-[calc(2rem+1px)]">
+                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] lg:rounded-l-[calc(2rem+1px)] welcome-glow-card">
                                 <div className="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
                                     <p className="mt-2 text-lg font-medium tracking-tight text-white max-lg:text-center">Mobile friendly</p>
                                     <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
@@ -199,7 +212,7 @@ export default function Welcome() {
 
                         <div className="relative max-lg:row-start-1">
                             <div className="absolute inset-px rounded-lg bg-gray-800 max-lg:rounded-t-[2rem]"></div>
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] max-lg:rounded-t-[calc(2rem+1px)]">
+                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] max-lg:rounded-t-[calc(2rem+1px)] welcome-glow-card">
                                 <div className="px-8 pt-8 sm:px-10 sm:pt-10">
                                     <p className="mt-2 text-lg font-medium tracking-tight text-white max-lg:text-center">Performance</p>
                                     <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
@@ -215,7 +228,7 @@ export default function Welcome() {
 
                         <div className="relative max-lg:row-start-3 lg:col-start-2 lg:row-start-2">
                             <div className="absolute inset-px rounded-lg bg-gray-800"></div>
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)]">
+                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] welcome-glow-card">
                                 <div className="px-8 pt-8 sm:px-10 sm:pt-10">
                                     <p className="mt-2 text-lg font-medium tracking-tight text-white max-lg:text-center">Security</p>
                                     <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
@@ -231,7 +244,7 @@ export default function Welcome() {
 
                         <div className="relative lg:row-span-2" id="company">
                             <div className="absolute inset-px rounded-lg bg-gray-800 max-lg:rounded-b-[2rem] lg:rounded-r-[2rem]"></div>
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-r-[calc(2rem+1px)]">
+                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-r-[calc(2rem+1px)] welcome-glow-card">
                                 <div className="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
                                     <p className="mt-2 text-lg font-medium tracking-tight text-white max-lg:text-center">Powerful APIs</p>
                                     <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
@@ -241,11 +254,11 @@ export default function Welcome() {
                                 <div className="relative min-h-80 w-full grow">
                                     <div className="absolute top-10 right-0 bottom-0 left-10 overflow-hidden rounded-tl-xl bg-gray-900/60 outline outline-white/10">
                                         <div className="flex bg-gray-900 outline outline-white/5">
-                                            <div className="border-r border-b border-r-white/10 border-b-white/20 bg-white/5 px-4 py-2 text-white text-sm">NotificationSetting.jsx</div>
-                                            <div className="border-r border-gray-600/10 px-4 py-2 text-sm text-gray-300">App.jsx</div>
+                                            <div className="border-r border-b border-r-white/10 border-b-white/20 bg-white/5 px-4 py-2 text-white text-sm">PublicationFlow.tsx</div>
+                                            <div className="border-r border-gray-600/10 px-4 py-2 text-sm text-gray-300">Notifications</div>
                                         </div>
                                         <div className="px-6 pt-6 pb-14">
-                                            <pre className="text-xs leading-6 text-gray-300 whitespace-pre-wrap">{`const roles = ['writer', 'editor', 'student']\n\nif (user.hasRole('editor')) {\n  article.publish()\n  notify(writer)\n}`}</pre>
+                                            <pre className="text-xs leading-6 text-gray-300 whitespace-pre-wrap">{`draft -> submitted -> needs_revision\n-> published -> commented`}</pre>
                                         </div>
                                     </div>
                                 </div>
@@ -256,7 +269,9 @@ export default function Welcome() {
                 </div>
             </div>
 
-            <div id="recent-publications" className="bg-gray-950 py-24 sm:py-32">
+            <SectionBreak />
+
+            <div id="recent-publications" className="bg-gray-950 py-24 sm:py-32 welcome-fade-up">
                 <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
                     <h2 className="text-center text-base/7 font-semibold text-indigo-400">Recently Published</h2>
                     <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl">
@@ -270,12 +285,9 @@ export default function Welcome() {
                             const summary = (publication.content || '').replace(/<[^>]*>?/gm, '').slice(0, 140);
 
                             return (
-                                <div
-                                    key={publication.id}
-                                    className={`relative ${isTall ? 'lg:row-span-2' : ''}`}
-                                >
+                                <div key={publication.id} className={`relative ${isTall ? 'lg:row-span-2' : ''}`}>
                                     <div className="absolute inset-px rounded-lg bg-gray-800"></div>
-                                    <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)]">
+                                    <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] welcome-glow-card">
                                         <div className="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
                                             <p className="mt-2 text-lg font-medium tracking-tight text-white max-lg:text-center">
                                                 {publication.title}
@@ -286,6 +298,11 @@ export default function Welcome() {
                                             <p className="mt-2 text-xs text-indigo-300 max-lg:text-center">
                                                 {publication.category?.name} • {publication.writer?.name}
                                             </p>
+                                            {!auth?.user && (
+                                                <p className="mt-2 text-xs text-emerald-300 max-lg:text-center">
+                                                    Guest access: limited preview enabled
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="relative min-h-72 w-full grow">
                                             <img
@@ -293,6 +310,12 @@ export default function Welcome() {
                                                 alt={publication.title}
                                                 className="absolute inset-4 h-[calc(100%-2rem)] w-[calc(100%-2rem)] rounded-xl object-cover"
                                             />
+                                            <div className="absolute inset-4 rounded-xl ring-1 ring-white/10"></div>
+                                        </div>
+                                        <div className="px-8 pb-8">
+                                            <Link href={route('publications.show', publication.id)} className="inline-flex text-sm font-semibold text-indigo-300 hover:text-indigo-200">
+                                                Preview Journal <span aria-hidden="true" className="ml-1">&rarr;</span>
+                                            </Link>
                                         </div>
                                     </div>
                                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-white/15"></div>
@@ -303,9 +326,11 @@ export default function Welcome() {
                 </div>
             </div>
 
-            <div className="bg-gray-900 py-16" id="blog">
+            <SectionBreak />
+
+            <div className="bg-gray-900 py-16 welcome-fade-up" id="blog">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-10 text-white shadow-lg">
+                    <div className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-10 text-white shadow-lg welcome-glow-card">
                         <p className="text-sm font-semibold uppercase tracking-wide text-indigo-100">Editorial Banner</p>
                         <h3 className="mt-2 text-3xl font-semibold tracking-tight">Weekly Campus Highlights</h3>
                         <p className="mt-3 max-w-2xl text-indigo-100">
@@ -320,35 +345,9 @@ export default function Welcome() {
                 </div>
             </div>
 
-            <div className="bg-gray-950 py-24 sm:py-32">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <h2 className="text-center text-base font-semibold text-indigo-400">Blog</h2>
-                    <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                        Journal Insights & Updates
-                    </p>
-                    <div className="mt-12 grid gap-6 md:grid-cols-3">
-                        {publicationCards.slice(0, 3).map((publication) => (
-                            <article key={`blog-${publication.id}`} className="rounded-2xl border border-white/10 bg-gray-800/80 p-6 shadow-sm">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-300">
-                                    {publication.category?.name ?? 'Publication'}
-                                </p>
-                                <h3 className="mt-3 text-xl font-semibold text-white">{publication.title}</h3>
-                                <p className="mt-3 text-sm/6 text-gray-300">
-                                    {(publication.content || '').replace(/<[^>]*>?/gm, '').slice(0, 150)}...
-                                </p>
-                                <p className="mt-4 text-xs text-indigo-200">By {publication.writer?.name ?? 'Campus Press Team'}</p>
-                                <div className="mt-4">
-                                    <Link href={auth?.user ? route('dashboard') : route('login')} className="text-sm font-semibold text-indigo-300 hover:text-indigo-200">
-                                        Read article <span aria-hidden="true">&rarr;</span>
-                                    </Link>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
-                </div>
-            </div>
+            <SectionBreak />
 
-            <div id="team" className="bg-gray-900 py-24 sm:py-32">
+            <div id="team" className="bg-gray-900 py-24 sm:py-32 welcome-fade-up">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <h2 className="text-center text-base font-semibold text-indigo-400">Team</h2>
                     <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-white sm:text-5xl">
@@ -361,7 +360,7 @@ export default function Welcome() {
                             { name: 'Student Reviewer', role: 'Community Feedback', initials: 'SR' },
                             { name: 'Platform Admin', role: 'Workflow Management', initials: 'PA' },
                         ].map((member) => (
-                            <div key={member.name} className="rounded-2xl border border-white/10 bg-gray-800/80 p-6 text-center">
+                            <div key={member.name} className="rounded-2xl border border-white/10 bg-gray-800/80 p-6 text-center welcome-glow-card">
                                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500 text-lg font-bold text-white">
                                     {member.initials}
                                 </div>
@@ -376,7 +375,9 @@ export default function Welcome() {
                 </div>
             </div>
 
-            <div id="faqs" className="bg-gray-950 py-24 sm:py-32">
+            <SectionBreak />
+
+            <div id="faqs" className="bg-gray-950 py-24 sm:py-32 welcome-fade-up">
                 <div className="mx-auto max-w-4xl px-6 lg:px-8">
                     <h2 className="text-center text-base font-semibold text-indigo-400">FAQs</h2>
                     <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-white sm:text-5xl">
@@ -385,23 +386,19 @@ export default function Welcome() {
                     <div className="mt-12 space-y-4">
                         {[
                             {
-                                q: 'How does an article get published?',
-                                a: 'Writers submit drafts, editors review or request revision, and approved articles are published for students.',
+                                q: 'Can guests read journals without an account?',
+                                a: 'Yes. Guests can open published journals and read a limited preview before logging in for full access.',
                             },
                             {
-                                q: 'Can editors change publication images?',
-                                a: 'Yes. Editors can update cover image URLs from the editor dashboard.',
+                                q: 'How does an article get published?',
+                                a: 'Writers submit drafts, editors review or request revision, and approved articles are published for students.',
                             },
                             {
                                 q: 'Who can comment on articles?',
                                 a: 'Only users with the student role can post comments, and only on published articles.',
                             },
-                            {
-                                q: 'How do notifications work?',
-                                a: 'Submission, revision, publication, and comment events trigger mail/database notifications.',
-                            },
                         ].map((faq) => (
-                            <div key={faq.q} className="rounded-xl border border-white/10 bg-gray-800/80 p-5">
+                            <div key={faq.q} className="rounded-xl border border-white/10 bg-gray-800/80 p-5 welcome-glow-card">
                                 <h3 className="text-lg font-semibold text-white">{faq.q}</h3>
                                 <p className="mt-2 text-sm/6 text-gray-300">{faq.a}</p>
                                 <a href="#contact" className="mt-3 inline-block text-sm font-semibold text-indigo-300 hover:text-indigo-200">
@@ -413,13 +410,15 @@ export default function Welcome() {
                 </div>
             </div>
 
-            <div id="contact" className="bg-gray-900 py-24 sm:py-32">
+            <SectionBreak />
+
+            <div id="contact" className="bg-gray-900 py-24 sm:py-32 welcome-fade-up">
                 <div className="mx-auto max-w-4xl px-6 lg:px-8">
                     <h2 className="text-center text-base font-semibold text-indigo-400">Contact</h2>
                     <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-white sm:text-5xl">
                         Get in touch with the team
                     </p>
-                    <div className="mt-12 rounded-2xl border border-white/10 bg-gray-800/80 p-8">
+                    <div className="mt-12 rounded-2xl border border-white/10 bg-gray-800/80 p-8 welcome-glow-card">
                         <div className="grid gap-6 sm:grid-cols-2">
                             <div>
                                 <p className="text-sm font-semibold text-indigo-300">Email</p>
@@ -431,20 +430,21 @@ export default function Welcome() {
                                 <p className="text-sm font-semibold text-indigo-300">Office Hours</p>
                                 <p className="mt-1 text-white">Mon - Fri, 9:00 AM - 5:00 PM</p>
                             </div>
-                            <div>
-                                <p className="text-sm font-semibold text-indigo-300">Support</p>
-                                <a href="mailto:student-support@campuspress.edu" className="mt-1 block text-white hover:text-indigo-200">
-                                    student-support@campuspress.edu
-                                </a>
-                            </div>
-                            <div>
-                                <p className="text-sm font-semibold text-indigo-300">Location</p>
-                                <p className="mt-1 text-white">Campus Media Center</p>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <footer className="border-t border-white/10 bg-gray-950 py-8">
+                <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 text-sm text-gray-400 lg:flex-row lg:px-8">
+                    <p>© {new Date().getFullYear()} Campus Press. Student Article Publication Platform.</p>
+                    <div className="flex items-center gap-4">
+                        <a href="#features" className="hover:text-gray-200">Features</a>
+                        <a href="#recent-publications" className="hover:text-gray-200">Publications</a>
+                        <a href="#contact" className="hover:text-gray-200">Contact</a>
+                    </div>
+                </div>
+            </footer>
         </>
     );
 }

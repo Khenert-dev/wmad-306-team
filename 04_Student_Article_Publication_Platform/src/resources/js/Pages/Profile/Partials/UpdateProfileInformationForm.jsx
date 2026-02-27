@@ -1,3 +1,4 @@
+import CoolButton from '@/Components/CoolButton';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { Alert, Box, Button, Stack, TextField, Typography } from '@mui/material';
 
@@ -17,8 +18,8 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status }
     return (
         <Box component="section">
             <Typography variant="h6">Profile Information</Typography>
-            <Typography color="text.secondary" sx={{ mb: 2 }}>
-                Update your name and email address.
+            <Typography color="text.secondary" sx={{ mb: 2.25 }}>
+                Update your account identity used for submissions, edits, and comments.
             </Typography>
 
             <Stack component="form" onSubmit={submit} spacing={2}>
@@ -46,17 +47,15 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status }
                 {mustVerifyEmail && user.email_verified_at === null && (
                     <Alert severity="warning">
                         Your email address is unverified.{' '}
-                        <Button component={Link} href={route('verification.send')} method="post" as="button">
-                            Click here to re-send the verification email.
+                        <Button component={Link} href={route('verification.send')} method="post" as="button" size="small">
+                            Re-send verification email
                         </Button>
                         {status === 'verification-link-sent' ? ' A new verification link has been sent.' : ''}
                     </Alert>
                 )}
 
-                <Stack direction="row" spacing={1.5} alignItems="center">
-                    <Button type="submit" variant="contained" disabled={processing}>
-                        Save
-                    </Button>
+                <Stack direction="row" spacing={1.25} alignItems="center">
+                    <CoolButton type="submit" disabled={processing}>Save profile</CoolButton>
                     {recentlySuccessful && <Typography color="success.main">Saved.</Typography>}
                 </Stack>
             </Stack>

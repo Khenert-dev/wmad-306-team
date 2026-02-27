@@ -4,12 +4,76 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --cp-bg: #f4f7fb;
+    --cp-text: #1f2a44;
+    --cp-accent: #2f6fdb;
+}
+
 html,
 body,
 #app {
     min-height: 100%;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
-    background-color: #f4f7fb;
+    margin: 0;
+    font-family: 'Nunito Sans', 'Segoe UI', sans-serif;
+    background-color: var(--cp-bg);
+    color: var(--cp-text);
+}
+
+body[data-larger-text='1'] {
+    font-size: 17px;
+}
+
+body[data-compact-cards='1'] .MuiCard-root .MuiCardContent-root,
+body[data-compact-cards='1'] .MuiPaper-root {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+body[data-dashboard-density='compact'] .MuiContainer-root {
+    max-width: 1280px;
+}
+
+@keyframes cpFadeUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 18px, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes cpSoftGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 rgba(99, 102, 241, 0);
+    }
+
+    50% {
+        box-shadow: 0 0 34px rgba(99, 102, 241, 0.22);
+    }
+}
+
+.welcome-fade-up {
+    animation: cpFadeUp 0.7s ease-out both;
+}
+
+.welcome-glow-card {
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+    border-color: rgba(129, 140, 248, 0.22);
+}
+
+.welcome-glow-card:hover {
+    transform: translateY(-4px);
+    animation: cpSoftGlow 2.8s ease-in-out infinite;
+    border-color: rgba(129, 140, 248, 0.46);
 }

@@ -1,7 +1,7 @@
-import CoolButton from '@/Components/CoolButton';
+import ActionButtonGroup from '@/Components/ActionButtonGroup';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Box, Button, Stack, TextField, Typography } from '@mui/material';
+import { Box, Stack, TextField, Typography } from '@mui/material';
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -22,8 +22,11 @@ export default function Register() {
     return (
         <GuestLayout>
             <Head title="Register" />
-            <Stack spacing={2} component="form" onSubmit={submit}>
-                <Typography variant="h5">Create Account</Typography>
+            <Stack spacing={2.25} component="form" onSubmit={submit}>
+                <Box>
+                    <Typography variant="h4">Create your account</Typography>
+                    <Typography color="text.secondary">Join Campus Press and start contributing to student publication workflows.</Typography>
+                </Box>
 
                 <TextField
                     label="Name"
@@ -68,14 +71,24 @@ export default function Register() {
                     required
                 />
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                    <Button component={Link} href={route('login')}>
-                        Already registered?
-                    </Button>
-                    <CoolButton type="submit" disabled={processing}>
-                        Register
-                    </CoolButton>
-                </Box>
+                <ActionButtonGroup
+                    variant="contained"
+                    sx={{ width: { xs: '100%', sm: 'fit-content' } }}
+                    actions={[
+                        {
+                            key: 'login',
+                            label: 'Already registered?',
+                            component: Link,
+                            href: route('login'),
+                        },
+                        {
+                            key: 'register',
+                            label: 'Register',
+                            type: 'submit',
+                            disabled: processing,
+                        },
+                    ]}
+                />
             </Stack>
         </GuestLayout>
     );

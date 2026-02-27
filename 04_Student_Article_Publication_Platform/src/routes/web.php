@@ -19,7 +19,28 @@ Route::get('/', function () {
     return Inertia::render('Welcome', [
         'recentPublications' => $recentPublications,
     ]);
-});
+})->name('welcome');
+
+Route::get('/publications/{article}', function (Article $article) {
+    $article->load(['writer', 'editor', 'category', 'status', 'comments.student']);
+
+    if ($article->status?->name !== 'published') {
+        abort(404);
+    }
+
+    $latestPublications = Article::query()
+        ->with(['writer', 'category', 'status'])
+        ->whereHas('status', fn ($query) => $query->where('name', 'published'))
+        ->where('id', '!=', $article->id)
+        ->latest('updated_at')
+        ->take(4)
+        ->get();
+
+    return Inertia::render('Publications/Show', [
+        'article' => $article,
+        'latestPublications' => $latestPublications,
+    ]);
+})->name('publications.show');
 
 Route::get('/dashboard', function () {
     $user = auth()->user();

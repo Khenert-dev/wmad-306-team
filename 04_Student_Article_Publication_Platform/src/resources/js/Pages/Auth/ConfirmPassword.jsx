@@ -1,12 +1,10 @@
 import CoolButton from '@/Components/CoolButton';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
-import { Stack, TextField, Typography } from '@mui/material';
+import { Box, Stack, TextField, Typography } from '@mui/material';
 
 export default function ConfirmPassword() {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        password: '',
-    });
+    const { data, setData, post, processing, errors, reset } = useForm({ password: '' });
 
     const submit = (event) => {
         event.preventDefault();
@@ -19,11 +17,13 @@ export default function ConfirmPassword() {
     return (
         <GuestLayout>
             <Head title="Confirm Password" />
-            <Stack spacing={2} component="form" onSubmit={submit}>
-                <Typography variant="h5">Confirm your password</Typography>
-                <Typography color="text.secondary">
-                    This is a secure area of the application. Please confirm your password before continuing.
-                </Typography>
+            <Stack spacing={2.25} component="form" onSubmit={submit}>
+                <Box>
+                    <Typography variant="h4">Confirm identity</Typography>
+                    <Typography color="text.secondary">
+                        This is a protected area. Confirm your password before continuing.
+                    </Typography>
+                </Box>
                 <TextField
                     label="Password"
                     type="password"
@@ -34,9 +34,7 @@ export default function ConfirmPassword() {
                     required
                     fullWidth
                 />
-                <CoolButton type="submit" disabled={processing}>
-                    Confirm
-                </CoolButton>
+                <CoolButton type="submit" disabled={processing}>Confirm</CoolButton>
             </Stack>
         </GuestLayout>
     );

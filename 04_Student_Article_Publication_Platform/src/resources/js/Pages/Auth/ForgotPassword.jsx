@@ -1,12 +1,10 @@
 import CoolButton from '@/Components/CoolButton';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
-import { Alert, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Box, Stack, TextField, Typography } from '@mui/material';
 
 export default function ForgotPassword({ status }) {
-    const { data, setData, post, processing, errors } = useForm({
-        email: '',
-    });
+    const { data, setData, post, processing, errors } = useForm({ email: '' });
 
     const submit = (event) => {
         event.preventDefault();
@@ -16,11 +14,13 @@ export default function ForgotPassword({ status }) {
     return (
         <GuestLayout>
             <Head title="Forgot Password" />
-            <Stack spacing={2} component="form" onSubmit={submit}>
-                <Typography variant="h5">Forgot your password?</Typography>
-                <Typography color="text.secondary">
-                    Enter your email address and we will send you a link to reset your password.
-                </Typography>
+            <Stack spacing={2.25} component="form" onSubmit={submit}>
+                <Box>
+                    <Typography variant="h4">Reset access</Typography>
+                    <Typography color="text.secondary">
+                        Enter your email and we will send a secure password reset link.
+                    </Typography>
+                </Box>
                 {status && <Alert severity="success">{status}</Alert>}
                 <TextField
                     label="Email"
@@ -32,9 +32,7 @@ export default function ForgotPassword({ status }) {
                     required
                     fullWidth
                 />
-                <CoolButton type="submit" disabled={processing}>
-                    Email Password Reset Link
-                </CoolButton>
+                <CoolButton type="submit" disabled={processing}>Email Password Reset Link</CoolButton>
             </Stack>
         </GuestLayout>
     );

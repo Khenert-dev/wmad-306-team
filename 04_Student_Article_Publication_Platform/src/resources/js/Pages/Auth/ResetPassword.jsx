@@ -1,7 +1,7 @@
 import CoolButton from '@/Components/CoolButton';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
-import { Stack, TextField, Typography } from '@mui/material';
+import { Box, Stack, TextField, Typography } from '@mui/material';
 
 export default function ResetPassword({ token, email }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -22,8 +22,11 @@ export default function ResetPassword({ token, email }) {
     return (
         <GuestLayout>
             <Head title="Reset Password" />
-            <Stack spacing={2} component="form" onSubmit={submit}>
-                <Typography variant="h5">Set a new password</Typography>
+            <Stack spacing={2.25} component="form" onSubmit={submit}>
+                <Box>
+                    <Typography variant="h4">Set a new password</Typography>
+                    <Typography color="text.secondary">Use a strong password you do not reuse elsewhere.</Typography>
+                </Box>
                 <TextField
                     label="Email"
                     type="email"
@@ -54,9 +57,7 @@ export default function ResetPassword({ token, email }) {
                     required
                     fullWidth
                 />
-                <CoolButton type="submit" disabled={processing}>
-                    Reset Password
-                </CoolButton>
+                <CoolButton type="submit" disabled={processing}>Reset Password</CoolButton>
             </Stack>
         </GuestLayout>
     );

@@ -1,3 +1,4 @@
+import CoolButton from '@/Components/CoolButton';
 import { useForm } from '@inertiajs/react';
 import {
     Box,
@@ -27,6 +28,12 @@ export default function DeleteUserForm() {
         password: '',
     });
 
+    const closeModal = () => {
+        setConfirmingUserDeletion(false);
+        clearErrors();
+        reset();
+    };
+
     const deleteUser = (event) => {
         event.preventDefault();
 
@@ -37,31 +44,23 @@ export default function DeleteUserForm() {
         });
     };
 
-    const closeModal = () => {
-        setConfirmingUserDeletion(false);
-        clearErrors();
-        reset();
-    };
-
     return (
         <Box component="section">
-            <Typography variant="h6" color="error.main">
-                Delete Account
-            </Typography>
+            <Typography variant="h6" color="error.main">Delete Account</Typography>
             <Typography color="text.secondary" sx={{ my: 2 }}>
-                Once your account is deleted, all associated resources and data will be permanently removed.
+                This action permanently removes your account and related personal data. It cannot be undone.
             </Typography>
 
-            <Button color="error" variant="contained" onClick={() => setConfirmingUserDeletion(true)}>
+            <CoolButton tone="outline" color="error" onClick={() => setConfirmingUserDeletion(true)}>
                 Delete Account
-            </Button>
+            </CoolButton>
 
             <Dialog open={confirmingUserDeletion} onClose={closeModal} fullWidth maxWidth="sm">
-                <DialogTitle>Are you sure you want to delete your account?</DialogTitle>
+                <DialogTitle>Confirm account deletion</DialogTitle>
                 <DialogContent>
                     <Stack component="form" onSubmit={deleteUser} spacing={2} sx={{ mt: 1 }}>
                         <Typography color="text.secondary">
-                            Please enter your password to confirm permanent account deletion.
+                            Enter your password to confirm permanent deletion.
                         </Typography>
 
                         <TextField
