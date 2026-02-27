@@ -1,18 +1,32 @@
+import AIAssistantWidget from '@/Components/AIAssistantWidget';
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import { Box, Container, Paper, Stack, Typography } from '@mui/material';
 import { Link } from '@inertiajs/react';
 
 export default function GuestLayout({ children }) {
     return (
-        <div className="flex min-h-screen flex-col items-center bg-gray-100 pt-6 sm:justify-center sm:pt-0">
-            <div>
-                <Link href="/">
-                    <ApplicationLogo className="h-20 w-20 fill-current text-gray-500" />
-                </Link>
-            </div>
+        <Box sx={{ minHeight: '100vh', py: { xs: 4, md: 7 }, backgroundColor: 'background.default' }}>
+            <Container maxWidth="sm">
+                <Stack spacing={2.5}>
+                    <Stack
+                        component={Link}
+                        href="/"
+                        direction="row"
+                        spacing={1.25}
+                        sx={{ textDecoration: 'none', alignItems: 'center', color: 'primary.main' }}
+                    >
+                        <ApplicationLogo style={{ width: 32, height: 32 }} />
+                        <Typography variant="h4" sx={{ color: 'primary.main' }}>
+                            Campus Press
+                        </Typography>
+                    </Stack>
+                    <Paper elevation={3} sx={{ p: { xs: 2.5, sm: 4 } }}>
+                        {children}
+                    </Paper>
+                </Stack>
+            </Container>
 
-            <div className="mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-md sm:max-w-md sm:rounded-lg">
-                {children}
-            </div>
-        </div>
+            <AIAssistantWidget />
+        </Box>
     );
 }

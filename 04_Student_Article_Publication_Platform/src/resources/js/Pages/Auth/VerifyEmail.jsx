@@ -1,50 +1,40 @@
-import PrimaryButton from '@/Components/PrimaryButton';
+import CoolButton from '@/Components/CoolButton';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { Alert, Stack, Typography } from '@mui/material';
 
 export default function VerifyEmail({ status }) {
     const { post, processing } = useForm({});
 
-    const submit = (e) => {
-        e.preventDefault();
-
+    const submit = (event) => {
+        event.preventDefault();
         post(route('verification.send'));
     };
 
     return (
         <GuestLayout>
             <Head title="Email Verification" />
+            <Stack spacing={2} component="form" onSubmit={submit}>
+                <Typography variant="h5">Verify your email</Typography>
+                <Typography color="text.secondary">
+                    Before getting started, please verify your email by clicking the link we just sent.
+                </Typography>
 
-            <div className="mb-4 text-sm text-gray-600">
-                Thanks for signing up! Before getting started, could you verify
-                your email address by clicking on the link we just emailed to
-                you? If you didn't receive the email, we will gladly send you
-                another.
-            </div>
+                {status === 'verification-link-sent' && (
+                    <Alert severity="success">
+                        A new verification link has been sent to your email address.
+                    </Alert>
+                )}
 
-            {status === 'verification-link-sent' && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    A new verification link has been sent to the email address
-                    you provided during registration.
-                </div>
-            )}
-
-            <form onSubmit={submit}>
-                <div className="mt-4 flex items-center justify-between">
-                    <PrimaryButton disabled={processing}>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                    <CoolButton type="submit" disabled={processing}>
                         Resend Verification Email
-                    </PrimaryButton>
-
-                    <Link
-                        href={route('logout')}
-                        method="post"
-                        as="button"
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
+                    </CoolButton>
+                    <CoolButton tone="outline" component={Link} href={route('logout')} method="post" as="button">
                         Log Out
-                    </Link>
-                </div>
-            </form>
+                    </CoolButton>
+                </Stack>
+            </Stack>
         </GuestLayout>
     );
 }

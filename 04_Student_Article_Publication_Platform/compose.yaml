@@ -1,3 +1,4 @@
+
 services:
   web:
     image: "evadonardem/wmad-306:latest"
