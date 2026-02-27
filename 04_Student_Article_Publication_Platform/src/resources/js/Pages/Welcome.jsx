@@ -1,4 +1,5 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import ThemeModeToggle from '@/Components/ThemeModeToggle';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -61,15 +62,16 @@ export default function Welcome() {
                             </button>
                         </div>
 
-                        <div className="hidden lg:flex lg:gap-x-12">
+                        <div className="hidden lg:flex lg:gap-x-8">
                             {navItems.map((item) => (
-                                <a key={item.label} href={item.href} className="text-sm/6 font-semibold text-white">
+                                <a key={item.label} href={item.href} className="text-sm font-semibold text-gray-200 hover:text-white">
                                     {item.label}
                                 </a>
                             ))}
                         </div>
 
-                        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+                        <div className="hidden lg:flex lg:flex-1 lg:justify-end items-center gap-4">
+                            <ThemeModeToggle size="small" />
                             {auth?.user ? (
                                 <Link href={route('dashboard')} className="text-sm/6 font-semibold text-white">
                                     Dashboard <span aria-hidden="true">&rarr;</span>
@@ -86,21 +88,24 @@ export default function Welcome() {
                         <div className="lg:hidden">
                             <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setMobileOpen(false)} />
                             <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-gray-900 p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between gap-3">
                                     <Link href="/" className="-m-1.5 flex items-center gap-2 p-1.5 text-white">
                                         <ApplicationLogo className="h-8 w-8" />
                                         <span className="sr-only">Campus Press</span>
                                     </Link>
-                                    <button
-                                        type="button"
-                                        onClick={() => setMobileOpen(false)}
-                                        className="-m-2.5 rounded-md p-2.5 text-gray-200"
-                                    >
-                                        <span className="sr-only">Close menu</span>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" className="size-6">
-                                            <path d="M6 18 18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <ThemeModeToggle size="small" />
+                                        <button
+                                            type="button"
+                                            onClick={() => setMobileOpen(false)}
+                                            className="-m-2.5 rounded-md p-2.5 text-gray-200"
+                                        >
+                                            <span className="sr-only">Close menu</span>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" className="size-6">
+                                                <path d="M6 18 18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="mt-6 flow-root">
                                     <div className="-my-6 divide-y divide-white/10">
@@ -109,7 +114,7 @@ export default function Welcome() {
                                                 <a
                                                     key={item.label}
                                                     href={item.href}
-                                                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-white/5"
+                                                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/5"
                                                     onClick={() => setMobileOpen(false)}
                                                 >
                                                     {item.label}
