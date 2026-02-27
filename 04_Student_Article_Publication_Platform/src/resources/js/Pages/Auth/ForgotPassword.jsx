@@ -1,8 +1,7 @@
-import InputError from '@/Components/InputError';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import React from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
+import { TextField, Button, Box, Typography, Alert } from '@mui/material';
 
 export default function ForgotPassword({ status }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -11,7 +10,6 @@ export default function ForgotPassword({ status }) {
 
     const submit = (e) => {
         e.preventDefault();
-
         post(route('password.email'));
     };
 
@@ -19,37 +17,46 @@ export default function ForgotPassword({ status }) {
         <GuestLayout>
             <Head title="Forgot Password" />
 
-            <div className="mb-4 text-sm text-gray-600">
-                Forgot your password? No problem. Just let us know your email
-                address and we will email you a password reset link that will
-                allow you to choose a new one.
-            </div>
+            <Typography variant="h5" sx={{ mb: 1, textAlign: 'center' }}>
+                Reset Password
+            </Typography>
+            
+            <Typography variant="body2" sx={{ mb: 4, textAlign: 'center' }}>
+                Forgot your password? No problem. Just let us know your email address and we will email you a password reset link.
+            </Typography>
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <Alert severity="success" sx={{ mb: 3, borderRadius: 3 }}>
                     {status}
-                </div>
+                </Alert>
             )}
 
-            <form onSubmit={submit}>
-                <TextInput
+            <Box component="form" onSubmit={submit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <TextField
                     id="email"
                     type="email"
                     name="email"
+                    label="Email Address"
                     value={data.email}
-                    className="mt-1 block w-full"
-                    isFocused={true}
+                    fullWidth
+                    autoFocus
                     onChange={(e) => setData('email', e.target.value)}
+                    error={!!errors.email}
+                    helperText={errors.email}
                 />
 
-                <InputError message={errors.email} className="mt-2" />
-
-                <div className="mt-4 flex items-center justify-end">
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Email Password Reset Link
-                    </PrimaryButton>
-                </div>
-            </form>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    fullWidth
+                    disabled={processing}
+                    sx={{ py: 1.5 }}
+                >
+                    Email Password Reset Link
+                </Button>
+            </Box>
         </GuestLayout>
     );
 }

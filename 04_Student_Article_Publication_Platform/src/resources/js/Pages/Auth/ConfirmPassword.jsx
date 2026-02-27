@@ -1,55 +1,62 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import React, { useEffect } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
+import { TextField, Button, Box, Typography } from '@mui/material';
 
 export default function ConfirmPassword() {
     const { data, setData, post, processing, errors, reset } = useForm({
         password: '',
     });
 
+    useEffect(() => {
+        return () => {
+            reset('password');
+        };
+    }, []);
+
     const submit = (e) => {
         e.preventDefault();
-
-        post(route('password.confirm'), {
-            onFinish: () => reset('password'),
-        });
+        post(route('password.confirm'));
     };
 
     return (
         <GuestLayout>
             <Head title="Confirm Password" />
 
-            <div className="mb-4 text-sm text-gray-600">
-                This is a secure area of the application. Please confirm your
-                password before continuing.
-            </div>
+            <Typography variant="h5" sx={{ mb: 1, textAlign: 'center' }}>
+                Security Check
+            </Typography>
 
-            <form onSubmit={submit}>
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+            <Typography variant="body2" sx={{ mb: 4, textAlign: 'center' }}>
+                This is a secure area of the application. Please confirm your password before continuing.
+            </Typography>
 
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        isFocused={true}
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
+            <Box component="form" onSubmit={submit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <TextField
+                    id="password"
+                    type="password"
+                    name="password"
+                    label="Password"
+                    value={data.password}
+                    fullWidth
+                    autoFocus
+                    onChange={(e) => setData('password', e.target.value)}
+                    error={!!errors.password}
+                    helperText={errors.password}
+                />
 
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4 flex items-center justify-end">
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Confirm
-                    </PrimaryButton>
-                </div>
-            </form>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    fullWidth
+                    disabled={processing}
+                    sx={{ py: 1.5 }}
+                >
+                    Confirm
+                </Button>
+            </Box>
         </GuestLayout>
     );
 }

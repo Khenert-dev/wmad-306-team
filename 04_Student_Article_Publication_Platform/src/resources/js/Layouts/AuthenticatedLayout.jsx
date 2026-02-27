@@ -1,176 +1,213 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { router, usePage } from '@inertiajs/react'; // Added usePage to check current route
+import { 
+    Box, Drawer, AppBar, Toolbar, List, Typography, Divider, 
+    IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, 
+    Avatar, ThemeProvider, createTheme, Menu, MenuItem
+} from '@mui/material';
 
-export default function AuthenticatedLayout({ header, children }) {
-    const user = usePage().props.auth.user;
+// Icons
+import MenuIcon from '@mui/icons-material/Menu';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ArticleIcon from '@mui/icons-material/Article';
+import PersonIcon from '@mui/icons-material/Person';
+import LogoutIcon from '@mui/icons-material/Logout';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import RateReviewIcon from '@mui/icons-material/RateReview';
+import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 
-    const [showingNavigationDropdown, setShowingNavigationDropdown] =
-        useState(false);
+const drawerWidth = 260;
+
+// --- APPLE-INSPIRED THEME (Keep existing) ---
+const appleTheme = createTheme({
+    typography: {
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+        h6: { fontWeight: 700, letterSpacing: '-0.2px', color: '#1d1d1f' },
+        button: { textTransform: 'none', fontWeight: 600 },
+        body1: { color: '#1d1d1f' },
+        body2: { color: '#86868b' }
+    },
+    shape: { borderRadius: 14 },
+    palette: {
+        primary: { main: '#007AFF' },
+        background: { default: '#f5f5f7', paper: '#ffffff' },
+    },
+});
+
+export default function AuthenticatedLayout({ user, header, children }) {
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const { url } = usePage(); // Get current URL to highlight active link
+
+    const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+    const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+    const handleMenuClose = () => setAnchorEl(null);
+
+    const navTo = (routeName) => {
+        router.get(route(routeName));
+        setMobileOpen(false);
+    };
+
+    // --- ROLE-BASED NAVIGATION LOGIC ---
+    // Check if user has specific roles (passed from Spatie/Inertia share)
+    const roles = user.roles ? user.roles.map(r => r.name) : [];
+    const isWriter = roles.includes('writer');
+    const isEditor = roles.includes('editor');
+    const isStudent = roles.includes('student');
+
+    const drawer = (
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Toolbar sx={{ px: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Avatar sx={{ bgcolor: '#007AFF', width: 32, height: 32 }}>
+                    <ArticleIcon fontSize="small" />
+                </Avatar>
+                <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>CampusPress</Typography>
+            </Toolbar>
+            <Divider sx={{ borderColor: 'rgba(0,0,0,0.04)' }} />
+            
+            <List sx={{ px: 2, pt: 2, flexGrow: 1 }}>
+                {/* General Dashboard */}
+                <ListItem disablePadding sx={{ mb: 1 }}>
+                    <ListItemButton 
+                        onClick={() => navTo('dashboard')} 
+                        selected={url === '/dashboard'}
+                        sx={{ borderRadius: 2 }}
+                    >
+                        <ListItemIcon sx={{ minWidth: 40 }}><DashboardIcon fontSize="small" /></ListItemIcon>
+                        <ListItemText primary="Main Hub" primaryTypographyProps={{ fontWeight: 600 }} />
+                    </ListItemButton>
+                </ListItem>
+
+                <Typography variant="caption" sx={{ px: 2, py: 1, display: 'block', color: 'text.secondary', fontWeight: 700, textTransform: 'uppercase' }}>
+                    Workspaces
+                </Typography>
+
+                {/* WRITER LINK */}
+                {isWriter && (
+                    <ListItem disablePadding sx={{ mb: 1 }}>
+                        <ListItemButton 
+                            onClick={() => navTo('writer.dashboard')}
+                            selected={url.startsWith('/writer')}
+                            sx={{ borderRadius: 2 }}
+                        >
+                            <ListItemIcon sx={{ minWidth: 40 }}><EditNoteIcon fontSize="small" /></ListItemIcon>
+                            <ListItemText primary="Writer Space" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
+                )}
+
+                {/* EDITOR LINK */}
+                {isEditor && (
+                    <ListItem disablePadding sx={{ mb: 1 }}>
+                        <ListItemButton 
+                            onClick={() => navTo('editor.dashboard')}
+                            selected={url.startsWith('/editor')}
+                            sx={{ borderRadius: 2 }}
+                        >
+                            <ListItemIcon sx={{ minWidth: 40 }}><RateReviewIcon fontSize="small" /></ListItemIcon>
+                            <ListItemText primary="Editor Desk" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
+                )}
+
+                {/* STUDENT LINK */}
+                {isStudent && (
+                    <ListItem disablePadding sx={{ mb: 1 }}>
+                        <ListItemButton 
+                            onClick={() => navTo('student.dashboard')}
+                            selected={url.startsWith('/student')}
+                            sx={{ borderRadius: 2 }}
+                        >
+                            <ListItemIcon sx={{ minWidth: 40 }}><DynamicFeedIcon fontSize="small" /></ListItemIcon>
+                            <ListItemText primary="Campus Feed" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
+                )}
+            </List>
+
+            <Box sx={{ p: 2 }}>
+                <Box 
+                    onClick={handleMenuOpen}
+                    sx={{ 
+                        display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, 
+                        borderRadius: 3, cursor: 'pointer',
+                        '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' }
+                    }}
+                >
+                    <Avatar sx={{ width: 36, height: 36, bgcolor: '#1d1d1f' }}>
+                        {user.name.charAt(0)}
+                    </Avatar>
+                    <Box sx={{ overflow: 'hidden' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600, noWrap: true }}>{user.name}</Typography>
+                        <Typography variant="caption" sx={{ color: '#86868b', display: 'block', noWrap: true }}>{user.email}</Typography>
+                    </Box>
+                </Box>
+                <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleMenuClose}
+                    anchorOrigin={{ horizontal: 'center', vertical: 'top' }}
+                    transformOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+                    PaperProps={{ sx: { borderRadius: 3, minWidth: 200 } }}
+                >
+                    <MenuItem onClick={handleProfile} sx={{ gap: 1.5 }}>
+                        <PersonIcon fontSize="small" /> Profile
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={() => router.post(route('logout'))} sx={{ gap: 1.5, color: '#ff3b30' }}>
+                        <LogoutIcon fontSize="small" /> Log Out
+                    </MenuItem>
+                </Menu>
+            </Box>
+        </Box>
+    );
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <nav className="border-b border-gray-100 bg-white">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 justify-between">
-                        <div className="flex">
-                            <div className="flex shrink-0 items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
-                                </Link>
-                            </div>
-
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink
-                                    href={route('dashboard')}
-                                    active={route().current('dashboard')}
-                                >
-                                    Dashboard
-                                </NavLink>
-                            </div>
-                        </div>
-
-                        <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            <div className="relative ms-3">
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
-                                            >
-                                                {user.name}
-
-                                                <svg
-                                                    className="-me-0.5 ms-2 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </Dropdown.Trigger>
-
-                                    <Dropdown.Content>
-                                        <Dropdown.Link
-                                            href={route('profile.edit')}
-                                        >
-                                            Profile
-                                        </Dropdown.Link>
-                                        <Dropdown.Link
-                                            href={route('logout')}
-                                            method="post"
-                                            as="button"
-                                        >
-                                            Log Out
-                                        </Dropdown.Link>
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                        <div className="-me-2 flex items-center sm:hidden">
-                            <button
-                                onClick={() =>
-                                    setShowingNavigationDropdown(
-                                        (previousState) => !previousState,
-                                    )
-                                }
-                                className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
-                            >
-                                <svg
-                                    className="h-6 w-6"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        className={
-                                            !showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        className={
-                                            showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    className={
-                        (showingNavigationDropdown ? 'block' : 'hidden') +
-                        ' sm:hidden'
-                    }
+        <ThemeProvider theme={appleTheme}>
+            <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}>
+                <AppBar
+                    position="fixed"
+                    elevation={0}
+                    sx={{
+                        width: { sm: `calc(100% - ${drawerWidth}px)` },
+                        ml: { sm: `${drawerWidth}px` },
+                        bgcolor: 'rgba(245, 245, 247, 0.8)',
+                        backdropFilter: 'blur(20px)',
+                        color: '#1d1d1f',
+                        borderBottom: '1px solid rgba(0,0,0,0.05)'
+                    }}
                 >
-                    <div className="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
-                        >
-                            Dashboard
-                        </ResponsiveNavLink>
-                    </div>
+                    <Toolbar>
+                        <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { sm: 'none' } }}>
+                            <MenuIcon />
+                        </IconButton>
+                        <Box sx={{ flexGrow: 1 }}>{header}</Box>
+                    </Toolbar>
+                </AppBar>
 
-                    <div className="border-t border-gray-200 pb-1 pt-4">
-                        <div className="px-4">
-                            <div className="text-base font-medium text-gray-800">
-                                {user.name}
-                            </div>
-                            <div className="text-sm font-medium text-gray-500">
-                                {user.email}
-                            </div>
-                        </div>
+                <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
+                    <Drawer
+                        variant="temporary"
+                        open={mobileOpen}
+                        onClose={handleDrawerToggle}
+                        sx={{ display: { xs: 'block', sm: 'none' }, '& .MuiDrawer-paper': { width: drawerWidth } }}
+                    >
+                        {drawer}
+                    </Drawer>
+                    <Drawer
+                        variant="permanent"
+                        sx={{ display: { xs: 'none', sm: 'block' }, '& .MuiDrawer-paper': { width: drawerWidth, borderRight: '1px solid rgba(0,0,0,0.05)' } }}
+                        open
+                    >
+                        {drawer}
+                    </Drawer>
+                </Box>
 
-                        <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>
-                                Profile
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                method="post"
-                                href={route('logout')}
-                                as="button"
-                            >
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            {header && (
-                <header className="bg-white shadow">
-                    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        {header}
-                    </div>
-                </header>
-            )}
-
-            <main>{children}</main>
-        </div>
+                <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}>
+                    <Toolbar />
+                    {children}
+                </Box>
+            </Box>
+        </ThemeProvider>
     );
 }
