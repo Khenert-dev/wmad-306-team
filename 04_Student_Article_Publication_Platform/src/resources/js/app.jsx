@@ -10,8 +10,30 @@ import { useMemo, useState, useEffect } from 'react';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Campus Press';
 
+const UI_PREFS_KEY = 'campus_press_ui_preferences';
+
+function applyAppearancePreferencesToBody() {
+    const raw = localStorage.getItem(UI_PREFS_KEY);
+    if (!raw) return;
+    try {
+        const prefs = JSON.parse(raw);
+        document.body.dataset.dashboardDensity = prefs.dashboardDensity ?? 'comfortable';
+        document.body.dataset.largerText = prefs.largerText ? '1' : '0';
+        document.body.dataset.compactCards = prefs.compactCards ? '1' : '0';
+    } catch (_) {}
+}
+
 function AppThemeProvider({ children }) {
     const [mode, setMode] = useState(() => localStorage.getItem('campus_press_theme_mode') ?? 'light');
+
+    useEffect(() => {
+        applyAppearancePreferencesToBody();
+        const onStorage = (e) => {
+            if (e.key === UI_PREFS_KEY) applyAppearancePreferencesToBody();
+        };
+        window.addEventListener('storage', onStorage);
+        return () => window.removeEventListener('storage', onStorage);
+    }, []);
 
     const toggleMode = () => {
         setMode((current) => {

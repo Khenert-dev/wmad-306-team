@@ -36,6 +36,15 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'writer_tier',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -46,6 +55,23 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the dynamically calculated writer tier based on published articles.
+     */
+    public function getWriterTierAttribute(): string
+    {
+        $publishedCount = $this->writtenArticles()->whereHas('status', function ($query) {
+            $query->where('name', 'published');
+        })->count();
+
+        if ($publishedCount >= 20) return 'Expert Strategist';
+        if ($publishedCount >= 10) return 'Senior Columnist';
+        if ($publishedCount >= 5) return 'Seasoned Author';
+        if ($publishedCount >= 1) return 'Junior Contributor';
+        
+        return 'Entry-Level Writer';
     }
 
     public function writtenArticles(): HasMany

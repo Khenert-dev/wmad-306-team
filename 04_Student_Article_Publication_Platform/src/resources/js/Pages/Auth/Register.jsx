@@ -3,6 +3,38 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Box, Stack, TextField, Typography } from '@mui/material';
 
+const authAnimations = `
+    @keyframes auth-container-enter {
+        0% { opacity: 0; transform: scale(0.94) translateY(24px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes auth-reveal-up {
+        0% { transform: translateY(80px); opacity: 0; filter: blur(8px); }
+        100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+    }
+    @keyframes auth-float-blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+    .auth-animate-reveal-0 { animation: auth-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+    .auth-animate-reveal-1 { animation: auth-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+    .auth-animate-reveal-2 { animation: auth-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+    .auth-animate-reveal-3 { animation: auth-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
+    .auth-animate-reveal-4 { animation: auth-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both; }
+    .auth-animate-reveal-5 { animation: auth-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both; }
+    .auth-animate-blob { animation: auth-float-blob 8s infinite ease-in-out; }
+    .auth-animation-delay-2000 { animation-delay: 2s; }
+    .auth-animation-delay-4000 { animation-delay: 4s; }
+    .auth-container-enter { animation: auth-container-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+`;
+
+const textFieldSx = {
+    '& .MuiOutlinedInput-root': { borderRadius: '1rem', fontWeight: 500 },
+    '& .MuiInputLabel-root': { fontWeight: 600 },
+};
+
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
@@ -22,74 +54,138 @@ export default function Register() {
     return (
         <GuestLayout>
             <Head title="Register" />
-            <Stack spacing={2.25} component="form" onSubmit={submit}>
-                <Box>
-                    <Typography variant="h4">Create your account</Typography>
-                    <Typography color="text.secondary">Join Campus Press and start contributing to student publication workflows.</Typography>
+            <style>{authAnimations}</style>
+            <Box className="auth-container-enter" sx={{ position: 'relative', overflow: 'hidden', minHeight: 480 }}>
+                {/* Floating blobs */}
+                <Box sx={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+                    <Box
+                        className="auth-animate-blob"
+                        sx={{
+                            position: 'absolute', top: 40, right: '-5%',
+                            width: 180, height: 180, borderRadius: '50%',
+                            bgcolor: '#2f6fdb', opacity: 0.15, mixBlendMode: 'multiply',
+                        }}
+                    />
+                    <Box
+                        className="auth-animate-blob auth-animation-delay-2000"
+                        sx={{
+                            position: 'absolute', bottom: 60, left: '-8%',
+                            width: 160, height: 160, borderRadius: '50%',
+                            bgcolor: '#7ea5ea', opacity: 0.12, mixBlendMode: 'multiply',
+                        }}
+                    />
+                    <Box
+                        className="auth-animate-blob auth-animation-delay-4000"
+                        sx={{
+                            position: 'absolute', top: '50%', left: '15%',
+                            width: 140, height: 140, borderRadius: '50%',
+                            bgcolor: '#1e4b9b', opacity: 0.1, mixBlendMode: 'multiply',
+                        }}
+                    />
                 </Box>
 
-                <TextField
-                    label="Name"
-                    value={data.name}
-                    onChange={(event) => setData('name', event.target.value)}
-                    error={Boolean(errors.name)}
-                    helperText={errors.name}
-                    fullWidth
-                    required
-                />
+                <Box
+                    className="auth-animate-reveal-0"
+                    sx={{
+                        position: 'relative',
+                        zIndex: 1,
+                        p: { xs: 2, md: 2.5 },
+                        borderRadius: '2rem',
+                        border: '1px solid rgba(47,111,219,0.2)',
+                        background: 'linear-gradient(145deg, rgba(255,255,255,0.35), rgba(255,255,255,0.1))',
+                        backdropFilter: 'blur(16px)',
+                        boxShadow: '0 20px 45px rgba(47, 111, 219, 0.12), 0 4px 6px -1px rgba(0,0,0,0.05)',
+                        transition: 'box-shadow 0.5s ease',
+                        '&:hover': { boxShadow: '0 24px 50px rgba(47, 111, 219, 0.16)' },
+                    }}
+                >
+                    <Stack spacing={2.25} component="form" onSubmit={submit}>
+                        <Box className="auth-animate-reveal-1">
+                            <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+                                Create your account
+                            </Typography>
+                            <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+                                Join Campus Press and start contributing to student publication workflows.
+                            </Typography>
+                        </Box>
 
-                <TextField
-                    label="Email"
-                    type="email"
-                    value={data.email}
-                    onChange={(event) => setData('email', event.target.value)}
-                    error={Boolean(errors.email)}
-                    helperText={errors.email}
-                    fullWidth
-                    required
-                />
+                        <TextField
+                            className="auth-animate-reveal-2"
+                            label="Name"
+                            value={data.name}
+                            onChange={(event) => setData('name', event.target.value)}
+                            error={Boolean(errors.name)}
+                            helperText={errors.name}
+                            fullWidth
+                            required
+                            sx={textFieldSx}
+                        />
 
-                <TextField
-                    label="Password"
-                    type="password"
-                    value={data.password}
-                    onChange={(event) => setData('password', event.target.value)}
-                    error={Boolean(errors.password)}
-                    helperText={errors.password}
-                    fullWidth
-                    required
-                />
+                        <TextField
+                            className="auth-animate-reveal-2"
+                            label="Email"
+                            type="email"
+                            value={data.email}
+                            onChange={(event) => setData('email', event.target.value)}
+                            error={Boolean(errors.email)}
+                            helperText={errors.email}
+                            fullWidth
+                            required
+                            sx={textFieldSx}
+                        />
 
-                <TextField
-                    label="Confirm password"
-                    type="password"
-                    value={data.password_confirmation}
-                    onChange={(event) => setData('password_confirmation', event.target.value)}
-                    error={Boolean(errors.password_confirmation)}
-                    helperText={errors.password_confirmation}
-                    fullWidth
-                    required
-                />
+                        <TextField
+                            className="auth-animate-reveal-3"
+                            label="Password"
+                            type="password"
+                            value={data.password}
+                            onChange={(event) => setData('password', event.target.value)}
+                            error={Boolean(errors.password)}
+                            helperText={errors.password}
+                            fullWidth
+                            required
+                            sx={textFieldSx}
+                        />
 
-                <ActionButtonGroup
-                    variant="contained"
-                    sx={{ width: { xs: '100%', sm: 'fit-content' } }}
-                    actions={[
-                        {
-                            key: 'login',
-                            label: 'Already registered?',
-                            component: Link,
-                            href: route('login'),
-                        },
-                        {
-                            key: 'register',
-                            label: 'Register',
-                            type: 'submit',
-                            disabled: processing,
-                        },
-                    ]}
-                />
-            </Stack>
+                        <TextField
+                            className="auth-animate-reveal-3"
+                            label="Confirm password"
+                            type="password"
+                            value={data.password_confirmation}
+                            onChange={(event) => setData('password_confirmation', event.target.value)}
+                            error={Boolean(errors.password_confirmation)}
+                            helperText={errors.password_confirmation}
+                            fullWidth
+                            required
+                            sx={textFieldSx}
+                        />
+
+                        <Box className="auth-animate-reveal-4">
+                            <ActionButtonGroup
+                                variant="contained"
+                                sx={{
+                                    width: { xs: '100%', sm: 'fit-content' },
+                                    '& .MuiButton-contained': { bgcolor: '#2f6fdb', '&:hover': { bgcolor: '#2157b4' } },
+                                }}
+                                actions={[
+                                    {
+                                        key: 'login',
+                                        label: 'Already registered?',
+                                        component: Link,
+                                        href: route('login'),
+                                    },
+                                    {
+                                        key: 'register',
+                                        label: 'Register',
+                                        type: 'submit',
+                                        disabled: processing,
+                                    },
+                                ]}
+                            />
+                        </Box>
+                    </Stack>
+                </Box>
+            </Box>
         </GuestLayout>
     );
 }

@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Alert, Box, Button, Card, CardContent, Chip, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useMemo, useState } from 'react';
 
 const fallbackImage =
@@ -8,8 +9,34 @@ const fallbackImage =
 
 const stripHtml = (value) => value?.replace(/<[^>]*>?/gm, '') ?? '';
 
+// Jeton-style CSS Animations (matches Welcome.jsx)
+const jetonAnimations = `
+    @keyframes reveal-up {
+        0% { transform: translateY(80px); opacity: 0; filter: blur(8px); }
+        100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+    }
+    @keyframes float-blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+    .student-animate-reveal-0 { animation: reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+    .student-animate-reveal-1 { animation: reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+    .student-animate-reveal-2 { animation: reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+    .student-animate-reveal-3 { animation: reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
+    .student-animate-reveal-4 { animation: reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both; }
+    .student-animate-reveal-5 { animation: reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both; }
+    .student-animate-blob { animation: float-blob 8s infinite ease-in-out; }
+    .student-animation-delay-2000 { animation-delay: 2s; }
+    .student-animation-delay-4000 { animation-delay: 4s; }
+    .student-bento-card:hover .student-bento-img { transform: scale(1.08); }
+`;
+
 export default function StudentDashboard({ publishedArticles, featuredArticle, latestPublications, myComments, flash, categories, filters }) {
     const { url } = usePage();
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
     const [searchFilters, setSearchFilters] = useState(() => ({
         search: filters?.search ?? '',
         category_id: filters?.category_id ?? '',
@@ -49,9 +76,11 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
     return (
         <AuthenticatedLayout
             header={
-                <Stack spacing={0.25}>
-                    <Typography variant="h4">Student Dashboard</Typography>
-                    <Typography color="text.secondary">
+                <Stack spacing={0.25} className="student-animate-reveal-0">
+                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+                        Student Dashboard
+                    </Typography>
+                    <Typography color="text.secondary" sx={{ fontSize: '1rem', fontWeight: 500 }}>
                         Read published journals and leave feedback.
                     </Typography>
                 </Stack>
@@ -59,11 +88,31 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
             fullWidth
         >
             <Head title="Student Dashboard" />
+            <style>{jetonAnimations}</style>
 
-            <Stack spacing={2.5}>
-                {flash?.success && <Alert severity="success">{flash.success}</Alert>}
+            <Stack spacing={2.5} component="div">
+                {flash?.success && (
+                    <Alert severity="success" className="student-animate-reveal-0">
+                        {flash.success}
+                    </Alert>
+                )}
 
-                <Paper sx={{ p: { xs: 2, md: 2.5 } }}>
+                {/* Filters – bento-style card */}
+                <Box
+                    className="student-animate-reveal-1"
+                    sx={{
+                        p: { xs: 2, md: 2.5 },
+                        borderRadius: '2rem',
+                        bgcolor: isDark ? 'rgba(17, 24, 39, 0.6)' : 'rgba(244, 247, 251, 0.9)',
+                        border: '1px solid',
+                        borderColor: isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.8)',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                        transition: 'box-shadow 0.5s ease, transform 0.5s ease',
+                        '&:hover': {
+                            boxShadow: '0 20px 40px rgba(47, 111, 219, 0.15)',
+                        },
+                    }}
+                >
                     <Stack
                         spacing={2}
                         direction={{ xs: 'column', md: 'row' }}
@@ -79,6 +128,10 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                                 onChange={(event) => handleFilterChange('search', event.target.value)}
                                 fullWidth
                                 size="small"
+                                sx={{
+                                    '& .MuiOutlinedInput-root': { borderRadius: '1rem', fontWeight: 500 },
+                                    '& .MuiInputLabel-root': { fontWeight: 600 },
+                                }}
                             />
                         </Box>
                         <Box sx={{ flex: 1, minWidth: 180 }}>
@@ -89,6 +142,10 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                                 onChange={(event) => handleFilterChange('category_id', event.target.value)}
                                 fullWidth
                                 size="small"
+                                sx={{
+                                    '& .MuiOutlinedInput-root': { borderRadius: '1rem', fontWeight: 500 },
+                                    '& .MuiInputLabel-root': { fontWeight: 600 },
+                                }}
                             >
                                 <MenuItem value="">All subjects</MenuItem>
                                 {categories?.map((category) => (
@@ -107,6 +164,10 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                                 fullWidth
                                 size="small"
                                 InputLabelProps={{ shrink: true }}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': { borderRadius: '1rem', fontWeight: 500 },
+                                    '& .MuiInputLabel-root': { fontWeight: 600 },
+                                }}
                             />
                         </Box>
                         <Box sx={{ flex: 1, minWidth: 160 }}>
@@ -118,6 +179,10 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                                 fullWidth
                                 size="small"
                                 InputLabelProps={{ shrink: true }}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': { borderRadius: '1rem', fontWeight: 500 },
+                                    '& .MuiInputLabel-root': { fontWeight: 600 },
+                                }}
                             />
                         </Box>
                         <Box sx={{ flex: 1, minWidth: 180 }}>
@@ -128,6 +193,10 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                                 onChange={(event) => handleFilterChange('sort', event.target.value)}
                                 fullWidth
                                 size="small"
+                                sx={{
+                                    '& .MuiOutlinedInput-root': { borderRadius: '1rem', fontWeight: 500 },
+                                    '& .MuiInputLabel-root': { fontWeight: 600 },
+                                }}
                             >
                                 <MenuItem value="newest">Newest first</MenuItem>
                                 <MenuItem value="oldest">Oldest first</MenuItem>
@@ -150,6 +219,11 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                                     setSearchFilters(reset);
                                     applyFilters(reset);
                                 }}
+                                sx={{
+                                    borderRadius: '1rem',
+                                    fontWeight: 700,
+                                    textTransform: 'none',
+                                }}
                             >
                                 Clear
                             </Button>
@@ -157,23 +231,102 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                                 variant="contained"
                                 size="small"
                                 onClick={() => applyFilters(searchFilters)}
+                                sx={{
+                                    borderRadius: '1rem',
+                                    fontWeight: 700,
+                                    textTransform: 'none',
+                                    bgcolor: '#2f6fdb',
+                                    boxShadow: '0 4px 14px rgba(47, 111, 219, 0.35)',
+                                    '&:hover': { bgcolor: '#2157b4', boxShadow: '0 6px 20px rgba(47, 111, 219, 0.4)' },
+                                }}
                             >
                                 Apply filters
                             </Button>
                         </Box>
                     </Stack>
-                </Paper>
+                </Box>
 
-                <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                {/* Hero section with floating blobs */}
+                <Box
+                    className="student-animate-reveal-2"
+                    sx={{
+                        position: 'relative',
+                        overflow: 'hidden',
+                        borderRadius: '2rem',
+                        minHeight: { xs: 220, md: 280 },
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-start',
+                        willChange: 'transform',
+                    }}
+                >
+                    {/* Floating blobs background */}
                     <Box
                         sx={{
+                            position: 'absolute',
+                            inset: 0,
+                            overflow: 'hidden',
+                            pointerEvents: 'none',
+                        }}
+                    >
+                        <Box
+                            className="student-animate-blob"
+                            sx={{
+                                position: 'absolute',
+                                top: 80,
+                                left: -40,
+                                width: 288,
+                                height: 288,
+                                borderRadius: '50%',
+                                bgcolor: '#2f6fdb',
+                                mixBlendMode: 'multiply',
+                                opacity: 0.3,
+                            }}
+                        />
+                        <Box
+                            className="student-animate-blob student-animation-delay-2000"
+                            sx={{
+                                position: 'absolute',
+                                top: 80,
+                                right: -40,
+                                width: 288,
+                                height: 288,
+                                borderRadius: '50%',
+                                bgcolor: '#7ea5ea',
+                                mixBlendMode: 'multiply',
+                                opacity: 0.3,
+                            }}
+                        />
+                        <Box
+                            className="student-animate-blob student-animation-delay-4000"
+                            sx={{
+                                position: 'absolute',
+                                top: 160,
+                                left: 80,
+                                width: 288,
+                                height: 288,
+                                borderRadius: '50%',
+                                bgcolor: '#1e4b9b',
+                                mixBlendMode: 'multiply',
+                                opacity: 0.3,
+                            }}
+                        />
+                    </Box>
+
+                    {/* Hero content overlay */}
+                    <Box
+                        sx={{
+                            position: 'relative',
+                            zIndex: 1,
                             minHeight: { xs: 220, md: 280 },
-                            backgroundImage: `linear-gradient(115deg, rgba(8, 16, 35, 0.8), rgba(25, 63, 138, 0.45)), url(${heroImage})`,
+                            width: '100%',
+                            backgroundImage: `linear-gradient(115deg, rgba(8, 16, 35, 0.82), rgba(47, 111, 219, 0.35)), url(${heroImage})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'flex-start',
+                            borderRadius: '2rem',
                         }}
                     >
                         <Box
@@ -184,7 +337,16 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                                 backdropFilter: 'blur(4px)',
                             }}
                         >
-                            <Typography variant="overline" sx={{ opacity: 0.9, letterSpacing: 1 }}>
+                            <Typography
+                                variant="overline"
+                                sx={{
+                                    opacity: 0.95,
+                                    letterSpacing: 2,
+                                    fontWeight: 800,
+                                    textTransform: 'uppercase',
+                                    color: 'rgba(255,255,255,0.9)',
+                                }}
+                            >
                                 Featured journal
                             </Typography>
                             <Typography
@@ -193,45 +355,90 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                                     color: '#fff',
                                     fontWeight: 800,
                                     textShadow: '0 10px 30px rgba(0,0,0,0.45)',
+                                    letterSpacing: '-0.02em',
+                                    lineHeight: 1.15,
+                                    mt: 0.5,
                                 }}
                             >
                                 {heroArticle?.title ?? 'Latest Published Articles'}
                             </Typography>
-                            <Typography sx={{ mt: 0.75, color: 'rgba(255,255,255,0.9)' }}>
+                            <Typography sx={{ mt: 0.75, color: 'rgba(255,255,255,0.92)', fontSize: 15, lineHeight: 1.6 }}>
                                 {stripHtml(heroArticle?.content).slice(0, 170) || 'Explore the latest campus publications.'}
                             </Typography>
                             <Stack direction="row" spacing={1} sx={{ mt: 1.5 }} useFlexGap flexWrap="wrap">
-                                <Chip
-                                    label={`${publishedArticles.length} published`}
-                                    size="small"
-                                    sx={{ bgcolor: 'rgba(255,255,255,0.18)', color: '#fff' }}
-                                />
-                                <Chip
-                                    label={`${myComments.length} my comments`}
-                                    size="small"
-                                    sx={{ bgcolor: 'rgba(255,255,255,0.18)', color: '#fff' }}
-                                />
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        px: 1.2,
+                                        py: 0.5,
+                                        borderRadius: '9999px',
+                                        bgcolor: 'rgba(255,255,255,0.2)',
+                                        color: '#fff',
+                                        fontSize: 12,
+                                        fontWeight: 700,
+                                    }}
+                                >
+                                    {publishedArticles?.length ?? 0} published
+                                </Box>
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        px: 1.2,
+                                        py: 0.5,
+                                        borderRadius: '9999px',
+                                        bgcolor: 'rgba(255,255,255,0.2)',
+                                        color: '#fff',
+                                        fontSize: 12,
+                                        fontWeight: 700,
+                                    }}
+                                >
+                                    {myComments?.length ?? 0} my comments
+                                </Box>
                             </Stack>
                             {heroArticle && (
-                                <Button
-                                    variant="contained"
-                                    size="small"
-                                    component={Link}
+                                <Link
                                     href={route('publications.show', heroArticle.id)}
-                                    sx={{ mt: 1.8, backgroundColor: 'rgba(15,118,255,0.95)' }}
+                                    className="inline-flex items-center gap-2 mt-4 px-6 py-2.5 rounded-full text-sm font-bold text-white no-underline"
+                                    style={{
+                                        backgroundColor: '#2f6fdb',
+                                        boxShadow: '0 4px 14px rgba(47, 111, 219, 0.4)',
+                                        transition: 'all 0.3s ease',
+                                    }}
+                                    onMouseOver={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#2157b4';
+                                        e.currentTarget.style.transform = 'translateY(-2px)';
+                                        e.currentTarget.style.boxShadow = '0 8px 24px rgba(47, 111, 219, 0.45)';
+                                    }}
+                                    onMouseOut={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#2f6fdb';
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.boxShadow = '0 4px 14px rgba(47, 111, 219, 0.4)';
+                                    }}
                                 >
-                                    Read featured journal
-                                </Button>
+                                    Read featured journal <span aria-hidden="true">&rarr;</span>
+                                </Link>
                             )}
                         </Box>
                     </Box>
-                </Paper>
+                </Box>
 
-                <Paper sx={{ p: { xs: 2, md: 3 } }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                {/* Latest publications – bento cards */}
+                <Box
+                    className="student-animate-reveal-3"
+                    sx={{
+                        p: { xs: 2, md: 3 },
+                        borderRadius: '2rem',
+                        bgcolor: isDark ? 'rgba(17, 24, 39, 0.6)' : 'rgba(244, 247, 251, 0.9)',
+                        border: '1px solid',
+                        borderColor: isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.8)',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                        transition: 'box-shadow 0.5s ease',
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
                         Latest publications
                     </Typography>
-                    <Typography color="text.secondary" sx={{ mt: 0.6, mb: 2 }}>
+                    <Typography color="text.secondary" sx={{ mt: 0.6, mb: 2, fontSize: 15 }}>
                         Browse the most recent journals published on the platform.
                     </Typography>
 
@@ -253,40 +460,108 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                                 },
                             }}
                         >
-                            {articlePool.slice(0, 6).map((article) => (
-                                <Card
+                            {articlePool.slice(0, 6).map((article, i) => (
+                                <Box
                                     key={article.id}
-                                    elevation={0}
+                                    component="article"
+                                    className={`student-bento-card student-animate-reveal-${Math.min((i % 3) + 4, 5)}`}
                                     sx={{
-                                        borderRadius: 3,
-                                        border: '1px solid',
-                                        borderColor: 'divider',
-                                        overflow: 'hidden',
                                         display: 'flex',
                                         flexDirection: 'column',
+                                        borderRadius: '2rem',
+                                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255,255,255,0.9)',
+                                        border: '1px solid',
+                                        borderColor: isDark ? 'rgba(75, 85, 99, 0.6)' : 'rgba(226, 232, 240, 0.9)',
+                                        overflow: 'hidden',
+                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                                        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+                                        willChange: 'transform',
+                                        '&:hover': {
+                                            transform: 'translateY(-8px)',
+                                            boxShadow: '0 20px 40px rgba(47, 111, 219, 0.15)',
+                                            borderColor: 'rgba(47, 111, 219, 0.25)',
+                                        },
+                                        '&:hover .article-title': { color: '#2f6fdb' },
                                     }}
                                 >
                                     <Box
                                         sx={{
                                             position: 'relative',
                                             pt: '62%',
-                                            backgroundImage: `url(${article.cover_image_url || fallbackImage})`,
-                                            backgroundSize: 'cover',
-                                            backgroundPosition: 'center',
+                                            overflow: 'hidden',
+                                            bgcolor: 'rgba(229, 231, 235, 0.5)',
                                         }}
-                                    />
-                                    <CardContent sx={{ p: 2.25, flexGrow: 1 }}>
-                                        <Typography variant="overline" color="text.secondary">
-                                            {article.category?.name ?? 'Journal'}
-                                        </Typography>
+                                    >
+                                        <Box
+                                            className="student-bento-img"
+                                            component="img"
+                                            src={article.cover_image_url || fallbackImage}
+                                            alt={article.title}
+                                            sx={{
+                                                position: 'absolute',
+                                                inset: 0,
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover',
+                                                transition: 'transform 0.7s ease-out',
+                                            }}
+                                        />
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                inset: 0,
+                                                background: 'linear-gradient(to top, rgba(0,0,0,0.2), transparent)',
+                                            }}
+                                        />
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                top: 16,
+                                                left: 16,
+                                            }}
+                                        >
+                                            <Box
+                                                component="span"
+                                                sx={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    borderRadius: '9999px',
+                                                    bgcolor: 'rgba(255,255,255,0.9)',
+                                                    backdropFilter: 'blur(8px)',
+                                                    px: 1.5,
+                                                    py: 0.5,
+                                                    fontSize: 11,
+                                                    fontWeight: 800,
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: '0.1em',
+                                                    color: '#2f6fdb',
+                                                }}
+                                            >
+                                                {article.category?.name ?? 'Journal'}
+                                            </Box>
+                                        </Box>
+                                    </Box>
+
+                                    <Box sx={{ p: 2.25, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                                         <Typography
                                             variant="subtitle1"
-                                            sx={{ fontWeight: 700, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                                            className="article-title"
+                                            sx={{
+                                                fontWeight: 700,
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: 2,
+                                                WebkitBoxOrient: 'vertical',
+                                                overflow: 'hidden',
+                                                color: 'text.primary',
+                                                fontSize: '1.125rem',
+                                                lineHeight: 1.3,
+                                                transition: 'color 0.3s',
+                                            }}
                                         >
                                             {article.title}
                                         </Typography>
-                                        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                                            {article.writer?.name}
+                                        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, fontWeight: 600 }}>
+                                            By {article.writer?.name ?? 'Anonymous'}
                                         </Typography>
                                         <Typography
                                             color="text.secondary"
@@ -297,49 +572,92 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                                                 WebkitLineClamp: 3,
                                                 WebkitBoxOrient: 'vertical',
                                                 overflow: 'hidden',
+                                                lineHeight: 1.5,
                                             }}
                                         >
                                             {stripHtml(article.content).slice(0, 220)}
                                         </Typography>
 
-                                        <Button
-                                            sx={{ mt: 1.4, px: 0 }}
-                                            size="small"
-                                            component={Link}
+                                        <Link
                                             href={route('publications.show', article.id)}
+                                            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-bold no-underline"
+                                            style={{
+                                                backgroundColor: isDark ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255,255,255,0.95)',
+                                                color: '#2f6fdb',
+                                                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                                                border: '1px solid',
+                                                borderColor: isDark ? 'rgba(75, 85, 99, 0.6)' : 'rgba(226, 232, 240, 0.9)',
+                                                transition: 'all 0.3s ease',
+                                            }}
+                                            onMouseOver={(e) => {
+                                                e.currentTarget.style.backgroundColor = '#2f6fdb';
+                                                e.currentTarget.style.color = '#fff';
+                                                e.currentTarget.style.borderColor = 'transparent';
+                                            }}
+                                            onMouseOut={(e) => {
+                                                e.currentTarget.style.backgroundColor = isDark ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255,255,255,0.95)';
+                                                e.currentTarget.style.color = '#2f6fdb';
+                                                e.currentTarget.style.borderColor = isDark ? 'rgba(75, 85, 99, 0.6)' : 'rgba(226, 232, 240, 0.9)';
+                                            }}
                                         >
-                                            Read article
-                                        </Button>
-                                    </CardContent>
-                                </Card>
+                                            Read article <span aria-hidden="true">&rarr;</span>
+                                        </Link>
+                                    </Box>
+                                </Box>
                             ))}
                         </Box>
                     )}
-                </Paper>
+                </Box>
 
-                <Paper sx={{ p: { xs: 2, md: 3 } }}>
-                    <Typography variant="h6" sx={{ mb: 1 }}>
+                {/* My recent comments – bento style */}
+                <Box
+                    className="student-animate-reveal-5"
+                    sx={{
+                        p: { xs: 2, md: 3 },
+                        borderRadius: '2rem',
+                        bgcolor: isDark ? 'rgba(17, 24, 39, 0.6)' : 'rgba(244, 247, 251, 0.9)',
+                        border: '1px solid',
+                        borderColor: isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.8)',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                        transition: 'box-shadow 0.5s ease',
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em', mb: 1 }}>
                         My recent comments
                     </Typography>
-                    <Typography color="text.secondary" sx={{ mb: 1 }}>
+                    <Typography color="text.secondary" sx={{ mb: 2, fontSize: 15 }}>
                         A quick view of the feedback you have shared on published journals.
                     </Typography>
                     <Stack spacing={1.25}>
-                        {myComments.length === 0 ? (
+                        {(myComments?.length ?? 0) === 0 ? (
                             <Typography color="text.secondary">
                                 You have not posted any comments yet. Open a published journal to share your thoughts.
                             </Typography>
                         ) : (
-                            myComments.slice(0, 10).map((comment) => (
-                                <Paper key={comment.id} variant="outlined" sx={{ p: 1.25, borderRadius: 2 }}>
-                                    <Typography variant="body2" color="text.secondary">
+                            (myComments ?? []).slice(0, 10).map((comment) => (
+                                <Box
+                                    key={comment.id}
+                                    sx={{
+                                        p: 1.5,
+                                        borderRadius: '1rem',
+                                        border: '1px solid',
+                                        borderColor: isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.8)',
+                                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255,255,255,0.7)',
+                                        transition: 'all 0.3s ease',
+                                        '&:hover': {
+                                            borderColor: 'rgba(47, 111, 219, 0.3)',
+                                            boxShadow: '0 4px 12px rgba(47, 111, 219, 0.08)',
+                                        },
+                                    }}
+                                >
+                                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                                         {comment.content}
                                     </Typography>
-                                </Paper>
+                                </Box>
                             ))
                         )}
                     </Stack>
-                </Paper>
+                </Box>
             </Stack>
         </AuthenticatedLayout>
     );

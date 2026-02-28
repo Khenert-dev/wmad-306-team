@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Public Landing Page (Accessible to guests)
 Route::get('/', function () {
     $recentPublications = Article::query()
         ->with(['writer', 'category', 'status'])
@@ -21,6 +22,7 @@ Route::get('/', function () {
     ]);
 })->name('welcome');
 
+// Public Article Preview
 Route::get('/publications/{article}', function (Article $article) {
     $article->load(['writer', 'editor', 'category', 'status', 'comments.student']);
 
@@ -42,30 +44,28 @@ Route::get('/publications/{article}', function (Article $article) {
     ]);
 })->name('publications.show');
 
+// Main Authenticated Dashboard / Universal Home Feed
 Route::get('/dashboard', function () {
-    $user = auth()->user();
+    $recentPublications = Article::query()
+        ->with(['writer', 'category', 'status'])
+        ->whereHas('status', fn ($query) => $query->where('name', 'published'))
+        ->latest('updated_at')
+        ->take(6)
+        ->get();
 
-    if ($user?->hasRole('writer')) {
-        return to_route('writer.dashboard');
-    }
-
-    if ($user?->hasRole('editor')) {
-        return to_route('editor.dashboard');
-    }
-
-    if ($user?->hasRole('student')) {
-        return to_route('student.dashboard');
-    }
-
-    return Inertia::render('Dashboard');
+    return Inertia::render('Dashboard', [
+        'recentPublications' => $recentPublications,
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Profile Management
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Writer Workspace
 Route::middleware(['auth', 'role:writer'])->group(function () {
     Route::get('/writer/dashboard', [WriterController::class, 'dashboard'])->name('writer.dashboard');
     Route::post('/articles', [WriterController::class, 'store'])->name('articles.store');
@@ -73,6 +73,7 @@ Route::middleware(['auth', 'role:writer'])->group(function () {
     Route::put('/articles/{article}/revise', [WriterController::class, 'revise'])->name('articles.revise');
 });
 
+// Editor Workspace
 Route::middleware(['auth', 'role:editor'])->group(function () {
     Route::get('/editor/dashboard', [EditorController::class, 'review'])->name('editor.dashboard');
     Route::post('/articles/{article}/revision', [EditorController::class, 'requestRevision'])->name('articles.revision');
@@ -80,6 +81,7 @@ Route::middleware(['auth', 'role:editor'])->group(function () {
     Route::patch('/articles/{article}/cover-image', [EditorController::class, 'updateCoverImage'])->name('articles.cover-image');
 });
 
+// Student Workspace
 Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/student/dashboard', [StudentController::class, 'studentDashboard'])->name('student.dashboard');
     Route::post('/articles/{article}/comment', [StudentController::class, 'comment'])->name('articles.comment');

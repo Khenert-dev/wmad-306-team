@@ -1,64 +1,37 @@
 import CoolButton from '@/Components/CoolButton';
 import { useForm } from '@inertiajs/react';
-import { Box, Stack, TextField, Typography } from '@mui/material';
+import { Box, Stack, TextField, Typography, Divider } from '@mui/material';
 
 export default function UpdatePasswordForm() {
     const { data, setData, errors, put, reset, processing, recentlySuccessful } = useForm({
-        current_password: '',
-        password: '',
-        password_confirmation: '',
+        current_password: '', password: '', password_confirmation: '',
     });
 
-    const updatePassword = (event) => {
-        event.preventDefault();
-
-        put(route('password.update'), {
-            preserveScroll: true,
-            onSuccess: () => reset(),
-        });
-    };
+    const updatePassword = (e) => { e.preventDefault(); put(route('password.update'), { onSuccess: () => reset() }); };
 
     return (
-        <Box component="section">
-            <Typography variant="h6">Update Password</Typography>
-            <Typography color="text.secondary" sx={{ mb: 2.25 }}>
-                Keep your account secure with a strong and unique password.
-            </Typography>
+        <Box className="bg-white dark:bg-gray-800/80 rounded-[2rem] p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700/50">
+            <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>🔒 Security</Typography>
+            <Typography color="text.secondary" sx={{ mb: 4 }}>Ensure your account is using a long, random password to stay secure.</Typography>
 
-            <Stack component="form" onSubmit={updatePassword} spacing={2}>
-                <TextField
-                    label="Current Password"
-                    type="password"
-                    value={data.current_password}
-                    onChange={(event) => setData('current_password', event.target.value)}
-                    error={Boolean(errors.current_password)}
-                    helperText={errors.current_password}
-                    fullWidth
-                />
+            <Stack component="form" onSubmit={updatePassword} spacing={3}>
+                <TextField label="Current Password" type="password" value={data.current_password}
+                    onChange={(e) => setData('current_password', e.target.value)} error={Boolean(errors.current_password)}
+                    helperText={errors.current_password} fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} />
+                
+                <Divider />
 
-                <TextField
-                    label="New Password"
-                    type="password"
-                    value={data.password}
-                    onChange={(event) => setData('password', event.target.value)}
-                    error={Boolean(errors.password)}
-                    helperText={errors.password}
-                    fullWidth
-                />
+                <TextField label="New Password" type="password" value={data.password}
+                    onChange={(e) => setData('password', e.target.value)} error={Boolean(errors.password)}
+                    helperText={errors.password} fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} />
 
-                <TextField
-                    label="Confirm Password"
-                    type="password"
-                    value={data.password_confirmation}
-                    onChange={(event) => setData('password_confirmation', event.target.value)}
-                    error={Boolean(errors.password_confirmation)}
-                    helperText={errors.password_confirmation}
-                    fullWidth
-                />
+                <TextField label="Confirm New Password" type="password" value={data.password_confirmation}
+                    onChange={(e) => setData('password_confirmation', e.target.value)} error={Boolean(errors.password_confirmation)}
+                    helperText={errors.password_confirmation} fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} />
 
-                <Stack direction="row" spacing={1.25} alignItems="center">
-                    <CoolButton type="submit" disabled={processing}>Save Password</CoolButton>
-                    {recentlySuccessful && <Typography color="success.main">Saved.</Typography>}
+                <Stack direction="row" spacing={2} alignItems="center">
+                    <CoolButton type="submit" disabled={processing}>Update Password</CoolButton>
+                    {recentlySuccessful && <Typography color="success.main" sx={{ fontWeight: 600 }}>✨ Updated</Typography>}
                 </Stack>
             </Stack>
         </Box>

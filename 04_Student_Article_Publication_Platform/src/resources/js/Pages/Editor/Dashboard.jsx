@@ -9,21 +9,60 @@ import {
     CardContent,
     Chip,
     Divider,
-    Paper,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useState } from 'react';
 
+const getReadingMetrics = (htmlContent) => {
+    const plainText = htmlContent?.replace(/<[^>]*>?/gm, '') || '';
+    const wordCount = plainText.trim().split(/\s+/).length;
+    const readTime = Math.max(1, Math.ceil(wordCount / 200));
+    return { wordCount, readTime };
+};
+
+const editorAnimations = `
+    @keyframes editor-container-enter {
+        0% { opacity: 0; transform: scale(0.94) translateY(24px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes editor-reveal-up {
+        0% { transform: translateY(80px); opacity: 0; filter: blur(8px); }
+        100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+    }
+    @keyframes editor-float-blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+    .editor-animate-reveal-0 { animation: editor-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+    .editor-animate-reveal-1 { animation: editor-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+    .editor-animate-reveal-2 { animation: editor-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+    .editor-animate-reveal-3 { animation: editor-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
+    .editor-animate-reveal-4 { animation: editor-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both; }
+    .editor-animate-blob { animation: editor-float-blob 8s infinite ease-in-out; }
+    .editor-animation-delay-2000 { animation-delay: 2s; }
+    .editor-animation-delay-4000 { animation-delay: 4s; }
+    .editor-container-enter { animation: editor-container-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+`;
+
+const textFieldSx = {
+    '& .MuiOutlinedInput-root': { borderRadius: '1rem', fontWeight: 500 },
+    '& .MuiInputLabel-root': { fontWeight: 600 },
+};
+
 export default function EditorDashboard({ submittedArticles, publishedArticles, flash }) {
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
     const [revisionComments, setRevisionComments] = useState({});
     const [coverImageDrafts, setCoverImageDrafts] = useState(() => {
         const map = {};
-        for (const article of [...submittedArticles, ...publishedArticles]) {
+        for (const article of [...(submittedArticles ?? []), ...(publishedArticles ?? [])]) {
             map[article.id] = article.cover_image_url ?? '';
         }
-
         return map;
     });
 
@@ -33,176 +72,235 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
         });
     };
 
+    const bentoCardSx = (hover = true) => ({
+        borderRadius: '2rem',
+        border: '1px solid',
+        borderColor: isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.9)',
+        bgcolor: isDark ? 'rgba(17, 24, 39, 0.6)' : 'rgba(244, 247, 251, 0.9)',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+        overflow: 'hidden',
+        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+        ...(hover && {
+            '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 20px 40px rgba(47, 111, 219, 0.12)',
+                borderColor: 'rgba(47, 111, 219, 0.25)',
+            },
+        }),
+    });
+
+    const imagePreviewSx = {
+        position: 'relative',
+        width: '100%',
+        height: 160,
+        borderRadius: '1rem',
+        overflow: 'hidden',
+        border: '1px dashed',
+        borderColor: isDark ? 'rgba(75, 85, 99, 0.6)' : 'rgba(203, 213, 225, 0.9)',
+        bgcolor: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(241, 245, 249, 0.9)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        '& img': { width: '100%', height: '100%', objectFit: 'cover' },
+    };
+
     return (
         <AuthenticatedLayout
             header={
-                <Stack spacing={0.25}>
-                    <Typography variant="h4">Editor Dashboard</Typography>
-                    <Typography color="text.secondary">
-                        Review submissions, request revisions, publish articles, and curate homepage visuals.
+                <Stack spacing={0.25} className="editor-animate-reveal-0">
+                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+                        Editor's Desk
+                    </Typography>
+                    <Typography color="text.secondary" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Review submissions, curate visual content, and publish the latest campus news.
                     </Typography>
                 </Stack>
             }
+            fullWidth
         >
             <Head title="Editor Dashboard" />
+            <style>{editorAnimations}</style>
 
-            <Stack spacing={2.5}>
-                {flash?.success && <Alert severity="success">{flash.success}</Alert>}
+            <Box className="editor-container-enter" sx={{ maxWidth: 1280, mx: 'auto', px: { xs: 2, lg: 3 }, py: { xs: 2.5, lg: 4 } }}>
+                {flash?.success && (
+                    <Alert severity="success" className="editor-animate-reveal-0" sx={{ borderRadius: '1rem', mb: 2 }}>{flash.success}</Alert>
+                )}
 
-                <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', lg: 'row' } }}>
-                    <Stack spacing={2} sx={{ width: { xs: '100%', lg: 300 }, alignSelf: 'flex-start', position: { lg: 'sticky' }, top: { lg: 92 } }}>
-                        <Paper sx={{ p: 2 }}>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>
-                                Editorial Queue
+                <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', lg: 'row' } }}>
+                    {/* LEFT SIDEBAR (Sticky) */}
+                    <Stack spacing={3} sx={{ width: { xs: '100%', lg: 320 }, alignSelf: 'flex-start', position: { lg: 'sticky' }, top: { lg: 92 } }} className="editor-animate-reveal-1">
+                        {/* Queue Stats Bento */}
+                        <Box sx={{ ...bentoCardSx(true), p: 3 }}>
+                            <Typography variant="h6" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <span>📋</span> Editorial Queue
                             </Typography>
-                            <Stack spacing={1}>
-                                <Chip label={`Pending review: ${submittedArticles.length}`} size="small" />
-                                <Chip label={`Published: ${publishedArticles.length}`} size="small" />
+                            <Stack spacing={2}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, borderRadius: '1rem', border: '1px solid', borderColor: 'rgba(47, 111, 219, 0.25)', bgcolor: 'rgba(47, 111, 219, 0.06)' }}>
+                                    <Typography sx={{ fontWeight: 700, color: '#2f6fdb' }}>Pending Review</Typography>
+                                    <Typography sx={{ fontSize: '1.25rem', fontWeight: 800, color: '#2f6fdb' }}>{submittedArticles?.length ?? 0}</Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, borderRadius: '1rem', border: '1px solid', borderColor: isDark ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.25)', bgcolor: isDark ? 'rgba(16, 185, 129, 0.08)' : 'rgba(16, 185, 129, 0.06)' }}>
+                                    <Typography sx={{ fontWeight: 700, color: '#10b981' }}>Published</Typography>
+                                    <Typography sx={{ fontSize: '1.25rem', fontWeight: 800, color: '#10b981' }}>{publishedArticles?.length ?? 0}</Typography>
+                                </Box>
                             </Stack>
-                        </Paper>
-                        <Paper sx={{ p: 2 }}>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-                                Image Curation
+                        </Box>
+
+                        {/* Workflow Tips */}
+                        <Box sx={{ ...bentoCardSx(true), p: 3, background: 'linear-gradient(155deg, rgba(47, 111, 219, 0.95), rgba(30, 75, 155, 0.9))', borderColor: 'rgba(47, 111, 219, 0.4)', color: '#fff' }}>
+                            <Typography variant="h6" sx={{ fontWeight: 800, mb: 2, display: 'flex', alignItems: 'center', gap: 1, color: '#fff' }}>
+                                <span>🎨</span> Image Curation
                             </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
-                                Set cover image URLs so student-facing pages show strong visuals for latest publications.
+                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', lineHeight: 1.6 }}>
+                                Strong visuals lead to higher reader engagement. Test your cover image URLs in the live preview box before publishing to ensure they load correctly on the student homepage.
                             </Typography>
-                        </Paper>
+                        </Box>
                     </Stack>
 
-                    <Stack spacing={2} sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="h6">Pending Articles</Typography>
-                        <Stack spacing={2}>
-                            {submittedArticles.length === 0 ? (
-                                <Paper sx={{ p: 2.5 }}>
-                                    <Typography color="text.secondary">No pending submissions right now.</Typography>
-                                </Paper>
-                            ) : (
-                                submittedArticles.map((article) => {
-                                    const comments = revisionComments[article.id] ?? '';
-                                    const commentsError = comments.trim().length === 0;
+                    {/* MAIN CONTENT AREA */}
+                    <Stack spacing={4} sx={{ flex: 1, minWidth: 0 }}>
+                        {/* PENDING ARTICLES */}
+                        <Box className="editor-animate-reveal-2">
+                            <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, letterSpacing: '-0.02em' }}>Needs Review</Typography>
+                            <Stack spacing={3}>
+                                {(submittedArticles?.length ?? 0) === 0 ? (
+                                    <Box sx={{ ...bentoCardSx(false), p: 6, textAlign: 'center' }}>
+                                        <Typography component="span" sx={{ fontSize: '2.5rem', display: 'block', mb: 2 }}>🎉</Typography>
+                                        <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>Inbox Zero!</Typography>
+                                        <Typography color="text.secondary">There are no pending submissions right now.</Typography>
+                                    </Box>
+                                ) : (
+                                    submittedArticles.map((article) => {
+                                        const comments = revisionComments[article.id] ?? '';
+                                        const commentsError = comments.trim().length === 0;
+                                        const metrics = getReadingMetrics(article.content);
+                                        const imageUrl = coverImageDrafts[article.id];
 
-                                    return (
-                                        <Card key={article.id}>
-                                            <CardContent>
-                                                <Stack spacing={2}>
-                                                    <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1}>
-                                                        <Box>
-                                                            <Typography variant="h6">{article.title}</Typography>
-                                                            <Typography variant="body2" color="text.secondary">
-                                                                Writer: {article.writer?.name} • Category: {article.category?.name}
-                                                            </Typography>
+                                        return (
+                                            <Card key={article.id} sx={{ ...bentoCardSx(true), boxShadow: 'none' }}>
+                                                <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+                                                    <Stack spacing={3}>
+                                                        <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="flex-start" spacing={2}>
+                                                            <Box>
+                                                                <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>{article.title}</Typography>
+                                                                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                                                                    By <Box component="span" sx={{ color: '#2f6fdb', fontWeight: 600 }}>{article.writer?.name}</Box> • {article.category?.name}
+                                                                </Typography>
+                                                                <Stack direction="row" spacing={1} sx={{ mt: 2 }} useFlexGap flexWrap="wrap">
+                                                                    <Chip label={article.status?.label} size="small" sx={{ fontWeight: 700, bgcolor: '#2f6fdb', color: '#fff' }} />
+                                                                    <Chip label={`~${metrics.readTime} min read (${metrics.wordCount} words)`} size="small" variant="outlined" sx={{ fontWeight: 600 }} />
+                                                                </Stack>
+                                                            </Box>
+                                                        </Stack>
+
+                                                        <Box sx={{ p: 2, borderRadius: '1rem', border: '1px solid', borderColor: isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.8)', bgcolor: isDark ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.9)', color: 'text.secondary', fontSize: 14, lineHeight: 1.6 }}>
+                                                            {(article.content || '').replace(/<[^>]*>?/gm, '').slice(0, 300)}...
                                                         </Box>
-                                                        <Chip label={article.status?.label} />
+
+                                                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, alignItems: 'center', p: 2, borderRadius: '1.5rem', border: '1px solid', borderColor: isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.9)', bgcolor: isDark ? 'rgba(17, 24, 39, 0.3)' : 'rgba(255,255,255,0.7)' }}>
+                                                            <Box sx={{ ...imagePreviewSx }}>
+                                                                {imageUrl ? (
+                                                                    <img src={imageUrl} alt="Cover Preview" onError={(e) => { e.target.style.display = 'none'; if (e.target.nextSibling) e.target.nextSibling.style.display = 'block'; }} />
+                                                                ) : null}
+                                                                <Typography component="span" sx={{ display: imageUrl ? 'none' : 'block', color: 'text.secondary', fontSize: 14, fontWeight: 500 }}>No Image Set</Typography>
+                                                            </Box>
+                                                            <Stack spacing={2}>
+                                                                <TextField
+                                                                    label="Cover Image URL"
+                                                                    placeholder="https://images.unsplash.com/..."
+                                                                    value={imageUrl}
+                                                                    onChange={(event) => setCoverImageDrafts((prev) => ({ ...prev, [article.id]: event.target.value }))}
+                                                                    fullWidth
+                                                                    size="small"
+                                                                    sx={textFieldSx}
+                                                                />
+                                                                <CoolButton tone="outline" sx={{ alignSelf: 'flex-start' }} onClick={() => saveCoverImage(article.id)}>
+                                                                    Save Image Link
+                                                                </CoolButton>
+                                                            </Stack>
+                                                        </Box>
+
+                                                        <Stack spacing={2} sx={{ pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                                                            <TextField
+                                                                multiline
+                                                                minRows={2}
+                                                                label="Revision Notes for Writer"
+                                                                placeholder="Great draft! Just needs a clearer conclusion..."
+                                                                value={comments}
+                                                                onChange={(event) => setRevisionComments((prev) => ({ ...prev, [article.id]: event.target.value }))}
+                                                                helperText="Required when requesting a revision"
+                                                                fullWidth
+                                                                sx={textFieldSx}
+                                                            />
+                                                            <ActionButtonGroup
+                                                                variant="contained"
+                                                                sx={{ alignSelf: 'flex-start', '& .MuiButton-contained': { bgcolor: '#2f6fdb', '&:hover': { bgcolor: '#2157b4' } } }}
+                                                                actions={[
+                                                                    { key: 'request-revision', label: 'Request Revision', disabled: commentsError, onClick: () => router.post(route('articles.revision', article.id), { comments }) },
+                                                                    { key: 'publish', label: 'Publish to Campus', onClick: () => router.post(route('articles.publish', article.id)) },
+                                                                ]}
+                                                            />
+                                                        </Stack>
                                                     </Stack>
+                                                </CardContent>
+                                            </Card>
+                                        );
+                                    })
+                                )}
+                            </Stack>
+                        </Box>
 
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {article.content.replace(/<[^>]*>?/gm, '').slice(0, 250)}...
-                                                    </Typography>
+                        <Divider sx={{ my: 2, borderColor: isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.8)' }} />
 
-                                                    <TextField
-                                                        label="Cover image URL (reader homepage)"
-                                                        value={coverImageDrafts[article.id] ?? ''}
-                                                        onChange={(event) =>
-                                                            setCoverImageDrafts((previous) => ({
-                                                                ...previous,
-                                                                [article.id]: event.target.value,
-                                                            }))
-                                                        }
-                                                        fullWidth
-                                                    />
-                                                    <CoolButton tone="outline" sx={{ alignSelf: 'flex-start' }} onClick={() => saveCoverImage(article.id)}>
-                                                        Save Image
-                                                    </CoolButton>
-
-                                                    <TextField
-                                                        multiline
-                                                        minRows={3}
-                                                        label="Revision Feedback"
-                                                        value={comments}
-                                                        onChange={(event) =>
-                                                            setRevisionComments((previous) => ({
-                                                                ...previous,
-                                                                [article.id]: event.target.value,
-                                                            }))
-                                                        }
-                                                        helperText="Required when requesting revision"
-                                                        fullWidth
-                                                    />
-
-                                                    <ActionButtonGroup
-                                                        actions={[
-                                                            {
-                                                                key: 'request-revision',
-                                                                label: 'Request Revision',
-                                                                disabled: commentsError,
-                                                                onClick: () =>
-                                                                    router.post(route('articles.revision', article.id), {
-                                                                        comments,
-                                                                    }),
-                                                            },
-                                                            {
-                                                                key: 'publish',
-                                                                label: 'Publish',
-                                                                onClick: () => router.post(route('articles.publish', article.id)),
-                                                            },
-                                                        ]}
-                                                    />
+                        {/* PUBLISHED ARTICLES */}
+                        <Box className="editor-animate-reveal-3">
+                            <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, letterSpacing: '-0.02em' }}>Recently Published</Typography>
+                            <Stack spacing={2}>
+                                {(publishedArticles?.length ?? 0) === 0 ? (
+                                    <Box sx={{ ...bentoCardSx(false), p: 4, textAlign: 'center' }}>
+                                        <Typography color="text.secondary">No published articles yet.</Typography>
+                                    </Box>
+                                ) : (
+                                    publishedArticles.map((article) => (
+                                        <Card key={article.id} sx={{ ...bentoCardSx(true), boxShadow: 'none' }}>
+                                            <CardContent sx={{ p: 2.5 }}>
+                                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems="center">
+                                                    <Box sx={{ width: { xs: '100%', sm: 192 }, flexShrink: 0 }}>
+                                                        <Box sx={{ ...imagePreviewSx, height: 100 }}>
+                                                            {coverImageDrafts[article.id] ? (
+                                                                <img src={coverImageDrafts[article.id]} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                            ) : (
+                                                                <Typography variant="caption" color="text.secondary">No Image</Typography>
+                                                            )}
+                                                        </Box>
+                                                    </Box>
+                                                    <Stack spacing={1.5} sx={{ flex: 1, width: '100%' }}>
+                                                        <Box>
+                                                            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>{article.title}</Typography>
+                                                            <Typography variant="body2" color="text.secondary">By {article.writer?.name} • {article.category?.name}</Typography>
+                                                        </Box>
+                                                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="flex-start" useFlexGap flexWrap="wrap">
+                                                            <TextField
+                                                                label="Update Image URL"
+                                                                value={coverImageDrafts[article.id] ?? ''}
+                                                                onChange={(event) => setCoverImageDrafts((prev) => ({ ...prev, [article.id]: event.target.value }))}
+                                                                fullWidth
+                                                                size="small"
+                                                                sx={{ ...textFieldSx, flex: 1, minWidth: 160 }}
+                                                            />
+                                                            <CoolButton tone="outline" onClick={() => saveCoverImage(article.id)}>Update</CoolButton>
+                                                        </Stack>
+                                                    </Stack>
                                                 </Stack>
                                             </CardContent>
                                         </Card>
-                                    );
-                                })
-                            )}
-                        </Stack>
-
-                        <Divider />
-
-                        <Typography variant="h6">Published Articles</Typography>
-                        <Stack spacing={1.25}>
-                            {publishedArticles.length === 0 ? (
-                                <Paper sx={{ p: 2.5 }}>
-                                    <Typography color="text.secondary">No published articles yet.</Typography>
-                                </Paper>
-                            ) : (
-                                publishedArticles.map((article) => (
-                                    <Card key={article.id}>
-                                        <CardContent>
-                                            <Stack spacing={1.5}>
-                                                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{article.title}</Typography>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    Writer: {article.writer?.name} • Category: {article.category?.name}
-                                                </Typography>
-                                                <TextField
-                                                    label="Cover image URL"
-                                                    value={coverImageDrafts[article.id] ?? ''}
-                                                    onChange={(event) =>
-                                                        setCoverImageDrafts((previous) => ({
-                                                            ...previous,
-                                                            [article.id]: event.target.value,
-                                                        }))
-                                                    }
-                                                    fullWidth
-                                                />
-                                                <CoolButton tone="outline" sx={{ alignSelf: 'flex-start' }} onClick={() => saveCoverImage(article.id)}>
-                                                    Update Image
-                                                </CoolButton>
-                                            </Stack>
-                                        </CardContent>
-                                    </Card>
-                                ))
-                            )}
-                        </Stack>
+                                    ))
+                                )}
+                            </Stack>
+                        </Box>
                     </Stack>
                 </Box>
-
-                <Paper sx={{ p: 2 }}>
-                    <Typography variant="subtitle2">Footer: Notifications</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Editorial events trigger submission, revision, and publication notifications to relevant users.
-                    </Typography>
-                </Paper>
-            </Stack>
+            </Box>
         </AuthenticatedLayout>
     );
 }

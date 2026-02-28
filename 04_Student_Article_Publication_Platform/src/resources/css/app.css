@@ -38,8 +38,98 @@ body[data-compact-cards='1'] .MuiPaper-root {
 }
 
 body[data-dashboard-density='compact'] .MuiContainer-root {
-    max-width: 1280px;
+    max-width: 72rem;
 }
+
+/* Dashboard feed – compact cards */
+body[data-compact-cards='1'] .dashboard-feed-image {
+    height: 7rem !important;
+    min-height: 7rem !important;
+}
+
+body[data-compact-cards='1'] .dashboard-feed-content {
+    padding: 1rem 1.25rem !important;
+}
+
+/* Dashboard feed – larger text */
+body[data-larger-text='1'] .dashboard-feed-card {
+    font-size: 1.0625rem;
+}
+
+body[data-larger-text='1'] .dashboard-feed-card .dashboard-feed-title {
+    font-size: 1.25rem;
+}
+
+@media (min-width: 640px) {
+    body[data-larger-text='1'] .dashboard-feed-card .dashboard-feed-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* Dashboard feed – compact density (tighter layout) */
+body[data-dashboard-density='compact'] .dashboard-feed-wrap {
+    max-width: 72rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+body[data-dashboard-density='compact'] .dashboard-feed-grid {
+    gap: 1.25rem;
+}
+
+body[data-dashboard-density='compact'] .dashboard-feed-section {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+body[data-dashboard-density='compact'] .dashboard-feed-header {
+    margin-bottom: 1.5rem;
+}
+
+body[data-dashboard-density='compact'] .dashboard-feed-footer {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+/* Dashboard feed – comfortable density (default relaxed layout) */
+body[data-dashboard-density='comfortable'] .dashboard-feed-wrap {
+    max-width: 80rem;
+    padding-left: 1rem;
+    padding-right: 2rem;
+}
+
+body[data-dashboard-density='comfortable'] .dashboard-feed-grid {
+    gap: 2rem;
+}
+
+/* Publication show – compact density */
+body[data-dashboard-density='compact'] .publication-show-wrap {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+}
+
+body[data-dashboard-density='compact'] .publication-show-paper {
+    padding: 1.5rem !important;
+}
+
+@media (min-width: 900px) {
+    body[data-dashboard-density='compact'] .publication-show-paper {
+        padding: 2.5rem !important;
+    }
+}
+
+body[data-dashboard-density='compact'] .publication-show-more {
+    margin-top: 2rem !important;
+}
+
+body[data-dashboard-density='compact'] .publication-show-more-grid {
+    gap: 1rem !important;
+}
+
+body[data-dashboard-density='compact'] .publication-show-more-card .MuiCardContent-root {
+    padding: 1rem !important;
+}
+
 
 @keyframes cpFadeUp {
     from {

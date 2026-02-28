@@ -49,7 +49,7 @@ sed -i -E 's/^(#\s*)?MAIL_PORT=.*/MAIL_PORT=1025/' "$ENV_FILE"
 sed -i -E 's/^(#\s*)?MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS="no-repy@wmad-306.edu.ph"/' "$ENV_FILE"
 
 php artisan key:generate
-php artisan migrate
+php artisan migrate 
 npm run build
 
 echo "Initialization complete."
