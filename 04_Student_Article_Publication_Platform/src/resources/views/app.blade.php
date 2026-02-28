@@ -6,6 +6,8 @@
 
         <title inertia>{{ config('app.name', 'Campus Press') }}</title>
 
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
         @routes
         @viteReactRefresh
         @vite(['resources/js/app.jsx', "resources/js/Pages/{$page['component']}.jsx"])

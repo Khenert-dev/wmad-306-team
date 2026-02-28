@@ -6,7 +6,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { CssBaseline, ThemeProvider, alpha, createTheme } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Campus Press';
 
@@ -20,6 +20,15 @@ function AppThemeProvider({ children }) {
             return next;
         });
     };
+
+    // Sync MUI theme mode with Tailwind CSS dark mode
+    useEffect(() => {
+        if (mode === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [mode]);
 
     const theme = useMemo(() => {
         const isDark = mode === 'dark';
@@ -132,7 +141,13 @@ function AppThemeProvider({ children }) {
 }
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    // Updated title logic right here:
+    title: (title) => {
+        if (!title || title === appName) {
+            return appName;
+        }
+        return `${title} - ${appName}`;
+    },
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.jsx`,

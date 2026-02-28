@@ -2,16 +2,9 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import ThemeModeToggle from '@/Components/ThemeModeToggle';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-
-function SectionBreak() {
-    return (
-        <div aria-hidden="true" className="bg-gray-950 px-6">
-            <div className="mx-auto max-w-7xl">
-                <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/55 to-transparent" />
-            </div>
-        </div>
-    );
-}
+import { Box, Drawer, IconButton, Typography } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function Welcome() {
     const { auth, recentPublications = [] } = usePage().props;
@@ -33,219 +26,198 @@ export default function Welcome() {
         <>
             <Head title="Campus Press" />
 
-            <div className="bg-gray-900" id="product">
-                <header className="absolute inset-x-0 top-0 z-50">
-                    <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
-                        <div className="flex lg:flex-1">
-                            <Link href="/" className="-m-1.5 flex items-center gap-2 p-1.5 text-white">
+            <Box className="bg-white dark:bg-gray-900 transition-colors duration-300" id="product">
+                <Box component="header" className="absolute inset-x-0 top-0 z-50">
+                    <Box component="nav" aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
+                        <Box className="flex lg:flex-1">
+                            {/* Color synced to #2f6fdb via text-[#2f6fdb] */}
+                            <Link href="/" className="-m-1.5 flex items-center gap-2 p-1.5 text-[#2f6fdb]">
                                 <span className="sr-only">Campus Press</span>
                                 <ApplicationLogo className="h-8 w-8" />
-                                <span className="text-sm font-semibold">Campus Press</span>
+                                <span className="text-sm font-bold tracking-tight">Campus Press</span>
                             </Link>
-                        </div>
+                        </Box>
 
-                        <div className="flex lg:hidden">
-                            <button
-                                type="button"
+                        <Box className="flex lg:hidden">
+                            <IconButton
                                 onClick={() => setMobileOpen(true)}
-                                className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-200"
+                                className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 dark:text-gray-200"
+                                aria-label="Open main menu"
                             >
-                                <span className="sr-only">Open main menu</span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" className="size-6">
-                                    <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </button>
-                        </div>
+                                <MenuIcon />
+                            </IconButton>
+                        </Box>
 
-                        <div className="hidden lg:flex lg:gap-x-8">
+                        <Box className="hidden lg:flex lg:gap-x-8">
                             {navItems.map((item) => (
-                                <a key={item.label} href={item.href} className="text-sm font-semibold text-gray-200 hover:text-white">
+                                <a key={item.label} href={item.href} className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-[#2f6fdb] dark:hover:text-[#2f6fdb] transition-colors">
                                     {item.label}
                                 </a>
                             ))}
-                        </div>
+                        </Box>
 
-                        <div className="hidden lg:flex lg:flex-1 lg:justify-end items-center gap-4">
+                        <Box className="hidden lg:flex lg:flex-1 lg:justify-end items-center gap-4">
                             <ThemeModeToggle size="small" />
                             {auth?.user ? (
-                                <Link href={route('dashboard')} className="text-sm/6 font-semibold text-white">
+                                <Link href={route('dashboard')} className="text-sm/6 font-semibold text-gray-900 dark:text-white hover:text-[#2f6fdb] transition-colors">
                                     Dashboard <span aria-hidden="true">&rarr;</span>
                                 </Link>
                             ) : (
-                                <Link href={route('login')} className="text-sm/6 font-semibold text-white">
+                                <Link href={route('login')} className="text-sm/6 font-semibold text-gray-900 dark:text-white hover:text-[#2f6fdb] transition-colors">
                                     Log in <span aria-hidden="true">&rarr;</span>
                                 </Link>
                             )}
-                        </div>
-                    </nav>
+                        </Box>
+                    </Box>
 
-                    {mobileOpen && (
-                        <div className="lg:hidden">
-                            <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setMobileOpen(false)} />
-                            <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-gray-900 p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10">
-                                <div className="flex items-center justify-between gap-3">
-                                    <Link href="/" className="-m-1.5 flex items-center gap-2 p-1.5 text-white">
-                                        <ApplicationLogo className="h-8 w-8" />
-                                        <span className="sr-only">Campus Press</span>
-                                    </Link>
-                                    <div className="flex items-center gap-2">
-                                        <ThemeModeToggle size="small" />
-                                        <button
-                                            type="button"
-                                            onClick={() => setMobileOpen(false)}
-                                            className="-m-2.5 rounded-md p-2.5 text-gray-200"
-                                        >
-                                            <span className="sr-only">Close menu</span>
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" className="size-6">
-                                                <path d="M6 18 18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="mt-6 flow-root">
-                                    <div className="-my-6 divide-y divide-white/10">
-                                        <div className="space-y-2 py-6">
-                                            {navItems.map((item) => (
-                                                <a
-                                                    key={item.label}
-                                                    href={item.href}
-                                                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/5"
-                                                    onClick={() => setMobileOpen(false)}
-                                                >
-                                                    {item.label}
-                                                </a>
-                                            ))}
-                                        </div>
-                                        <div className="py-6">
-                                            {auth?.user ? (
-                                                <Link href={route('dashboard')} className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-white hover:bg-white/5">
-                                                    Dashboard
-                                                </Link>
-                                            ) : (
-                                                <Link href={route('login')} className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-white hover:bg-white/5">
-                                                    Log in
-                                                </Link>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </header>
+                    <Drawer
+                        anchor="right"
+                        open={mobileOpen}
+                        onClose={() => setMobileOpen(false)}
+                        PaperProps={{
+                            className: "w-full sm:max-w-sm bg-white dark:bg-gray-900 transition-colors duration-300",
+                            elevation: 0
+                        }}
+                    >
+                        <Box className="p-6">
+                            <Box className="flex items-center justify-between gap-3">
+                                <Link href="/" className="-m-1.5 flex items-center gap-2 p-1.5 text-[#2f6fdb]">
+                                    <ApplicationLogo className="h-8 w-8" />
+                                    <span className="text-sm font-bold">Campus Press</span>
+                                </Link>
+                                <Box className="flex items-center gap-2">
+                                    <ThemeModeToggle size="small" />
+                                    <IconButton
+                                        onClick={() => setMobileOpen(false)}
+                                        className="-m-2.5 rounded-md p-2.5 text-gray-700 dark:text-gray-200"
+                                        aria-label="Close menu"
+                                    >
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Box>
+                            </Box>
+                            <Box className="mt-6 flow-root">
+                                <Box className="-my-6 divide-y divide-gray-200 dark:divide-white/10">
+                                    <Box className="space-y-2 py-6">
+                                        {navItems.map((item) => (
+                                            <a
+                                                key={item.label}
+                                                href={item.href}
+                                                className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                                                onClick={() => setMobileOpen(false)}
+                                            >
+                                                {item.label}
+                                            </a>
+                                        ))}
+                                    </Box>
+                                </Box>
+                            </Box>
+                        </Box>
+                    </Drawer>
+                </Box>
 
-                <div className="relative isolate px-6 pt-14 lg:px-8">
-                    <div aria-hidden="true" className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
-                        <div style={{ clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)' }} className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-30 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"></div>
-                    </div>
+                <Box className="relative isolate px-6 pt-14 lg:px-8">
+                    {/* Background glows updated to the icon color #2f6fdb */}
+                    <Box aria-hidden="true" className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
+                        <Box style={{ clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)' }} className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-30 bg-gradient-to-tr from-[#2f6fdb] to-[#7ea5ea] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"></Box>
+                    </Box>
 
-                    <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 welcome-fade-up">
-                        <div className="hidden sm:mb-8 sm:flex sm:justify-center">
-                            <div className="relative rounded-full px-3 py-1 text-sm/6 text-gray-400 ring-1 ring-white/10 hover:ring-white/20">
+                    <Box className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 welcome-fade-up">
+                        <Box className="hidden sm:mb-8 sm:flex sm:justify-center">
+                            <Box className="relative rounded-full px-3 py-1 text-sm/6 text-gray-600 dark:text-gray-400 ring-1 ring-gray-900/10 dark:ring-white/10 hover:ring-gray-900/20 dark:hover:ring-white/20 transition-colors">
                                 Guest readers can now preview published journals.
-                                <a href="#recent-publications" className="font-semibold text-indigo-400">
-                                    <span aria-hidden="true" className="absolute inset-0"></span>
+                                <a href="#recent-publications" className="font-semibold text-[#2f6fdb] ml-1">
                                     Browse previews <span aria-hidden="true">&rarr;</span>
                                 </a>
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
 
-                        <div className="text-center">
-                            <h1 className="text-5xl font-semibold tracking-tight text-balance text-white sm:text-7xl">
+                        <Box className="text-center">
+                            <Typography component="h1" variant="inherit" className="text-5xl font-bold tracking-tight text-balance text-gray-900 dark:text-white sm:text-7xl transition-colors">
                                 Publish better campus stories
-                            </h1>
-                            <p className="mt-8 text-lg font-medium text-pretty text-gray-400 sm:text-xl/8">
+                            </Typography>
+                            <Typography component="p" variant="inherit" className="mt-8 text-lg font-medium text-pretty text-gray-600 dark:text-gray-400 sm:text-xl/8 transition-colors">
                                 Writers create, editors curate, and students engage with meaningful articles in one streamlined workflow.
-                            </p>
-                            <div className="mt-10 flex items-center justify-center gap-x-6">
+                            </Typography>
+                            <Box className="mt-10 flex items-center justify-center gap-x-6">
                                 {auth?.user ? (
-                                    <Link href={route('dashboard')} className="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400">
+                                    <Link href={route('dashboard')} className="rounded-md bg-[#2f6fdb] px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2157b4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6fdb]">
                                         Open dashboard
                                     </Link>
                                 ) : (
                                     <>
-                                        <Link href={route('register')} className="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400">
+                                        <Link href={route('register')} className="rounded-md bg-[#2f6fdb] px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2157b4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6fdb]">
                                             Get started
                                         </Link>
-                                        <a href="#recent-publications" className="text-sm/6 font-semibold text-white">
+                                        <a href="#recent-publications" className="text-sm/6 font-semibold text-gray-900 dark:text-white transition-colors hover:text-[#2f6fdb]">
                                             Read previews <span aria-hidden="true">&rarr;</span>
                                         </a>
                                     </>
                                 )}
-                            </div>
-                        </div>
-                    </div>
+                            </Box>
+                        </Box>
+                    </Box>
+                </Box>
+            </Box>
 
-                    <div aria-hidden="true" className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]">
-                        <div style={{ clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)' }} className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="recent-publications" className="bg-gray-950 py-24 sm:py-32 welcome-fade-up">
-                <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
-                    <h2 className="text-center text-base/7 font-semibold text-indigo-400">Recently Published</h2>
-                    <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl">
+            <Box id="recent-publications" className="bg-gray-50 dark:bg-gray-950 py-24 sm:py-32 welcome-fade-up transition-colors duration-300">
+                <Box className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
+                    <Typography component="h2" variant="inherit" className="text-center text-base/7 font-bold text-[#2f6fdb]">Recently Published</Typography>
+                    <Typography component="p" variant="inherit" className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-balance text-gray-900 dark:text-white sm:text-5xl transition-colors">
                         Latest campus publications
-                    </p>
+                    </Typography>
 
-                    <div className="mt-10 grid gap-4 sm:mt-16 lg:grid-cols-3 lg:grid-rows-2">
+                    <Box className="mt-10 grid gap-4 sm:mt-16 lg:grid-cols-3 lg:grid-rows-2">
                         {publicationCards.slice(0, 4).map((publication, index) => {
                             const isTall = index === 0 || index === 3;
                             const image = publication.cover_image_url || 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80';
                             const summary = (publication.content || '').replace(/<[^>]*>?/gm, '').slice(0, 140);
 
                             return (
-                                <div key={publication.id} className={`relative ${isTall ? 'lg:row-span-2' : ''}`}>
-                                    <div className="absolute inset-px rounded-lg bg-gray-800"></div>
-                                    <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)] welcome-glow-card">
-                                        <div className="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
-                                            <p className="mt-2 text-lg font-medium tracking-tight text-white max-lg:text-center">
+                                <Box key={publication.id} className={`relative ${isTall ? 'lg:row-span-2' : ''}`}>
+                                    <Box className="absolute inset-px rounded-lg bg-white dark:bg-gray-800 shadow-sm transition-colors duration-300"></Box>
+                                    <Box className="relative flex h-full flex-col overflow-hidden rounded-[calc(0.5rem+1px)]">
+                                        <Box className="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
+                                            <Typography component="p" variant="inherit" className="mt-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white max-lg:text-center transition-colors">
                                                 {publication.title}
-                                            </p>
-                                            <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
+                                            </Typography>
+                                            <Typography component="p" variant="inherit" className="mt-2 max-w-lg text-sm/6 text-gray-600 dark:text-gray-400 max-lg:text-center transition-colors">
                                                 {summary || 'Read the latest published article from our editorial platform.'}
-                                            </p>
-                                            <p className="mt-2 text-xs text-indigo-300 max-lg:text-center">
+                                            </Typography>
+                                            <Typography component="p" variant="inherit" className="mt-2 text-xs font-bold text-[#2f6fdb] max-lg:text-center transition-colors">
                                                 {publication.category?.name} • {publication.writer?.name}
-                                            </p>
-                                            {!auth?.user && (
-                                                <p className="mt-2 text-xs text-emerald-300 max-lg:text-center">
-                                                    Guest access: limited preview enabled
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className="relative min-h-72 w-full grow">
+                                            </Typography>
+                                        </Box>
+                                        <Box className="relative min-h-72 w-full grow">
                                             <img
                                                 src={image}
                                                 alt={publication.title}
-                                                className="absolute inset-4 h-[calc(100%-2rem)] w-[calc(100%-2rem)] rounded-xl object-cover"
+                                                className="absolute inset-4 h-[calc(100%-2rem)] w-[calc(100%-2rem)] rounded-xl object-cover shadow-md"
                                             />
-                                            <div className="absolute inset-4 rounded-xl ring-1 ring-white/10"></div>
-                                        </div>
-                                        <div className="px-8 pb-8">
-                                            <Link href={route('publications.show', publication.id)} className="inline-flex text-sm font-semibold text-indigo-300 hover:text-indigo-200">
+                                            <Box className="absolute inset-4 rounded-xl ring-1 ring-gray-900/10 dark:ring-white/10 transition-colors"></Box>
+                                        </Box>
+                                        <Box className="px-8 pb-8">
+                                            <Link href={route('publications.show', publication.id)} className="inline-flex text-sm font-bold text-[#2f6fdb] hover:text-[#2157b4] transition-colors">
                                                 Preview Journal <span aria-hidden="true" className="ml-1">&rarr;</span>
                                             </Link>
-                                        </div>
-                                    </div>
-                                    <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-white/15"></div>
-                                </div>
+                                        </Box>
+                                    </Box>
+                                </Box>
                             );
                         })}
-                    </div>
-                </div>
-            </div>
+                    </Box>
+                </Box>
+            </Box>
 
-            <footer className="border-t border-white/10 bg-gray-950 py-8">
-                <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 text-sm text-gray-400 lg:flex-row lg:px-8">
-                    <p>© {new Date().getFullYear()} Campus Press. Student Article Publication Platform.</p>
-                    <div className="flex items-center gap-4">
-                        <a href="#product" className="hover:text-gray-200">Product</a>
-                        <a href="#recent-publications" className="hover:text-gray-200">Publications</a>
-                    </div>
-                </div>
-            </footer>
+            <Box component="footer" className="border-t border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-950 py-8 transition-colors duration-300">
+                <Box className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 text-sm text-gray-500 dark:text-gray-400 lg:flex-row lg:px-8">
+                    <Typography component="p" variant="inherit">© {new Date().getFullYear()} Campus Press. Student Article Publication Platform.</Typography>
+                    <Box className="flex items-center gap-4">
+                        <a href="#product" className="hover:text-[#2f6fdb] transition-colors">Product</a>
+                        <a href="#recent-publications" className="hover:text-[#2f6fdb] transition-colors">Publications</a>
+                    </Box>
+                </Box>
+            </Box>
         </>
     );
 }
