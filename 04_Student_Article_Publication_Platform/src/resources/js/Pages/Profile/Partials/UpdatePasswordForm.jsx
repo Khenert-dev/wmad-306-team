@@ -9,9 +9,22 @@ export default function UpdatePasswordForm() {
 
     const updatePassword = (e) => { e.preventDefault(); put(route('password.update'), { onSuccess: () => reset() }); };
 
+    // Unified card styling - matching UpdateAppearancePreferencesForm
+    const cardStyles = {
+        bgcolor: 'background.paper',
+        borderRadius: '2rem',
+        p: { xs: 3, sm: 4 },
+        boxShadow: 'none',
+        border: '1px solid',
+        borderColor: 'divider',
+        overflow: 'hidden',
+    };
+
     return (
-        <Box className="bg-white dark:bg-gray-800/80 rounded-[2rem] p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700/50">
-            <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>🔒 Security</Typography>
+        <Box sx={cardStyles}>
+            <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <span>🔒</span> Security
+            </Typography>
             <Typography color="text.secondary" sx={{ mb: 4 }}>Ensure your account is using a long, random password to stay secure.</Typography>
 
             <Stack component="form" onSubmit={updatePassword} spacing={3}>
