@@ -1,6 +1,6 @@
 import CoolButton from '@/Components/CoolButton';
 import { useForm } from '@inertiajs/react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography, Divider } from '@mui/material';
 import { useState } from 'react';
 
 export default function DeleteUserForm() {
@@ -10,10 +10,23 @@ export default function DeleteUserForm() {
     const closeModal = () => { setConfirmingUserDeletion(false); clearErrors(); reset(); };
     const deleteUser = (e) => { e.preventDefault(); destroy(route('profile.destroy'), { onSuccess: () => closeModal() }); };
 
+    // Unified card styling - matching UpdateAppearancePreferencesForm
+    const cardStyles = {
+        bgcolor: 'background.paper',
+        borderRadius: '2rem',
+        p: { xs: 3, sm: 4 },
+        boxShadow: 'none',
+        border: '1px solid',
+        borderColor: 'divider',
+        overflow: 'hidden',
+    };
+
     return (
-        <Box className="bg-red-50/50 dark:bg-red-900/10 rounded-[2rem] p-6 sm:p-8 shadow-sm border border-red-100 dark:border-red-900/30">
-            <Typography variant="h6" sx={{ fontWeight: 800, color: 'error.main', mb: 1 }}>⚠️ Danger Zone</Typography>
-            <Typography color="text.secondary" sx={{ mb: 3 }}>
+        <Box sx={cardStyles}>
+            <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <span>⚠️</span> Danger Zone
+            </Typography>
+            <Typography color="text.secondary" sx={{ mb: 4 }}>
                 Permanently delete your account. This action cannot be undone.
             </Typography>
 
