@@ -1,7 +1,6 @@
-import ActionButtonGroup from '@/Components/ActionButtonGroup';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Alert, Box, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 
 export default function VerifyEmail({ status }) {
     const { post, processing } = useForm({});
@@ -26,24 +25,26 @@ export default function VerifyEmail({ status }) {
                     <Alert severity="success">A new verification link has been sent to your email address.</Alert>
                 )}
 
-                <ActionButtonGroup
-                    actions={[
-                        {
-                            key: 'resend',
-                            label: 'Resend Verification Email',
-                            type: 'submit',
-                            disabled: processing,
-                        },
-                        {
-                            key: 'logout',
-                            label: 'Log Out',
-                            component: Link,
-                            href: route('logout'),
-                            method: 'post',
-                            as: 'button',
-                        },
-                    ]}
-                />
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.25}>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        disabled={processing}
+                        sx={{ borderRadius: '0.9rem', py: 1.15, fontWeight: 700, textTransform: 'none', bgcolor: '#2f6fdb', '&:hover': { bgcolor: '#2157b4' } }}
+                    >
+                        Resend Verification Email
+                    </Button>
+                    <Button
+                        component={Link}
+                        href={route('logout')}
+                        method="post"
+                        as="button"
+                        variant="outlined"
+                        sx={{ borderRadius: '0.9rem', py: 1.15, fontWeight: 700, textTransform: 'none' }}
+                    >
+                        Log Out
+                    </Button>
+                </Stack>
             </Stack>
         </GuestLayout>
     );

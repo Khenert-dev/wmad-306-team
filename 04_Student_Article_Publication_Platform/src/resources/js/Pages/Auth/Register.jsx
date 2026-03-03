@@ -1,7 +1,6 @@
-import ActionButtonGroup from '@/Components/ActionButtonGroup';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Box, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 
 const authAnimations = `
     @keyframes auth-container-enter {
@@ -160,29 +159,24 @@ export default function Register() {
                             sx={textFieldSx}
                         />
 
-                        <Box className="auth-animate-reveal-4">
-                            <ActionButtonGroup
+                        <Stack className="auth-animate-reveal-4" direction={{ xs: 'column', sm: 'row' }} spacing={1.25}>
+                            <Button
+                                component={Link}
+                                href={route('login')}
+                                variant="outlined"
+                                sx={{ borderRadius: '0.9rem', fontWeight: 700, textTransform: 'none' }}
+                            >
+                                Already registered?
+                            </Button>
+                            <Button
+                                type="submit"
                                 variant="contained"
-                                sx={{
-                                    width: { xs: '100%', sm: 'fit-content' },
-                                    '& .MuiButton-contained': { bgcolor: '#2f6fdb', '&:hover': { bgcolor: '#2157b4' } },
-                                }}
-                                actions={[
-                                    {
-                                        key: 'login',
-                                        label: 'Already registered?',
-                                        component: Link,
-                                        href: route('login'),
-                                    },
-                                    {
-                                        key: 'register',
-                                        label: 'Register',
-                                        type: 'submit',
-                                        disabled: processing,
-                                    },
-                                ]}
-                            />
-                        </Box>
+                                disabled={processing}
+                                sx={{ borderRadius: '0.9rem', px: 2.5, fontWeight: 700, textTransform: 'none', bgcolor: '#2f6fdb', '&:hover': { bgcolor: '#2157b4' } }}
+                            >
+                                Register
+                            </Button>
+                        </Stack>
                     </Stack>
                 </Box>
             </Box>

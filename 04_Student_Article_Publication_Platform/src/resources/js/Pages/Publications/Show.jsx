@@ -9,6 +9,7 @@ const stripHtml = (value) => value?.replace(/<[^>]*>?/gm, '') ?? '';
 export default function PublicPublicationShow({ article, latestPublications = [] }) {
     const theme = useTheme();
     const { auth, flash } = usePage().props;
+    const homeHref = auth?.user ? route('dashboard') : route('welcome');
     const isGuest = !auth?.user;
     const isStudent = auth?.roles?.includes('student');
     
@@ -50,7 +51,7 @@ export default function PublicPublicationShow({ article, latestPublications = []
                 <Container maxWidth="lg" className="publication-show-wrap" sx={{ py: { xs: 3, md: 5 } }}>
                     {/* Header Nav - Animates First */}
                     <Stack className="animate-reveal-0" direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 4 }}>
-                        <Stack component={Link} href={route('dashboard')} direction="row" spacing={1} sx={{ textDecoration: 'none', color: 'text.primary', alignItems: 'center' }}>
+                        <Stack component={Link} href={homeHref} direction="row" spacing={1} sx={{ textDecoration: 'none', color: 'text.primary', alignItems: 'center' }}>
                             <ApplicationLogo style={{ width: 32, height: 32, color: theme.palette.primary.main }} />
                             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Campus Press</Typography>
                         </Stack>

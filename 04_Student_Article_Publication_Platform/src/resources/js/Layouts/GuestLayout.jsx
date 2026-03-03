@@ -1,13 +1,14 @@
 import AIAssistantWidget from '@/Components/AIAssistantWidget';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import ThemeModeToggle from '@/Components/ThemeModeToggle';
-import { Link } from '@inertiajs/react';
-import { Box, Container, Divider, Paper, Stack, Typography } from '@mui/material';
+import { Link, usePage } from '@inertiajs/react';
+import { Box, Button, Container, Divider, Paper, Stack, Typography } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 
 export default function GuestLayout({ children }) {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    const { auth } = usePage().props;
 
     return (
         <Box
@@ -20,6 +21,7 @@ export default function GuestLayout({ children }) {
             <Container maxWidth="md">
                 <Paper
                     elevation={0}
+                    className="cp-page-enter"
                     sx={{
                         borderRadius: 4,
                         overflow: 'hidden',
@@ -36,7 +38,22 @@ export default function GuestLayout({ children }) {
                                 color: '#fff',
                             }}
                         >
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1.5 }}>
+                                <Button
+                                    component={Link}
+                                    href={auth?.user ? route('dashboard') : route('welcome')}
+                                    size="small"
+                                    sx={{
+                                        borderRadius: '999px',
+                                        color: '#fff',
+                                        bgcolor: 'rgba(255,255,255,0.18)',
+                                        border: '1px solid rgba(255,255,255,0.35)',
+                                        fontWeight: 700,
+                                        '&:hover': { bgcolor: 'rgba(255,255,255,0.24)', transform: 'translateX(-1px)' },
+                                    }}
+                                >
+                                    {auth?.user ? 'Dashboard' : 'Home'}
+                                </Button>
                                 <ThemeModeToggle size="small" />
                             </Box>
                             <Stack component={Link} href={route('welcome')} direction="row" spacing={1.2} sx={{ textDecoration: 'none', color: '#fff', alignItems: 'center' }}>

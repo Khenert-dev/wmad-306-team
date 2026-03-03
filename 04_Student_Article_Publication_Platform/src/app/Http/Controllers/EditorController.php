@@ -78,8 +78,19 @@ class EditorController extends Controller
 
     public function updateCoverImage(Request $request, Article $article): RedirectResponse
     {
+        $rawCoverImageUrl = trim((string) $request->input('cover_image_url', ''));
+        $normalizedCoverImageUrl = $rawCoverImageUrl === ''
+            ? null
+            : (preg_match('/^[a-z][a-z0-9+\-.]*:\/\//i', $rawCoverImageUrl)
+                ? $rawCoverImageUrl
+                : 'https://' . $rawCoverImageUrl);
+
+        $request->merge([
+            'cover_image_url' => $normalizedCoverImageUrl,
+        ]);
+
         $validated = $request->validate([
-            'cover_image_url' => ['nullable', 'url', 'max:2048'],
+            'cover_image_url' => ['nullable', 'url', 'max:5000'],
         ]);
 
         $article->update([

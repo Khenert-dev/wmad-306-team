@@ -1,7 +1,7 @@
 import ActionButtonGroup from '@/Components/ActionButtonGroup';
 import CoolButton from '@/Components/CoolButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import {
     Alert,
     Box,
@@ -57,6 +57,7 @@ const textFieldSx = {
 export default function EditorDashboard({ submittedArticles, publishedArticles, flash }) {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    const { errors = {} } = usePage().props;
     const [revisionComments, setRevisionComments] = useState({});
     const [coverImageDrafts, setCoverImageDrafts] = useState(() => {
         const map = {};
@@ -67,8 +68,11 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
     });
 
     const saveCoverImage = (articleId) => {
+        const normalizedCoverImageUrl = (coverImageDrafts[articleId] ?? '').trim();
         router.patch(route('articles.cover-image', articleId), {
-            cover_image_url: coverImageDrafts[articleId] ?? '',
+            cover_image_url: normalizedCoverImageUrl === '' ? null : normalizedCoverImageUrl,
+        }, {
+            preserveScroll: true,
         });
     };
 
@@ -124,6 +128,11 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
             <Box className="editor-container-enter" sx={{ maxWidth: 1280, mx: 'auto', px: { xs: 2, lg: 3 }, py: { xs: 2.5, lg: 4 } }}>
                 {flash?.success && (
                     <Alert severity="success" className="editor-animate-reveal-0" sx={{ borderRadius: '1rem', mb: 2 }}>{flash.success}</Alert>
+                )}
+                {errors?.cover_image_url && (
+                    <Alert severity="error" className="editor-animate-reveal-0" sx={{ borderRadius: '1rem', mb: 2 }}>
+                        {errors.cover_image_url}
+                    </Alert>
                 )}
 
                 <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', lg: 'row' } }}>

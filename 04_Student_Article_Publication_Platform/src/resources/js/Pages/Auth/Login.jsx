@@ -1,10 +1,9 @@
-import ActionButtonGroup from '@/Components/ActionButtonGroup';
-import CoolButton from '@/Components/CoolButton';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
     Alert,
     Box,
+    Button,
     Checkbox,
     FormControlLabel,
     Stack,
@@ -159,31 +158,26 @@ export default function Login({ status, canResetPassword }) {
                             label="Remember me"
                         />
 
-                        <Box className="auth-animate-reveal-4">
-                            <ActionButtonGroup
+                        <Stack className="auth-animate-reveal-4" direction={{ xs: 'column', sm: 'row' }} spacing={1.25}>
+                            {canResetPassword && (
+                                <Button
+                                    component={Link}
+                                    href={route('password.request')}
+                                    variant="outlined"
+                                    sx={{ borderRadius: '0.9rem', fontWeight: 700, textTransform: 'none' }}
+                                >
+                                    Forgot password?
+                                </Button>
+                            )}
+                            <Button
+                                type="submit"
                                 variant="contained"
-                                sx={{
-                                    width: { xs: '100%', sm: 'fit-content' },
-                                    '& .MuiButton-contained': { bgcolor: '#2f6fdb', '&:hover': { bgcolor: '#2157b4' } },
-                                }}
-                                actions={[
-                                    ...(canResetPassword
-                                        ? [{
-                                            key: 'forgot',
-                                            label: 'Forgot password?',
-                                            component: Link,
-                                            href: route('password.request'),
-                                        }]
-                                        : []),
-                                    {
-                                        key: 'login',
-                                        label: 'Log in',
-                                        type: 'submit',
-                                        disabled: processing,
-                                    },
-                                ]}
-                            />
-                        </Box>
+                                disabled={processing}
+                                sx={{ borderRadius: '0.9rem', px: 2.5, fontWeight: 700, textTransform: 'none', bgcolor: '#2f6fdb', '&:hover': { bgcolor: '#2157b4' } }}
+                            >
+                                Log in
+                            </Button>
+                        </Stack>
 
                         <Box
                             className="auth-animate-reveal-4"
@@ -204,9 +198,15 @@ export default function Login({ status, canResetPassword }) {
                             </Typography>
                         </Box>
 
-                        <CoolButton tone="outline" component={Link} href={route('register')} className="auth-animate-reveal-5">
+                        <Button
+                            variant="outlined"
+                            component={Link}
+                            href={route('register')}
+                            className="auth-animate-reveal-5"
+                            sx={{ borderRadius: '0.9rem', py: 1.15, fontWeight: 700, textTransform: 'none' }}
+                        >
                             Create account
-                        </CoolButton>
+                        </Button>
                     </Stack>
                 </Box>
             </Box>

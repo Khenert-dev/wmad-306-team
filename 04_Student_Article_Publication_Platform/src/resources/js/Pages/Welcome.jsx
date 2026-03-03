@@ -72,10 +72,7 @@ export default function Welcome() {
         { id: 'placeholder-3', title: 'Student Voices: Community Service', content: 'Sample publication preview text.', writer: { name: 'Editorial Team' }, category: { name: 'Culture' }, cover_image_url: null },
     ];
 
-    const navItems = [
-        { label: 'Product', href: '#product' },
-        { label: 'Publications', href: '#recent-publications' },
-    ];
+    const navItems = [{ label: 'Publications', href: '#recent-publications' }];
 
     // Enhanced Jeton-style Custom CSS Animations
     const jetonAnimations = `
@@ -238,12 +235,12 @@ export default function Welcome() {
             <Head title="Welcome to Campus Press" />
             <style>{jetonAnimations}</style>
 
-            <Box className="min-h-screen bg-[#fafbfc] dark:bg-[#0b1120] transition-colors duration-300 overflow-x-hidden" id="product">
+            <Box className="cp-page-enter min-h-screen bg-[#fafbfc] dark:bg-[#0b1120] transition-colors duration-300 overflow-x-hidden" id="top">
                 
                 {/* Navigation Header */}
                 <Box component="header" className="absolute inset-x-0 top-0 z-50">
                     <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
-                        <div className="flex lg:flex-1 animate-reveal-0">
+                        <div className="flex lg:flex-1 animate-reveal-0 items-center gap-2">
                             <Link href="/" className="-m-1.5 flex items-center gap-2 p-1.5 text-[#2f6fdb]">
                                 <ApplicationLogo className="h-8 w-8" />
                                 <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">Campus Press</span>
@@ -457,7 +454,6 @@ export default function Welcome() {
                     <div className="flex flex-col items-center justify-between gap-6 lg:flex-row">
                         <p className="text-sm font-medium text-gray-500 dark:text-gray-400">© {new Date().getFullYear()} Campus Press. All rights reserved.</p>
                         <div className="flex gap-8 text-sm font-bold text-gray-500 dark:text-gray-400">
-                            <a href="#product" className="hover:text-[#2f6fdb] transition-colors">Product</a>
                             <a href="#recent-publications" className="hover:text-[#2f6fdb] transition-colors">Publications</a>
                         </div>
                     </div>

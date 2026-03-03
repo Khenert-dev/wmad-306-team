@@ -1,7 +1,6 @@
-import CoolButton from '@/Components/CoolButton';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
-import { Box, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 
 export default function ResetPassword({ token, email }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -57,7 +56,7 @@ export default function ResetPassword({ token, email }) {
                     required
                     fullWidth
                 />
-                <CoolButton type="submit" disabled={processing}>Reset Password</CoolButton>
+                <Button type="submit" variant="contained" disabled={processing} sx={{ borderRadius: '0.9rem', py: 1.15, fontWeight: 700, textTransform: 'none', bgcolor: '#2f6fdb', '&:hover': { bgcolor: '#2157b4' } }}>Reset Password</Button>
             </Stack>
         </GuestLayout>
     );

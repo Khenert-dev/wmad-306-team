@@ -31,7 +31,6 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
     const user = auth?.user;
     const roles = auth?.roles ?? [];
     const [mobileOpen, setMobileOpen] = useState(false);
-
     const roleMeta = useMemo(() => {
         if (roles.includes('writer')) {
             return { label: 'Writer', tone: 'info', home: { label: 'Writer Dashboard', href: route('writer.dashboard'), name: 'writer.dashboard' } };
@@ -201,8 +200,12 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                             variant="outlined"
                             sx={{ fontWeight: 700, borderRadius: '0.5rem' }}
                         />
-                        <Avatar sx={{ width: 38, height: 38, bgcolor: '#2f6fdb', fontWeight: 700, fontSize: '0.95rem' }}>
-                            {user?.name?.[0] ?? 'U'}
+                        <Avatar
+                            src={user?.avatar_url ?? undefined}
+                            alt={user?.name ?? 'User'}
+                            sx={{ width: 38, height: 38, bgcolor: '#2f6fdb', fontWeight: 700, fontSize: '0.95rem' }}
+                        >
+                            {!user?.avatar_url ? (user?.name?.[0] ?? 'U') : null}
                         </Avatar>
                         <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, fontWeight: 700 }} noWrap>
                             {user?.name}
@@ -244,6 +247,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
 
             <Container
                 maxWidth={fullWidth ? false : 'xl'}
+                className="cp-page-enter"
                 sx={{
                     py: { xs: 2.5, md: 4 },
                     px: fullWidth ? { xs: 2, md: 3 } : undefined,
