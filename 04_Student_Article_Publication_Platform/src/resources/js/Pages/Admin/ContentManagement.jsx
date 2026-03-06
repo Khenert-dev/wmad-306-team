@@ -1,8 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
 import { 
-    Alert, Box, Button, Chip, Dialog, DialogActions, DialogContent, 
-    DialogTitle, MenuItem, Stack, TextField, Typography, Tabs, Tab
+    Alert, Box, Button, Card, CardContent, Chip, Dialog, DialogActions, 
+    DialogContent, DialogTitle, MenuItem, Stack, TextField, Typography, Tabs, Tab, Divider
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import JoditEditor from 'jodit-react';
@@ -14,14 +14,19 @@ const adminAnimations = `
         100% { opacity: 1; transform: scale(1) translateY(0); }
     }
     @keyframes admin-reveal-up {
-        0% { transform: translateY(40px); opacity: 0; filter: blur(8px); }
+        0% { transform: translateY(80px); opacity: 0; filter: blur(8px); }
         100% { transform: translateY(0); opacity: 1; filter: blur(0); }
     }
-    .admin-animate-reveal-0 { animation: admin-reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
-    .admin-animate-reveal-1 { animation: admin-reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
-    .admin-animate-reveal-2 { animation: admin-reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
-    .admin-container-enter { animation: admin-container-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .admin-animate-reveal-0 { animation: admin-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+    .admin-animate-reveal-1 { animation: admin-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+    .admin-animate-reveal-2 { animation: admin-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+    .admin-container-enter { animation: admin-container-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
 `;
+
+const textFieldSx = {
+    '& .MuiOutlinedInput-root': { borderRadius: '1rem', fontWeight: 500 },
+    '& .MuiInputLabel-root': { fontWeight: 600 },
+};
 
 export default function ContentManagement({ articles, comments, categories, flash }) {
     const theme = useTheme();
@@ -64,19 +69,19 @@ export default function ContentManagement({ articles, comments, categories, flas
         }
     };
 
-    // Bento Box Styling to match the Writer/Editor dashboards
+    // Bento Card Styling perfectly matched to the Editor dashboard
     const bentoCardSx = (hover = true) => ({
         borderRadius: '2rem',
         border: '1px solid',
         borderColor: isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.9)',
-        bgcolor: isDark ? 'rgba(17, 24, 39, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+        bgcolor: isDark ? 'rgba(17, 24, 39, 0.6)' : 'rgba(244, 247, 251, 0.9)',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
         overflow: 'hidden',
-        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
         ...(hover && {
             '&:hover': {
                 transform: 'translateY(-4px)',
-                boxShadow: '0 20px 40px rgba(47, 111, 219, 0.08)',
+                boxShadow: '0 20px 40px rgba(47, 111, 219, 0.12)',
                 borderColor: 'rgba(47, 111, 219, 0.25)',
             },
         }),
@@ -92,11 +97,17 @@ export default function ContentManagement({ articles, comments, categories, flas
         }
     };
 
+    const joditConfig = useMemo(() => ({
+        readonly: false, 
+        minHeight: 400, 
+        style: { background: 'transparent' }
+    }), []);
+
     return (
         <AuthenticatedLayout 
             header={
                 <Stack spacing={0.25} className="admin-animate-reveal-0">
-                    <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         🛡️ Content Moderation
                     </Typography>
                     <Typography color="text.secondary" sx={{ fontSize: '1rem', fontWeight: 500 }}>
@@ -118,31 +129,31 @@ export default function ContentManagement({ articles, comments, categories, flas
                 <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', lg: 'row' } }}>
                     
                     {/* LEFT SIDEBAR (Sticky) */}
-                    <Stack spacing={3} sx={{ width: { xs: '100%', lg: 340 }, flexShrink: 0, alignSelf: 'flex-start', position: { lg: 'sticky' }, top: { lg: 92 } }} className="admin-animate-reveal-1">
+                    <Stack spacing={3} sx={{ width: { xs: '100%', lg: 320 }, flexShrink: 0, alignSelf: 'flex-start', position: { lg: 'sticky' }, top: { lg: 92 } }} className="admin-animate-reveal-1">
                         
                         {/* Platform Stats */}
-                        <Box sx={{ ...bentoCardSx(false), p: 4 }}>
+                        <Box sx={{ ...bentoCardSx(true), p: 3 }}>
                             <Typography variant="h6" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <span>📊</span> Platform Overview
                             </Typography>
-                            <Stack spacing={2.5}>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, borderRadius: '1rem', border: '1px solid', borderColor: 'rgba(47, 111, 219, 0.2)', bgcolor: 'rgba(47, 111, 219, 0.05)' }}>
+                            <Stack spacing={2}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, borderRadius: '1rem', border: '1px solid', borderColor: 'rgba(47, 111, 219, 0.25)', bgcolor: 'rgba(47, 111, 219, 0.06)' }}>
                                     <Typography sx={{ fontWeight: 700, color: '#2f6fdb' }}>Total Articles</Typography>
-                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 900, color: '#2f6fdb' }}>{articles.length}</Typography>
+                                    <Typography sx={{ fontSize: '1.25rem', fontWeight: 800, color: '#2f6fdb' }}>{articles.length}</Typography>
                                 </Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, borderRadius: '1rem', border: '1px solid', borderColor: 'rgba(245, 158, 11, 0.2)', bgcolor: 'rgba(245, 158, 11, 0.05)' }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, borderRadius: '1rem', border: '1px solid', borderColor: isDark ? 'rgba(245, 158, 11, 0.35)' : 'rgba(245, 158, 11, 0.25)', bgcolor: isDark ? 'rgba(245, 158, 11, 0.08)' : 'rgba(245, 158, 11, 0.06)' }}>
                                     <Typography sx={{ fontWeight: 700, color: '#d97706' }}>Total Comments</Typography>
-                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 900, color: '#d97706' }}>{comments.length}</Typography>
+                                    <Typography sx={{ fontSize: '1.25rem', fontWeight: 800, color: '#d97706' }}>{comments.length}</Typography>
                                 </Box>
                             </Stack>
                         </Box>
 
-                        {/* Info Card */}
-                        <Box sx={{ ...bentoCardSx(false), p: 4, background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)', borderColor: '#7f1d1d', color: '#fff' }}>
+                        {/* Info Card - Super Admin Power */}
+                        <Box sx={{ ...bentoCardSx(true), p: 3, background: 'linear-gradient(155deg, #ef4444, #b91c1c)', borderColor: '#7f1d1d', color: '#fff' }}>
                             <Typography variant="h6" sx={{ fontWeight: 800, mb: 2, display: 'flex', alignItems: 'center', gap: 1, color: '#fff' }}>
                                 <span>⚠️</span> Super Admin Power
                             </Typography>
-                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', lineHeight: 1.6, fontWeight: 500 }}>
+                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', lineHeight: 1.6 }}>
                                 Actions taken here are permanent. Deleting an article will remove it entirely from the database, bypassing the standard editorial workflow.
                             </Typography>
                         </Box>
@@ -151,12 +162,12 @@ export default function ContentManagement({ articles, comments, categories, flas
                     {/* MAIN CONTENT AREA */}
                     <Box sx={{ flex: 1, minWidth: 0 }} className="admin-animate-reveal-2">
                         
-                        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                        <Box sx={{ borderBottom: 1, borderColor: isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.8)', mb: 3 }}>
                             <Tabs 
                                 value={tabIndex} 
                                 onChange={(e, val) => setTabIndex(val)} 
                                 sx={{ 
-                                    '& .MuiTab-root': { fontWeight: 800, textTransform: 'none', fontSize: '1.1rem', py: 2 },
+                                    '& .MuiTab-root': { fontWeight: 800, textTransform: 'none', fontSize: '1.05rem', py: 2 },
                                     '& .Mui-selected': { color: '#2f6fdb' },
                                     '& .MuiTabs-indicator': { backgroundColor: '#2f6fdb', height: 3, borderRadius: '3px 3px 0 0' }
                                 }}
@@ -171,45 +182,47 @@ export default function ContentManagement({ articles, comments, categories, flas
                             <Stack spacing={3}>
                                 {articles.length === 0 ? (
                                     <Box sx={{ ...bentoCardSx(false), p: 8, textAlign: 'center' }}>
-                                        <Typography sx={{ fontSize: '3rem', mb: 2 }}>📂</Typography>
-                                        <Typography variant="h6" sx={{ fontWeight: 700 }}>No articles exist yet.</Typography>
+                                        <Typography sx={{ fontSize: '2.5rem', mb: 2 }}>📂</Typography>
+                                        <Typography variant="h6" sx={{ fontWeight: 800 }}>No articles exist yet.</Typography>
                                     </Box>
                                 ) : articles.map(article => (
-                                    <Box key={article.id} sx={{ ...bentoCardSx(true), p: 3 }}>
-                                        <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="flex-start" spacing={3}>
-                                            <Box sx={{ flex: 1 }}>
-                                                <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, lineHeight: 1.3 }}>{article.title}</Typography>
-                                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontWeight: 500 }}>
-                                                    By <strong>{article.writer?.name}</strong> • Category: {article.category?.name} • Updated {new Date(article.updated_at).toLocaleDateString()}
-                                                </Typography>
-                                                <Chip 
-                                                    label={article.status?.name.replace('_', ' ').toUpperCase()} 
-                                                    size="small" 
-                                                    color={getStatusColor(article.status?.name)}
-                                                    variant="outlined"
-                                                    sx={{ fontWeight: 800, borderRadius: '0.5rem' }} 
-                                                />
-                                            </Box>
-                                            
-                                            <Stack direction="row" spacing={1.5} sx={{ width: { xs: '100%', sm: 'auto' } }}>
-                                                <Button 
-                                                    variant="outlined" 
-                                                    onClick={() => openEditModal(article)}
-                                                    sx={{ borderRadius: '0.75rem', fontWeight: 700, borderColor: 'rgba(47, 111, 219, 0.4)', flex: { xs: 1, sm: 'auto' } }}
-                                                >
-                                                    Force Edit
-                                                </Button>
-                                                <Button 
-                                                    variant="contained" 
-                                                    color="error" 
-                                                    onClick={() => handleDeleteArticle(article.id)}
-                                                    sx={{ borderRadius: '0.75rem', fontWeight: 700, boxShadow: 'none', flex: { xs: 1, sm: 'auto' } }}
-                                                >
-                                                    Nuke
-                                                </Button>
+                                    <Card key={article.id} sx={{ ...bentoCardSx(true), boxShadow: 'none' }}>
+                                        <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+                                            <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="flex-start" spacing={3}>
+                                                <Box sx={{ flex: 1 }}>
+                                                    <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>{article.title}</Typography>
+                                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontWeight: 500 }}>
+                                                        By <Box component="span" sx={{ color: '#2f6fdb', fontWeight: 600 }}>{article.writer?.name}</Box> • {article.category?.name} • Updated {new Date(article.updated_at).toLocaleDateString()}
+                                                    </Typography>
+                                                    <Chip 
+                                                        label={article.status?.name.replace('_', ' ').toUpperCase()} 
+                                                        size="small" 
+                                                        color={getStatusColor(article.status?.name)}
+                                                        variant="outlined"
+                                                        sx={{ fontWeight: 800, borderRadius: '0.5rem' }} 
+                                                    />
+                                                </Box>
+                                                
+                                                <Stack direction={{ xs: 'row', sm: 'column' }} spacing={1.5} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+                                                    <Button 
+                                                        variant="outlined" 
+                                                        onClick={() => openEditModal(article)}
+                                                        sx={{ borderRadius: '0.75rem', fontWeight: 700, borderColor: 'rgba(47, 111, 219, 0.4)', flex: { xs: 1, sm: 'auto' }, '&:hover': { borderColor: '#2f6fdb', bgcolor: 'rgba(47, 111, 219, 0.04)' } }}
+                                                    >
+                                                        Force Edit
+                                                    </Button>
+                                                    <Button 
+                                                        variant="contained" 
+                                                        color="error" 
+                                                        onClick={() => handleDeleteArticle(article.id)}
+                                                        sx={{ borderRadius: '0.75rem', fontWeight: 700, boxShadow: 'none', flex: { xs: 1, sm: 'auto' } }}
+                                                    >
+                                                        Nuke
+                                                    </Button>
+                                                </Stack>
                                             </Stack>
-                                        </Stack>
-                                    </Box>
+                                        </CardContent>
+                                    </Card>
                                 ))}
                             </Stack>
                         )}
@@ -219,31 +232,35 @@ export default function ContentManagement({ articles, comments, categories, flas
                             <Stack spacing={3}>
                                 {comments.length === 0 ? (
                                     <Box sx={{ ...bentoCardSx(false), p: 8, textAlign: 'center' }}>
-                                        <Typography sx={{ fontSize: '3rem', mb: 2 }}>💬</Typography>
-                                        <Typography variant="h6" sx={{ fontWeight: 700 }}>No comments to moderate.</Typography>
+                                        <Typography sx={{ fontSize: '2.5rem', mb: 2 }}>💬</Typography>
+                                        <Typography variant="h6" sx={{ fontWeight: 800 }}>No comments to moderate.</Typography>
                                     </Box>
                                 ) : comments.map(comment => (
-                                    <Box key={comment.id} sx={{ ...bentoCardSx(true), p: 3 }}>
-                                        <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="flex-start" spacing={3}>
-                                            <Box sx={{ flex: 1 }}>
-                                                <Typography variant="body1" sx={{ fontWeight: 500, mb: 1.5, fontStyle: 'italic', bgcolor: isDark ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.03)', p: 2, borderRadius: '1rem' }}>
-                                                    "{comment.content}"
-                                                </Typography>
-                                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
-                                                    Posted by <strong>{comment.student?.name}</strong> on article: <br/>
-                                                    <span style={{ color: '#2f6fdb', fontWeight: 600 }}>{comment.article?.title}</span>
-                                                </Typography>
-                                            </Box>
-                                            <Button 
-                                                variant="contained" 
-                                                color="error" 
-                                                onClick={() => handleDeleteComment(comment.id)}
-                                                sx={{ borderRadius: '0.75rem', fontWeight: 700, boxShadow: 'none', width: { xs: '100%', sm: 'auto' } }}
-                                            >
-                                                Remove Comment
-                                            </Button>
-                                        </Stack>
-                                    </Box>
+                                    <Card key={comment.id} sx={{ ...bentoCardSx(true), boxShadow: 'none' }}>
+                                        <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+                                            <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="flex-start" spacing={3}>
+                                                <Box sx={{ flex: 1 }}>
+                                                    <Box sx={{ p: 2.5, borderRadius: '1rem', border: '1px solid', borderColor: isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.8)', bgcolor: isDark ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.9)', mb: 2 }}>
+                                                        <Typography variant="body1" sx={{ fontWeight: 500, fontStyle: 'italic', color: 'text.secondary' }}>
+                                                            "{comment.content}"
+                                                        </Typography>
+                                                    </Box>
+                                                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.85rem', fontWeight: 500 }}>
+                                                        Posted by <Box component="span" sx={{ fontWeight: 700 }}>{comment.student?.name}</Box> on article: <br/>
+                                                        <Box component="span" sx={{ color: '#2f6fdb', fontWeight: 600 }}>{comment.article?.title}</Box>
+                                                    </Typography>
+                                                </Box>
+                                                <Button 
+                                                    variant="contained" 
+                                                    color="error" 
+                                                    onClick={() => handleDeleteComment(comment.id)}
+                                                    sx={{ borderRadius: '0.75rem', fontWeight: 700, boxShadow: 'none', width: { xs: '100%', sm: 'auto' } }}
+                                                >
+                                                    Remove Comment
+                                                </Button>
+                                            </Stack>
+                                        </CardContent>
+                                    </Card>
                                 ))}
                             </Stack>
                         )}
@@ -266,7 +283,7 @@ export default function ContentManagement({ articles, comments, categories, flas
                 }}
             >
                 <Box component="form" onSubmit={handleUpdateArticle}>
-                    <DialogTitle sx={{ fontWeight: 900, fontSize: '1.5rem' }}>Force Edit Article</DialogTitle>
+                    <DialogTitle sx={{ fontWeight: 800, fontSize: '1.5rem' }}>Force Edit Article</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                             You are bypassing the editorial workflow. Save your changes directly to the live database.
@@ -277,7 +294,7 @@ export default function ContentManagement({ articles, comments, categories, flas
                                 value={editForm.data.title} 
                                 onChange={e => editForm.setData('title', e.target.value)} 
                                 fullWidth 
-                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '1rem' } }}
+                                sx={textFieldSx}
                             />
                             <TextField 
                                 select 
@@ -285,7 +302,7 @@ export default function ContentManagement({ articles, comments, categories, flas
                                 value={editForm.data.category_id} 
                                 onChange={e => editForm.setData('category_id', e.target.value)} 
                                 fullWidth
-                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '1rem' } }}
+                                sx={textFieldSx}
                             >
                                 {categories.map(cat => <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>)}
                             </TextField>
@@ -293,7 +310,7 @@ export default function ContentManagement({ articles, comments, categories, flas
                             <Box sx={{ border: '1px solid', borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: '1rem', overflow: 'hidden' }}>
                                 <JoditEditor 
                                     value={editForm.data.content} 
-                                    config={{ minHeight: 400 }}
+                                    config={joditConfig}
                                     onBlur={newContent => editForm.setData('content', newContent)} 
                                 />
                             </Box>
@@ -310,7 +327,7 @@ export default function ContentManagement({ articles, comments, categories, flas
                             type="submit" 
                             variant="contained" 
                             disabled={editForm.processing}
-                            sx={{ bgcolor: '#2f6fdb', fontWeight: 700, textTransform: 'none', borderRadius: '0.75rem', px: 3, '&:hover': { bgcolor: '#2157b4' } }}
+                            sx={{ bgcolor: '#2f6fdb', fontWeight: 700, textTransform: 'none', borderRadius: '0.75rem', px: 3, boxShadow: 'none', '&:hover': { bgcolor: '#2157b4' } }}
                         >
                             Save Overwrite
                         </Button>
