@@ -6,6 +6,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\WriterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleRequestController;
+use App\Http\Controllers\AdminContentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -73,9 +74,16 @@ Route::middleware('auth')->group(function () {
 // SUPER ADMIN WORKSPACE
 // ==========================================
 Route::middleware(['auth', 'role:super-admin'])->group(function () {
+    // Role Requests
     Route::get('/admin/requests', [RoleRequestController::class, 'index'])->name('admin.requests');
     Route::post('/admin/requests/{roleRequest}/approve', [RoleRequestController::class, 'approve'])->name('admin.requests.approve');
     Route::post('/admin/requests/{roleRequest}/reject', [RoleRequestController::class, 'reject'])->name('admin.requests.reject');
+
+    // Content Moderation
+    Route::get('/admin/content', [AdminContentController::class, 'index'])->name('admin.content');
+    Route::put('/admin/articles/{article}', [AdminContentController::class, 'updateArticle'])->name('admin.articles.update');
+    Route::delete('/admin/articles/{article}', [AdminContentController::class, 'destroyArticle'])->name('admin.articles.destroy');
+    Route::delete('/admin/comments/{comment}', [AdminContentController::class, 'destroyComment'])->name('admin.comments.destroy');
 });
 
 // ==========================================

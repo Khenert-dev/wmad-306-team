@@ -57,12 +57,12 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
     const navItems = useMemo(() => {
         const items = [];
         
-        // EVERYONE GETS THE MAIN DASHBOARD (Home Feed)
-        items.push({ label: 'Dashboard', href: route('dashboard'), name: 'dashboard' });
+        // EVERYONE gets the Main Dashboard at the very top of their menu
+        items.push({ label: 'Journals', href: route('dashboard'), name: 'dashboard' });
         
-        // Role-Specific Workspaces
         if (roles.includes('super-admin')) {
             items.push({ label: 'Admin Panel', href: route('admin.requests'), name: 'admin.requests' });
+            items.push({ label: 'Moderation', href: route('admin.content'), name: 'admin.content' });
         }
         if (roles.includes('editor')) {
             items.push({ label: 'Editor Desk', href: route('editor.dashboard'), name: 'editor.dashboard' });
@@ -71,10 +71,11 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
             items.push({ label: 'Writer Hub', href: route('writer.dashboard'), name: 'writer.dashboard' });
         }
         
-        // EVERYONE gets the Student dashboard to read and comment on articles
-        items.push({ label: 'Campus Journals', href: route('student.dashboard'), name: 'student.dashboard' });
+        // Everyone gets the Student dashboard to read articles (or if they have no role yet)
+        if (roles.includes('student') || items.length === 1) { // length === 1 means only Main Dashboard is there
+            items.push({ label: 'Campus Journals', href: route('student.dashboard'), name: 'student.dashboard' });
+        }
 
-        // Profile Management
         items.push({ label: 'Profile', href: route('profile.edit'), name: 'profile.edit' });
         
         return items;
