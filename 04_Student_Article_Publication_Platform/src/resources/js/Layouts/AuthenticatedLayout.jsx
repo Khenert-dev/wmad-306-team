@@ -57,6 +57,10 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
     const navItems = useMemo(() => {
         const items = [];
         
+        // EVERYONE GETS THE MAIN DASHBOARD (Home Feed)
+        items.push({ label: 'Dashboard', href: route('dashboard'), name: 'dashboard' });
+        
+        // Role-Specific Workspaces
         if (roles.includes('super-admin')) {
             items.push({ label: 'Admin Panel', href: route('admin.requests'), name: 'admin.requests' });
         }
@@ -67,11 +71,10 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
             items.push({ label: 'Writer Hub', href: route('writer.dashboard'), name: 'writer.dashboard' });
         }
         
-        // Everyone gets the Student dashboard to read articles
-        if (roles.includes('student') || items.length === 0) {
-            items.push({ label: 'Campus Journals', href: route('student.dashboard'), name: 'student.dashboard' });
-        }
+        // EVERYONE gets the Student dashboard to read and comment on articles
+        items.push({ label: 'Campus Journals', href: route('student.dashboard'), name: 'student.dashboard' });
 
+        // Profile Management
         items.push({ label: 'Profile', href: route('profile.edit'), name: 'profile.edit' });
         
         return items;
