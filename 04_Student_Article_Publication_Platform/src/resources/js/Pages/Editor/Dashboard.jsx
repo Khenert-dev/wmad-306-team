@@ -76,13 +76,26 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
         }
         return map;
     });
+    const [coverImageFiles, setCoverImageFiles] = useState({});
 
     const saveCoverImage = (articleId) => {
         const normalizedCoverImageUrl = (coverImageDrafts[articleId] ?? '').trim();
-        router.patch(route('articles.cover-image', articleId), {
+        const selectedFile = coverImageFiles[articleId] ?? null;
+        const payload = {
+            _method: 'patch',
             cover_image_url: normalizedCoverImageUrl === '' ? null : normalizedCoverImageUrl,
-        }, {
+        };
+
+        if (selectedFile) {
+            payload.cover_image_file = selectedFile;
+        }
+
+        router.post(route('articles.cover-image', articleId), payload, {
             preserveScroll: true,
+            forceFormData: true,
+            onSuccess: () => {
+                setCoverImageFiles((prev) => ({ ...prev, [articleId]: null }));
+            },
         });
     };
 
@@ -161,6 +174,11 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
                 {errors?.cover_image_url && (
                     <Alert severity="error" className="editor-animate-reveal-0" sx={{ borderRadius: '1rem', mb: 2 }}>
                         {errors.cover_image_url}
+                    </Alert>
+                )}
+                {errors?.cover_image_file && (
+                    <Alert severity="error" className="editor-animate-reveal-0" sx={{ borderRadius: '1rem', mb: 2 }}>
+                        {errors.cover_image_file}
                     </Alert>
                 )}
 
@@ -279,8 +297,27 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
                                                                     size="small"
                                                                     sx={textFieldSx}
                                                                 />
+                                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                                    <Button component="label" variant="outlined" size="small" sx={{ borderRadius: '0.65rem', textTransform: 'none', fontWeight: 700 }}>
+                                                                        Upload Local File
+                                                                        <input
+                                                                            hidden
+                                                                            type="file"
+                                                                            accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                                                                            onChange={(event) => {
+                                                                                const file = event.target.files?.[0] ?? null;
+                                                                                setCoverImageFiles((prev) => ({ ...prev, [article.id]: file }));
+                                                                            }}
+                                                                        />
+                                                                    </Button>
+                                                                    {coverImageFiles[article.id] ? (
+                                                                        <Typography variant="caption" color="text.secondary" sx={{ maxWidth: 200 }} noWrap>
+                                                                            {coverImageFiles[article.id].name}
+                                                                        </Typography>
+                                                                    ) : null}
+                                                                </Stack>
                                                                 <CoolButton tone="outline" sx={{ alignSelf: 'flex-start' }} onClick={() => saveCoverImage(article.id)}>
-                                                                    Save Image Link
+                                                                    Save Image
                                                                 </CoolButton>
                                                             </Stack>
                                                         </Box>
@@ -353,6 +390,23 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
                                                                 size="small"
                                                                 sx={{ ...textFieldSx, flex: 1, minWidth: 160 }}
                                                             />
+                                                            <Button component="label" variant="outlined" size="small" sx={{ borderRadius: '0.65rem', textTransform: 'none', fontWeight: 700 }}>
+                                                                Upload File
+                                                                <input
+                                                                    hidden
+                                                                    type="file"
+                                                                    accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                                                                    onChange={(event) => {
+                                                                        const file = event.target.files?.[0] ?? null;
+                                                                        setCoverImageFiles((prev) => ({ ...prev, [article.id]: file }));
+                                                                    }}
+                                                                />
+                                                            </Button>
+                                                            {coverImageFiles[article.id] ? (
+                                                                <Typography variant="caption" color="text.secondary" sx={{ maxWidth: 180 }} noWrap>
+                                                                    {coverImageFiles[article.id].name}
+                                                                </Typography>
+                                                            ) : null}
                                                             <CoolButton tone="outline" onClick={() => saveCoverImage(article.id)}>Update</CoolButton>
                                                         </Stack>
                                                     </Stack>

@@ -8,6 +8,7 @@ use App\Notifications\ArticlePublishedNotification;
 use App\Notifications\RevisionRequestedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -79,24 +80,55 @@ class EditorController extends Controller
     public function updateCoverImage(Request $request, Article $article): RedirectResponse
     {
         $rawCoverImageUrl = trim((string) $request->input('cover_image_url', ''));
-        $normalizedCoverImageUrl = $rawCoverImageUrl === ''
-            ? null
-            : (preg_match('/^[a-z][a-z0-9+\-.]*:\/\//i', $rawCoverImageUrl)
+        $hasUploadedFile = $request->hasFile('cover_image_file');
+        $normalizedCoverImageUrl = null;
+
+        if (! $hasUploadedFile && $rawCoverImageUrl !== '') {
+            $normalizedCoverImageUrl = preg_match('/^[a-z][a-z0-9+\-.]*:\/\//i', $rawCoverImageUrl)
                 ? $rawCoverImageUrl
-                : 'https://' . $rawCoverImageUrl);
+                : 'https://' . $rawCoverImageUrl;
+        }
 
         $request->merge([
             'cover_image_url' => $normalizedCoverImageUrl,
         ]);
 
         $validated = $request->validate([
-            'cover_image_url' => ['nullable', 'url', 'max:5000'],
+            'cover_image_url' => ['nullable', 'url', 'max:5000', 'required_without:cover_image_file'],
+            'cover_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120', 'required_without:cover_image_url'],
         ]);
 
+        $newCoverImageUrl = $validated['cover_image_url'] ?? null;
+        if ($hasUploadedFile) {
+            $oldLocalPath = $this->extractLocalCoverPath($article->cover_image_url);
+            if ($oldLocalPath) {
+                Storage::disk('public')->delete($oldLocalPath);
+            }
+
+            $storedPath = $request->file('cover_image_file')->store('article-covers', 'public');
+            $newCoverImageUrl = Storage::disk('public')->url($storedPath);
+        }
+
         $article->update([
-            'cover_image_url' => $validated['cover_image_url'] ?? null,
+            'cover_image_url' => $newCoverImageUrl,
         ]);
 
         return back()->with('success', 'Article cover image updated.');
+    }
+
+    private function extractLocalCoverPath(?string $coverImageUrl): ?string
+    {
+        if (! $coverImageUrl) {
+            return null;
+        }
+
+        $parsedPath = parse_url($coverImageUrl, PHP_URL_PATH);
+        $path = is_string($parsedPath) ? $parsedPath : $coverImageUrl;
+
+        if (! str_starts_with($path, '/storage/article-covers/')) {
+            return null;
+        }
+
+        return ltrim(str_replace('/storage/', '', $path), '/');
     }
 }
