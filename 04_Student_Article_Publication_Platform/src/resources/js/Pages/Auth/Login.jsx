@@ -39,7 +39,14 @@ const authAnimations = `
 `;
 
 const textFieldSx = {
-    '& .MuiOutlinedInput-root': { borderRadius: '1rem', fontWeight: 500 },
+    '& .MuiOutlinedInput-root': { 
+        borderRadius: '0.75rem', 
+        fontWeight: 500,
+        backgroundColor: '#fff',
+        transition: 'all 0.2s ease',
+        '&:hover fieldset': { borderColor: 'rgba(47, 111, 219, 0.4)' },
+        '&.Mui-focused fieldset': { borderColor: '#2f6fdb', borderWidth: '2px' }
+    },
     '& .MuiInputLabel-root': { fontWeight: 600 },
 };
 
@@ -52,76 +59,55 @@ export default function Login({ status, canResetPassword }) {
 
     const submit = (event) => {
         event.preventDefault();
-
-        post(route('login'), {
-            onFinish: () => reset('password'),
-        });
+        post(route('login'), { onFinish: () => reset('password') });
     };
 
     return (
         <GuestLayout>
             <Head title="Log in" />
             <style>{authAnimations}</style>
-            <Box className="auth-container-enter" sx={{ minHeight: { xs: 420, md: 520 }, display: 'grid', placeItems: 'center', position: 'relative', overflow: 'hidden' }}>
-                {/* Floating blobs */}
-                <Box sx={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-                    <Box
-                        className="auth-animate-blob"
-                        sx={{
-                            position: 'absolute', top: 60, left: '-10%',
-                            width: 200, height: 200, borderRadius: '50%',
-                            bgcolor: '#2f6fdb', opacity: 0.15, mixBlendMode: 'multiply',
-                        }}
-                    />
-                    <Box
-                        className="auth-animate-blob auth-animation-delay-2000"
-                        sx={{
-                            position: 'absolute', top: 120, right: '-5%',
-                            width: 180, height: 180, borderRadius: '50%',
-                            bgcolor: '#7ea5ea', opacity: 0.12, mixBlendMode: 'multiply',
-                        }}
-                    />
-                    <Box
-                        className="auth-animate-blob auth-animation-delay-4000"
-                        sx={{
-                            position: 'absolute', bottom: 80, left: '20%',
-                            width: 160, height: 160, borderRadius: '50%',
-                            bgcolor: '#1e4b9b', opacity: 0.1, mixBlendMode: 'multiply',
-                        }}
-                    />
-                </Box>
-
-                <Box
-                    className="auth-animate-reveal-0"
-                    sx={{
-                        position: 'relative',
-                        zIndex: 1,
-                        width: '100%',
-                        maxWidth: 520,
-                        p: { xs: 2.25, md: 3.25 },
-                        borderRadius: '2rem',
-                        border: '1px solid rgba(47,111,219,0.2)',
-                        background: 'linear-gradient(145deg, rgba(255,255,255,0.35), rgba(255,255,255,0.1))',
-                        backdropFilter: 'blur(16px)',
-                        boxShadow: '0 20px 45px rgba(47, 111, 219, 0.12), 0 4px 6px -1px rgba(0,0,0,0.05)',
-                        transition: 'box-shadow 0.5s ease',
-                        '&:hover': { boxShadow: '0 24px 50px rgba(47, 111, 219, 0.16)' },
+            
+            <Box 
+                className="auth-container-enter" 
+                sx={{ 
+                    display: 'flex',
+                    width: '100%',
+                    maxWidth: 1000, // Wide layout for Jeton's split-screen look
+                    margin: '0 auto',
+                    minHeight: { xs: 'auto', md: 650 },
+                    bgcolor: 'background.paper',
+                    borderRadius: '1.5rem',
+                    boxShadow: '0 24px 50px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.03)',
+                    overflow: 'hidden'
+                }}
+            >
+                {/* Left Side: Clean Form Panel */}
+                <Box 
+                    sx={{ 
+                        flex: { xs: '1 1 100%', md: '1 1 50%' }, 
+                        p: { xs: 4, sm: 6, md: 8 }, 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        justifyContent: 'center' 
                     }}
                 >
-                    <Stack spacing={2.25} component="form" onSubmit={submit}>
-                        <Box className="auth-animate-reveal-1">
-                            <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-                                Sign in
-                            </Typography>
-                            <Typography color="text.secondary" sx={{ mt: 0.5 }}>
-                                Access your writer, editor, or student workspace.
-                            </Typography>
-                        </Box>
+                    <Box className="auth-animate-reveal-0" sx={{ mb: 4 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: 'text.primary' }}>
+                            Sign in
+                        </Typography>
+                        <Typography color="text.secondary" sx={{ mt: 1, fontWeight: 500 }}>
+                            Don't have an account?{' '}
+                            <Link href={route('register')} style={{ color: '#2f6fdb', textDecoration: 'none', fontWeight: 700 }}>
+                                Sign up now
+                            </Link>
+                        </Typography>
+                    </Box>
 
-                        {status && <Alert severity="success" className="auth-animate-reveal-1">{status}</Alert>}
+                    {status && <Alert severity="success" className="auth-animate-reveal-1" sx={{ mb: 3, borderRadius: '0.75rem' }}>{status}</Alert>}
 
+                    <Stack spacing={2.5} component="form" onSubmit={submit}>
                         <TextField
-                            className="auth-animate-reveal-2"
+                            className="auth-animate-reveal-1"
                             label="Email"
                             type="email"
                             value={data.email}
@@ -146,68 +132,115 @@ export default function Login({ status, canResetPassword }) {
                             sx={textFieldSx}
                         />
 
-                        <FormControlLabel
-                            className="auth-animate-reveal-3"
-                            control={
-                                <Checkbox
-                                    checked={data.remember}
-                                    onChange={(event) => setData('remember', event.target.checked)}
-                                    sx={{ '&.Mui-checked': { color: '#2f6fdb' } }}
-                                />
-                            }
-                            label="Remember me"
-                        />
-
-                        <Stack className="auth-animate-reveal-4" direction={{ xs: 'column', sm: 'row' }} spacing={1.25}>
+                        <Box className="auth-animate-reveal-3" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={data.remember}
+                                        onChange={(event) => setData('remember', event.target.checked)}
+                                        sx={{ '&.Mui-checked': { color: '#2f6fdb' } }}
+                                    />
+                                }
+                                label={<Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>Remember me</Typography>}
+                            />
                             {canResetPassword && (
-                                <Button
-                                    component={Link}
-                                    href={route('password.request')}
-                                    variant="outlined"
-                                    sx={{ borderRadius: '0.9rem', fontWeight: 700, textTransform: 'none' }}
-                                >
+                                <Link href={route('password.request')} style={{ color: '#2f6fdb', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem' }}>
                                     Forgot password?
-                                </Button>
+                                </Link>
                             )}
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                disabled={processing}
-                                sx={{ borderRadius: '0.9rem', px: 2.5, fontWeight: 700, textTransform: 'none', bgcolor: '#2f6fdb', '&:hover': { bgcolor: '#2157b4' } }}
-                            >
-                                Log in
-                            </Button>
-                        </Stack>
-
-                        <Box
-                            className="auth-animate-reveal-4"
-                            sx={{
-                                border: '1px solid rgba(47,111,219,0.22)',
-                                borderRadius: '1rem',
-                                p: 1.5,
-                                bgcolor: 'rgba(47,111,219,0.06)',
-                                transition: 'all 0.3s ease',
-                                '&:hover': { borderColor: 'rgba(47,111,219,0.35)' },
-                            }}
-                        >
-                            <Typography variant="body2" sx={{ fontWeight: 700, color: '#2f6fdb' }}>
-                                Seeded role accounts
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                                Use the seeded writer/editor/student emails from your seeder. Password is your seeded default (often `password`).
-                            </Typography>
                         </Box>
 
                         <Button
-                            variant="outlined"
-                            component={Link}
-                            href={route('register')}
-                            className="auth-animate-reveal-5"
-                            sx={{ borderRadius: '0.9rem', py: 1.15, fontWeight: 700, textTransform: 'none' }}
+                            className="auth-animate-reveal-4"
+                            type="submit"
+                            variant="contained"
+                            disabled={processing}
+                            fullWidth
+                            sx={{ 
+                                borderRadius: '0.75rem', 
+                                py: 1.5, 
+                                fontSize: '1rem',
+                                fontWeight: 700, 
+                                textTransform: 'none', 
+                                bgcolor: '#2f6fdb', 
+                                boxShadow: 'none',
+                                '&:hover': { bgcolor: '#2157b4', boxShadow: '0 4px 12px rgba(47, 111, 219, 0.25)' } 
+                            }}
                         >
-                            Create account
+                            Log in to Workspace
                         </Button>
+
+                        <Box
+                            className="auth-animate-reveal-5"
+                            sx={{
+                                mt: 2,
+                                borderRadius: '0.75rem',
+                                p: 2,
+                                bgcolor: 'rgba(47,111,219,0.04)',
+                                border: '1px solid rgba(47,111,219,0.1)',
+                            }}
+                        >
+                            <Typography variant="body2" sx={{ fontWeight: 700, color: '#2f6fdb', mb: 0.5 }}>
+                                Seeded role accounts
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.5 }}>
+                                Use the seeded writer/editor/student emails from your seeder. Password is your seeded default (often <code style={{ backgroundColor: '#fff', padding: '2px 4px', borderRadius: '4px' }}>password</code>).
+                            </Typography>
+                        </Box>
                     </Stack>
+                </Box>
+
+                {/* Right Side: Animated Branding Panel */}
+                <Box 
+                    sx={{ 
+                        flex: '1 1 50%', 
+                        display: { xs: 'none', md: 'flex' }, 
+                        position: 'relative', 
+                        background: 'linear-gradient(135deg, #f0f4fd 0%, #e2ebfa 100%)',
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        flexDirection: 'column',
+                        p: 6,
+                        overflow: 'hidden'
+                    }}
+                >
+                    {/* Floating blobs contained as artwork */}
+                    <Box sx={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+                        <Box
+                            className="auth-animate-blob"
+                            sx={{
+                                position: 'absolute', top: '10%', left: '10%',
+                                width: 250, height: 250, borderRadius: '50%',
+                                bgcolor: '#2f6fdb', opacity: 0.15, mixBlendMode: 'multiply',
+                            }}
+                        />
+                        <Box
+                            className="auth-animate-blob auth-animation-delay-2000"
+                            sx={{
+                                position: 'absolute', top: '40%', right: '5%',
+                                width: 220, height: 220, borderRadius: '50%',
+                                bgcolor: '#7ea5ea', opacity: 0.15, mixBlendMode: 'multiply',
+                            }}
+                        />
+                        <Box
+                            className="auth-animate-blob auth-animation-delay-4000"
+                            sx={{
+                                position: 'absolute', bottom: '15%', left: '20%',
+                                width: 200, height: 200, borderRadius: '50%',
+                                bgcolor: '#1e4b9b', opacity: 0.12, mixBlendMode: 'multiply',
+                            }}
+                        />
+                    </Box>
+
+                    {/* Branding Text overlaying blobs */}
+                    <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 320 }} className="auth-animate-reveal-3">
+                        <Typography variant="h4" sx={{ fontWeight: 800, color: '#1e4b9b', mb: 2, lineHeight: 1.2 }}>
+                            Welcome to Campus Press.
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: '#2f6fdb', opacity: 0.85, fontWeight: 500 }}>
+                            Your central hub for campus journalism, real-time collaboration, and editorial workflows.
+                        </Typography>
+                    </Box>
                 </Box>
             </Box>
         </GuestLayout>

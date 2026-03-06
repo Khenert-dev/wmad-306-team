@@ -2,7 +2,7 @@ import AIAssistantWidget from '@/Components/AIAssistantWidget';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import ThemeModeToggle from '@/Components/ThemeModeToggle';
 import { Link, usePage } from '@inertiajs/react';
-import { Box, Button, Container, Divider, Paper, Stack, Typography } from '@mui/material';
+import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 
 export default function GuestLayout({ children }) {
@@ -14,67 +14,68 @@ export default function GuestLayout({ children }) {
         <Box
             sx={{
                 minHeight: '100vh',
-                py: { xs: 3.5, md: 7 },
-                background: `linear-gradient(145deg, ${alpha('#2f6fdb', isDark ? 0.24 : 0.1)}, ${alpha(theme.palette.background.default, 0.86)} 35%, ${theme.palette.background.default} 80%)`,
+                display: 'flex',
+                flexDirection: 'column',
+                // A very subtle gradient background to make the white cards pop
+                background: isDark 
+                    ? `linear-gradient(145deg, ${alpha('#2f6fdb', 0.1)}, ${theme.palette.background.default} 40%)`
+                    : `linear-gradient(145deg, #f8fafc 0%, #eef2f6 100%)`,
             }}
         >
-            <Container maxWidth="md">
-                <Paper
-                    elevation={0}
-                    className="cp-page-enter"
-                    sx={{
-                        borderRadius: 4,
-                        overflow: 'hidden',
-                        border: '1px solid rgba(47,111,219,0.14)',
-                    }}
-                >
-                    <Stack direction={{ xs: 'column', md: 'row' }}>
-                        <Box
-                            sx={{
-                                p: { xs: 3, md: 4 },
-                                width: { md: '42%' },
-                                background:
-                                    'linear-gradient(155deg, rgba(47,111,219,0.95), rgba(47,111,219,0.8), rgba(18,64,148,0.92))',
-                                color: '#fff',
+            {/* Minimal Top Navigation */}
+            <Box component="nav" sx={{ p: { xs: 2.5, md: 4 }, width: '100%' }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Stack 
+                        component={Link} 
+                        href={route('welcome')} 
+                        direction="row" 
+                        spacing={1.5} 
+                        sx={{ textDecoration: 'none', alignItems: 'center' }}
+                    >
+                        <ApplicationLogo style={{ width: 36, height: 36 }} />
+                        <Typography 
+                            variant="h6" 
+                            sx={{ 
+                                fontWeight: 800, 
+                                color: 'text.primary', 
+                                letterSpacing: '-0.02em', 
+                                display: { xs: 'none', sm: 'block' } 
                             }}
                         >
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1.5 }}>
-                                <Button
-                                    component={Link}
-                                    href={auth?.user ? route('dashboard') : route('welcome')}
-                                    size="small"
-                                    sx={{
-                                        borderRadius: '999px',
-                                        color: '#fff',
-                                        bgcolor: 'rgba(255,255,255,0.18)',
-                                        border: '1px solid rgba(255,255,255,0.35)',
-                                        fontWeight: 700,
-                                        '&:hover': { bgcolor: 'rgba(255,255,255,0.24)', transform: 'translateX(-1px)' },
-                                    }}
-                                >
-                                    {auth?.user ? 'Dashboard' : 'Home'}
-                                </Button>
-                                <ThemeModeToggle size="small" />
-                            </Box>
-                            <Stack component={Link} href={route('welcome')} direction="row" spacing={1.2} sx={{ textDecoration: 'none', color: '#fff', alignItems: 'center' }}>
-                                <ApplicationLogo style={{ width: 32, height: 32 }} />
-                                <Typography variant="h5" sx={{ color: '#fff' }}>
-                                    Campus Press
-                                </Typography>
-                            </Stack>
-                            <Typography sx={{ mt: 2, opacity: 0.92 }}>
-                                Premium student publication workspace for writers, editors, and readers.
-                            </Typography>
-                            <Divider sx={{ my: 2.5, borderColor: 'rgba(255,255,255,0.22)' }} />
-                            <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                                Use your seeded account to access role dashboards and publication workflows.
-                            </Typography>
-                        </Box>
-
-                        <Box sx={{ p: { xs: 2.5, sm: 3.5, md: 4 }, flex: 1 }}>{children}</Box>
+                            Campus Press
+                        </Typography>
                     </Stack>
-                </Paper>
-            </Container>
+
+                    <Stack direction="row" spacing={2} alignItems="center">
+                        <ThemeModeToggle />
+                        <Button
+                            component={Link}
+                            href={auth?.user ? route('dashboard') : route('welcome')}
+                            variant="outlined"
+                            sx={{
+                                borderRadius: '2rem',
+                                fontWeight: 700,
+                                textTransform: 'none',
+                                borderColor: alpha(theme.palette.text.primary, 0.2),
+                                color: 'text.primary',
+                                '&:hover': {
+                                    borderColor: '#2f6fdb',
+                                    bgcolor: alpha('#2f6fdb', 0.05),
+                                }
+                            }}
+                        >
+                            {auth?.user ? 'Dashboard' : 'Home'}
+                        </Button>
+                    </Stack>
+                </Stack>
+            </Box>
+
+            {/* Main Content Area */}
+            <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', pb: { xs: 4, md: 8 } }}>
+                <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center' }}>
+                    {children}
+                </Container>
+            </Box>
 
             <AIAssistantWidget />
         </Box>

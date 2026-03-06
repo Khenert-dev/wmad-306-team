@@ -1,6 +1,6 @@
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Box, Button, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Stack, TextField, Typography, MenuItem } from '@mui/material';
 
 const authAnimations = `
     @keyframes auth-container-enter {
@@ -30,7 +30,14 @@ const authAnimations = `
 `;
 
 const textFieldSx = {
-    '& .MuiOutlinedInput-root': { borderRadius: '1rem', fontWeight: 500 },
+    '& .MuiOutlinedInput-root': { 
+        borderRadius: '0.75rem', 
+        fontWeight: 500,
+        backgroundColor: '#fff',
+        transition: 'all 0.2s ease',
+        '&:hover fieldset': { borderColor: 'rgba(47, 111, 219, 0.4)' },
+        '&.Mui-focused fieldset': { borderColor: '#2f6fdb', borderWidth: '2px' }
+    },
     '& .MuiInputLabel-root': { fontWeight: 600 },
 };
 
@@ -40,77 +47,59 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        role: 'student',
     });
 
     const submit = (event) => {
         event.preventDefault();
-
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
-        });
+        post(route('register'), { onFinish: () => reset('password', 'password_confirmation') });
     };
 
     return (
         <GuestLayout>
             <Head title="Register" />
             <style>{authAnimations}</style>
-            <Box className="auth-container-enter" sx={{ position: 'relative', overflow: 'hidden', minHeight: 480 }}>
-                {/* Floating blobs */}
-                <Box sx={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-                    <Box
-                        className="auth-animate-blob"
-                        sx={{
-                            position: 'absolute', top: 40, right: '-5%',
-                            width: 180, height: 180, borderRadius: '50%',
-                            bgcolor: '#2f6fdb', opacity: 0.15, mixBlendMode: 'multiply',
-                        }}
-                    />
-                    <Box
-                        className="auth-animate-blob auth-animation-delay-2000"
-                        sx={{
-                            position: 'absolute', bottom: 60, left: '-8%',
-                            width: 160, height: 160, borderRadius: '50%',
-                            bgcolor: '#7ea5ea', opacity: 0.12, mixBlendMode: 'multiply',
-                        }}
-                    />
-                    <Box
-                        className="auth-animate-blob auth-animation-delay-4000"
-                        sx={{
-                            position: 'absolute', top: '50%', left: '15%',
-                            width: 140, height: 140, borderRadius: '50%',
-                            bgcolor: '#1e4b9b', opacity: 0.1, mixBlendMode: 'multiply',
-                        }}
-                    />
-                </Box>
-
-                <Box
-                    className="auth-animate-reveal-0"
-                    sx={{
-                        position: 'relative',
-                        zIndex: 1,
-                        p: { xs: 2, md: 2.5 },
-                        borderRadius: '2rem',
-                        border: '1px solid rgba(47,111,219,0.2)',
-                        background: 'linear-gradient(145deg, rgba(255,255,255,0.35), rgba(255,255,255,0.1))',
-                        backdropFilter: 'blur(16px)',
-                        boxShadow: '0 20px 45px rgba(47, 111, 219, 0.12), 0 4px 6px -1px rgba(0,0,0,0.05)',
-                        transition: 'box-shadow 0.5s ease',
-                        '&:hover': { boxShadow: '0 24px 50px rgba(47, 111, 219, 0.16)' },
+            
+            <Box 
+                className="auth-container-enter" 
+                sx={{ 
+                    display: 'flex',
+                    width: '100%',
+                    maxWidth: 1000,
+                    margin: '0 auto',
+                    minHeight: { xs: 'auto', md: 650 },
+                    bgcolor: 'background.paper',
+                    borderRadius: '1.5rem',
+                    boxShadow: '0 24px 50px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.03)',
+                    overflow: 'hidden'
+                }}
+            >
+                {/* Left Side: Clean Form Panel */}
+                <Box 
+                    sx={{ 
+                        flex: { xs: '1 1 100%', md: '1 1 50%' }, 
+                        p: { xs: 4, sm: 6, md: 8 }, 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        justifyContent: 'center' 
                     }}
                 >
-                    <Stack spacing={2.25} component="form" onSubmit={submit}>
-                        <Box className="auth-animate-reveal-1">
-                            <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-                                Create your account
-                            </Typography>
-                            <Typography color="text.secondary" sx={{ mt: 0.5 }}>
-                                Join Campus Press and start contributing to student publication workflows.
-                            </Typography>
-                        </Box>
+                    <Box className="auth-animate-reveal-0" sx={{ mb: 4 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: 'text.primary' }}>
+                            Create account
+                        </Typography>
+                        <Typography color="text.secondary" sx={{ mt: 1, fontWeight: 500 }}>
+                            Already have an account?{' '}
+                            <Link href={route('login')} style={{ color: '#2f6fdb', textDecoration: 'none', fontWeight: 700 }}>
+                                Sign in
+                            </Link>
+                        </Typography>
+                    </Box>
 
+                    <Stack spacing={2.25} component="form" onSubmit={submit}>
                         <TextField
-                            className="auth-animate-reveal-2"
-                            label="Name"
+                            className="auth-animate-reveal-1"
+                            label="Full Name"
                             value={data.name}
                             onChange={(event) => setData('name', event.target.value)}
                             error={Boolean(errors.name)}
@@ -121,7 +110,7 @@ export default function Register() {
                         />
 
                         <TextField
-                            className="auth-animate-reveal-2"
+                            className="auth-animate-reveal-1"
                             label="Email"
                             type="email"
                             value={data.email}
@@ -133,51 +122,121 @@ export default function Register() {
                             sx={textFieldSx}
                         />
 
-                        <TextField
-                            className="auth-animate-reveal-3"
-                            label="Password"
-                            type="password"
-                            value={data.password}
-                            onChange={(event) => setData('password', event.target.value)}
-                            error={Boolean(errors.password)}
-                            helperText={errors.password}
-                            fullWidth
-                            required
-                            sx={textFieldSx}
-                        />
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2.25} className="auth-animate-reveal-2">
+                            <TextField
+                                label="Password"
+                                type="password"
+                                value={data.password}
+                                onChange={(event) => setData('password', event.target.value)}
+                                error={Boolean(errors.password)}
+                                helperText={errors.password}
+                                fullWidth
+                                required
+                                sx={textFieldSx}
+                            />
 
-                        <TextField
-                            className="auth-animate-reveal-3"
-                            label="Confirm password"
-                            type="password"
-                            value={data.password_confirmation}
-                            onChange={(event) => setData('password_confirmation', event.target.value)}
-                            error={Boolean(errors.password_confirmation)}
-                            helperText={errors.password_confirmation}
-                            fullWidth
-                            required
-                            sx={textFieldSx}
-                        />
-
-                        <Stack className="auth-animate-reveal-4" direction={{ xs: 'column', sm: 'row' }} spacing={1.25}>
-                            <Button
-                                component={Link}
-                                href={route('login')}
-                                variant="outlined"
-                                sx={{ borderRadius: '0.9rem', fontWeight: 700, textTransform: 'none' }}
-                            >
-                                Already registered?
-                            </Button>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                disabled={processing}
-                                sx={{ borderRadius: '0.9rem', px: 2.5, fontWeight: 700, textTransform: 'none', bgcolor: '#2f6fdb', '&:hover': { bgcolor: '#2157b4' } }}
-                            >
-                                Register
-                            </Button>
+                            <TextField
+                                label="Confirm"
+                                type="password"
+                                value={data.password_confirmation}
+                                onChange={(event) => setData('password_confirmation', event.target.value)}
+                                error={Boolean(errors.password_confirmation)}
+                                helperText={errors.password_confirmation}
+                                fullWidth
+                                required
+                                sx={textFieldSx}
+                            />
                         </Stack>
+
+                        <TextField
+                            className="auth-animate-reveal-3"
+                            select
+                            label="I am joining as a..."
+                            value={data.role}
+                            onChange={(event) => setData('role', event.target.value)}
+                            fullWidth
+                            required
+                            sx={textFieldSx}
+                        >
+                            <MenuItem value="student">Student (Reader & Commenter)</MenuItem>
+                            <MenuItem value="writer">Writer (Author Articles)</MenuItem>
+                            <MenuItem value="editor">Editor (Review & Publish)</MenuItem>
+                        </TextField>
+
+                        <Button
+                            className="auth-animate-reveal-4"
+                            type="submit"
+                            variant="contained"
+                            disabled={processing}
+                            fullWidth
+                            sx={{ 
+                                mt: 1,
+                                borderRadius: '0.75rem', 
+                                py: 1.5, 
+                                fontSize: '1rem',
+                                fontWeight: 700, 
+                                textTransform: 'none', 
+                                bgcolor: '#2f6fdb', 
+                                boxShadow: 'none',
+                                '&:hover': { bgcolor: '#2157b4', boxShadow: '0 4px 12px rgba(47, 111, 219, 0.25)' } 
+                            }}
+                        >
+                            Complete Registration
+                        </Button>
                     </Stack>
+                </Box>
+
+                {/* Right Side: Animated Branding Panel */}
+                <Box 
+                    sx={{ 
+                        flex: '1 1 50%', 
+                        display: { xs: 'none', md: 'flex' }, 
+                        position: 'relative', 
+                        background: 'linear-gradient(135deg, #f0f4fd 0%, #e2ebfa 100%)',
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        flexDirection: 'column',
+                        p: 6,
+                        overflow: 'hidden'
+                    }}
+                >
+                    {/* Floating blobs contained as artwork */}
+                    <Box sx={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+                        <Box
+                            className="auth-animate-blob"
+                            sx={{
+                                position: 'absolute', top: '15%', right: '10%',
+                                width: 240, height: 240, borderRadius: '50%',
+                                bgcolor: '#2f6fdb', opacity: 0.15, mixBlendMode: 'multiply',
+                            }}
+                        />
+                        <Box
+                            className="auth-animate-blob auth-animation-delay-2000"
+                            sx={{
+                                position: 'absolute', bottom: '20%', left: '5%',
+                                width: 200, height: 200, borderRadius: '50%',
+                                bgcolor: '#7ea5ea', opacity: 0.15, mixBlendMode: 'multiply',
+                            }}
+                        />
+                        <Box
+                            className="auth-animate-blob auth-animation-delay-4000"
+                            sx={{
+                                position: 'absolute', top: '45%', left: '30%',
+                                width: 180, height: 180, borderRadius: '50%',
+                                bgcolor: '#1e4b9b', opacity: 0.12, mixBlendMode: 'multiply',
+                            }}
+                        />
+                    </Box>
+
+                    {/* Branding Text overlaying blobs */}
+                    <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 360 }} className="auth-animate-reveal-3">
+                        <Typography variant="h4" sx={{ fontWeight: 800, color: '#1e4b9b', mb: 2, lineHeight: 1.2 }}>
+                            Shape the Narrative.
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: '#2f6fdb', opacity: 0.85, fontWeight: 500 }}>
+                            Create your account today to start writing, reviewing, and publishing stories that matter to your campus.
+                        </Typography>
+                    </Box>
                 </Box>
             </Box>
         </GuestLayout>
