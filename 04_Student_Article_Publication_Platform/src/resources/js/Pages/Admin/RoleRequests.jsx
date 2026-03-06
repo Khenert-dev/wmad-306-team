@@ -27,6 +27,12 @@ const adminAnimations = `
 export default function RoleRequests({ pendingRequests, flash }) {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    const roleLabelMap = { writer: 'Writer', editor: 'Editor', student: 'Student' };
+    const requestTypeLabelMap = {
+        add: 'Add Role',
+        switch: 'Change Role',
+        step_down: 'Step Down',
+    };
 
     const handleApprove = (id) => {
         router.post(route('admin.requests.approve', id), {}, { preserveScroll: true });
@@ -149,7 +155,11 @@ export default function RoleRequests({ pendingRequests, flash }) {
                         <Stack spacing={3}>
                             {pendingRequests.map((request, index) => {
                                 const { score, text } = parseJustification(request.justification);
-                                const isWriter = request.role_name === 'writer';
+                                const roleTone = request.role_name === 'writer'
+                                    ? { bg: 'rgba(47,111,219,0.1)', fg: '#2f6fdb', border: 'rgba(47,111,219,0.3)' }
+                                    : request.role_name === 'editor'
+                                        ? { bg: 'rgba(16,185,129,0.1)', fg: '#10b981', border: 'rgba(16,185,129,0.3)' }
+                                        : { bg: 'rgba(234,179,8,0.12)', fg: '#a16207', border: 'rgba(234,179,8,0.35)' };
                                 
                                 return (
                                     <Box key={request.id} className={`admin-animate-reveal-${Math.min((index % 3) + 2, 5)}`} sx={bentoCardSx(true)}>
@@ -177,15 +187,29 @@ export default function RoleRequests({ pendingRequests, flash }) {
                                                     </Typography>
                                                     <Box sx={{ mt: 0.5 }}>
                                                         <Chip 
-                                                            label={isWriter ? 'Writer' : 'Editor'} 
+                                                            label={roleLabelMap[request.role_name] ?? request.role_name} 
                                                             sx={{ 
                                                                 fontWeight: 800, 
                                                                 borderRadius: '0.75rem',
-                                                                bgcolor: isWriter ? 'rgba(47,111,219,0.1)' : 'rgba(16,185,129,0.1)',
-                                                                color: isWriter ? '#2f6fdb' : '#10b981',
+                                                                bgcolor: roleTone.bg,
+                                                                color: roleTone.fg,
                                                                 border: '1px solid',
-                                                                borderColor: isWriter ? 'rgba(47,111,219,0.3)' : 'rgba(16,185,129,0.3)'
+                                                                borderColor: roleTone.border
                                                             }} 
+                                                        />
+                                                    </Box>
+                                                </Box>
+
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                                        Request Type
+                                                    </Typography>
+                                                    <Box sx={{ mt: 0.5 }}>
+                                                        <Chip
+                                                            label={requestTypeLabelMap[request.request_type ?? 'add']}
+                                                            size="small"
+                                                            variant="outlined"
+                                                            sx={{ fontWeight: 700, borderRadius: '0.65rem' }}
                                                         />
                                                     </Box>
                                                 </Box>

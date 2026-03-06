@@ -58,10 +58,16 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
     
     // Role Request Form
     const roleForm = useForm({
-        role_name: 'writer', // Defaults to writer since they are already an editor
+        request_type: 'add',
+        role_name: 'writer',
         justification: '',
     });
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+    const requestTypeRoleOptions = {
+        add: [{ value: 'writer', label: 'Writer (Add)' }],
+        switch: [{ value: 'writer', label: 'Writer (Switch To)' }],
+        step_down: [{ value: 'student', label: 'Student (Step Down)' }],
+    };
 
     const [coverImageDrafts, setCoverImageDrafts] = useState(() => {
         const map = {};
@@ -85,7 +91,11 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
         roleForm.post(route('role-requests.store'), { 
             onSuccess: () => {
                 setIsRoleModalOpen(false);
-                roleForm.reset('justification');
+                roleForm.setData({
+                    request_type: 'add',
+                    role_name: 'writer',
+                    justification: '',
+                });
             } 
         });
     };
@@ -372,33 +382,54 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
                 }}
             >
                 <Box component="form" onSubmit={handleRoleRequest}>
-                    <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>Request Additional Role</DialogTitle>
+                    <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>Role Change Request</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                            Apply to add a new role to your account. Approvals are managed by the campus Super Admins.
+                            Choose whether to add a role, switch roles, or step down. Requests are reviewed by Super Admins.
                         </Typography>
 
                         <Stack spacing={3}>
+                            <TextField
+                                select
+                                label="Request Type"
+                                value={roleForm.data.request_type}
+                                onChange={(e) => {
+                                    const nextType = e.target.value;
+                                    const nextRole = requestTypeRoleOptions[nextType]?.[0]?.value ?? 'writer';
+                                    roleForm.setData({
+                                        ...roleForm.data,
+                                        request_type: nextType,
+                                        role_name: nextRole,
+                                    });
+                                }}
+                                fullWidth
+                            >
+                                <MenuItem value="add">Add Role</MenuItem>
+                                <MenuItem value="switch">Change Role</MenuItem>
+                                <MenuItem value="step_down">Step Down</MenuItem>
+                            </TextField>
+
                             <TextField
                                 select
                                 label="Select Role"
                                 value={roleForm.data.role_name}
                                 onChange={(e) => roleForm.setData('role_name', e.target.value)}
                                 fullWidth
-                                disabled 
                             >
-                                <MenuItem value="writer">Writer</MenuItem>
+                                {(requestTypeRoleOptions[roleForm.data.request_type] ?? []).map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
                             </TextField>
 
                             <TextField
-                                label="Why should we add this role to your account?"
+                                label="Why should we approve this request?"
                                 multiline
                                 rows={4}
-                                placeholder="E.g., I'd love to start drafting my own articles in addition to editing..."
+                                placeholder="Share your reason for this role change..."
                                 value={roleForm.data.justification}
                                 onChange={(e) => roleForm.setData('justification', e.target.value)}
                                 error={Boolean(roleForm.errors.justification)}
-                                helperText={roleForm.errors.justification}
+                                helperText={roleForm.errors.justification || roleForm.errors.request_type || roleForm.errors.role_name}
                                 fullWidth
                                 required
                             />

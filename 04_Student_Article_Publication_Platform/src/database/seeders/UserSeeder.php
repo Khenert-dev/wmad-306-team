@@ -13,6 +13,12 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'superadmin@example.com'],
+            ['name' => 'Superadmin Account', 'password' => Hash::make('password')]
+        );
+        $superAdmin->assignRole('superadmin');
+
         $writer = User::firstOrCreate(
             ['email' => 'writer@example.com'],
             ['name' => 'Writer Account', 'password' => Hash::make('password')]

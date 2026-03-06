@@ -33,11 +33,14 @@ const textFieldSx = {
         borderRadius: '0.75rem', 
         fontWeight: 500,
         backgroundColor: '#fff',
+        color: '#0f172a',
         transition: 'all 0.2s ease',
         '&:hover fieldset': { borderColor: 'rgba(47, 111, 219, 0.4)' },
         '&.Mui-focused fieldset': { borderColor: '#2f6fdb', borderWidth: '2px' }
     },
-    '& .MuiInputLabel-root': { fontWeight: 600 },
+    '& .MuiInputBase-input': { color: '#0f172a' },
+    '& .MuiInputLabel-root': { fontWeight: 600, color: 'rgba(15, 23, 42, 0.7)' },
+    '& .MuiInputLabel-root.Mui-focused': { color: '#2f6fdb' },
 };
 
 export default function Register() {

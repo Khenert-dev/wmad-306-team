@@ -18,6 +18,7 @@ class RoleRequest extends Model
     protected $fillable = [
         'user_id',
         'role_name',
+        'request_type',
         'justification',
         'status',
         'actioned_by',

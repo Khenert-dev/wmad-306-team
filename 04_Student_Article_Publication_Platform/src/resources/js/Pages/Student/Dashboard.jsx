@@ -82,7 +82,7 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
     const isDark = theme.palette.mode === 'dark';
     
     // Role Application State
-    const roleForm = useForm({ role_name: '', justification: '' });
+    const roleForm = useForm({ request_type: 'add', role_name: '', justification: '' });
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
     const [quizStep, setQuizStep] = useState(0); // 0: Select Role, 1: Quiz, 2: Result/Apply
     const [currentQuestions, setCurrentQuestions] = useState([]);
@@ -143,6 +143,7 @@ export default function StudentDashboard({ publishedArticles, featuredArticle, l
                 setIsRoleModalOpen(false);
                 setQuizStep(0);
                 roleForm.reset('justification', 'role_name');
+                roleForm.setData('request_type', 'add');
             }
         });
     };

@@ -33,12 +33,13 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
     // SAFE ARRAY FIX: Ensures Laravel's roles are always read as a JavaScript Array
     const rawRoles = auth?.roles ?? [];
     const roles = Array.isArray(rawRoles) ? rawRoles : Object.values(rawRoles);
+    const isSuperAdmin = roles.includes('superadmin') || roles.includes('super-admin');
     
     const [mobileOpen, setMobileOpen] = useState(false);
 
     // 1. Determine the highest ranking role to display on the Badge
     const roleMeta = useMemo(() => {
-        if (roles.includes('super-admin')) {
+        if (isSuperAdmin) {
             return { label: 'Super Admin', tone: 'error', homeHref: route('admin.requests') };
         }
         if (roles.includes('editor')) {
@@ -51,7 +52,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
             return { label: 'Student', tone: 'success', homeHref: route('student.dashboard') };
         }
         return { label: 'Member', tone: 'default', homeHref: route('dashboard') };
-    }, [roles]);
+    }, [isSuperAdmin, roles]);
 
     // 2. Build the Navigation array dynamically based on ALL roles the user has
     const navItems = useMemo(() => {
@@ -60,7 +61,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
         // EVERYONE gets the Main Dashboard at the very top of their menu
         items.push({ label: 'Journals', href: route('dashboard'), name: 'dashboard' });
         
-        if (roles.includes('super-admin')) {
+        if (isSuperAdmin) {
             items.push({ label: 'Admin Panel', href: route('admin.requests'), name: 'admin.requests' });
             items.push({ label: 'Moderation', href: route('admin.content'), name: 'admin.content' });
         }
@@ -69,6 +70,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
         }
         if (roles.includes('writer')) {
             items.push({ label: 'Writer Hub', href: route('writer.dashboard'), name: 'writer.dashboard' });
+            items.push({ label: 'New Article', href: route('writer.articles.create'), name: 'writer.articles.create' });
         }
         
         // Everyone gets the Student dashboard to read articles (or if they have no role yet)
@@ -79,7 +81,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
         items.push({ label: 'Profile', href: route('profile.edit'), name: 'profile.edit' });
         
         return items;
-    }, [roles]);
+    }, [isSuperAdmin, roles]);
 
     const navList = (
         <Box sx={{ width: 300, minWidth: 300, height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>

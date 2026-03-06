@@ -43,11 +43,14 @@ const textFieldSx = {
         borderRadius: '0.75rem', 
         fontWeight: 500,
         backgroundColor: '#fff',
+        color: '#0f172a',
         transition: 'all 0.2s ease',
         '&:hover fieldset': { borderColor: 'rgba(47, 111, 219, 0.4)' },
         '&.Mui-focused fieldset': { borderColor: '#2f6fdb', borderWidth: '2px' }
     },
-    '& .MuiInputLabel-root': { fontWeight: 600 },
+    '& .MuiInputBase-input': { color: '#0f172a' },
+    '& .MuiInputLabel-root': { fontWeight: 600, color: 'rgba(15, 23, 42, 0.7)' },
+    '& .MuiInputLabel-root.Mui-focused': { color: '#2f6fdb' },
 };
 
 export default function Login({ status, canResetPassword }) {
@@ -167,7 +170,7 @@ export default function Login({ status, canResetPassword }) {
                                 '&:hover': { bgcolor: '#2157b4', boxShadow: '0 4px 12px rgba(47, 111, 219, 0.25)' } 
                             }}
                         >
-                            Log in to Workspace
+                            Log in
                         </Button>
 
                         <Box
@@ -184,7 +187,7 @@ export default function Login({ status, canResetPassword }) {
                                 Seeded role accounts
                             </Typography>
                             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.5 }}>
-                                Use the seeded writer/editor/student emails from your seeder. Password is your seeded default (often <code style={{ backgroundColor: '#fff', padding: '2px 4px', borderRadius: '4px' }}>password</code>).
+                                Use the seeded writer/editor/student emails from your seeder. Password is your seeded default (often <code style={{ backgroundColor: '#fff', color: '#0f172a', padding: '2px 4px', borderRadius: '4px' }}>password</code>).
                             </Typography>
                         </Box>
                     </Stack>

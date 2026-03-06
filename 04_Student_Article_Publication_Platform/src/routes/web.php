@@ -73,7 +73,7 @@ Route::middleware('auth')->group(function () {
 // ==========================================
 // SUPER ADMIN WORKSPACE
 // ==========================================
-Route::middleware(['auth', 'role:super-admin'])->group(function () {
+Route::middleware(['auth', 'role:superadmin|super-admin'])->group(function () {
     // Role Requests
     Route::get('/admin/requests', [RoleRequestController::class, 'index'])->name('admin.requests');
     Route::post('/admin/requests/{roleRequest}/approve', [RoleRequestController::class, 'approve'])->name('admin.requests.approve');
@@ -91,6 +91,7 @@ Route::middleware(['auth', 'role:super-admin'])->group(function () {
 // ==========================================
 Route::middleware(['auth', 'role:writer'])->group(function () {
     Route::get('/writer/dashboard', [WriterController::class, 'dashboard'])->name('writer.dashboard');
+    Route::get('/writer/articles/create', [WriterController::class, 'create'])->name('writer.articles.create');
     Route::post('/articles', [WriterController::class, 'store'])->name('articles.store');
     Route::post('/articles/{article}/submit', [WriterController::class, 'submit'])->name('articles.submit');
     Route::put('/articles/{article}/revise', [WriterController::class, 'revise'])->name('articles.revise');

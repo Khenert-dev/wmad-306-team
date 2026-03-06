@@ -15,32 +15,60 @@ class RoleRequestController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'role_name' => 'required|in:writer,editor',
+            'role_name' => 'required|in:writer,editor,student',
+            'request_type' => 'nullable|in:add,switch,step_down',
             'justification' => 'required|string|max:1000',
         ]);
 
         $user = Auth::user();
+        $requestType = $request->input('request_type', 'add');
+        $targetRole = $request->role_name;
 
-        // FIX #1: Use standard database query instead of a missing custom model method
+        if ($requestType === 'step_down' && $targetRole !== 'student') {
+            return back()->with('error', 'Step-down requests must target the student role.');
+        }
+
+        if ($requestType !== 'step_down' && $targetRole === 'student') {
+            return back()->with('error', 'Student role is only valid for step-down requests.');
+        }
+
+        $hasWriterOrEditorRole = $user->hasRole('writer') || $user->hasRole('editor');
+
+        if ($requestType === 'step_down' && ! $hasWriterOrEditorRole) {
+            return back()->with('error', 'You can only step down if you currently hold a writer or editor role.');
+        }
+
+        if ($requestType === 'switch' && ! $hasWriterOrEditorRole) {
+            return back()->with('error', 'Switch requests are only available to writer/editor staff.');
+        }
+
+        if ($requestType === 'add' && $targetRole === 'student') {
+            return back()->with('error', 'You are already part of the student role.');
+        }
+
+        // Prevent duplicate pending requests for same action/target.
         $alreadyHasPending = RoleRequest::where('user_id', $user->id)
-            ->where('role_name', $request->role_name)
+            ->where('role_name', $targetRole)
+            ->where('request_type', $requestType)
             ->where('status', 'pending')
             ->exists();
 
         if ($alreadyHasPending) {
-            return back()->with('error', 'You already have a pending application for this role.');
+            return back()->with('error', 'You already have a pending request for this action.');
         }
 
-        // Security check: Make sure they don't already HAVE the role
-        // Using direct trait method call with docblock to help IDE recognize the method
-        /** @var \Spatie\Permission\Traits\HasRoles $user */
-        if ($user->hasRole($request->role_name)) {
-            return back()->with('error', "You are already a {$request->role_name}.");
+        if ($requestType === 'add' && $user->hasRole($targetRole)) {
+            return back()->with('error', "You already have the {$targetRole} role.");
+        }
+
+        if ($requestType === 'switch' && $user->hasRole($targetRole) && ! $user->hasRole($targetRole === 'writer' ? 'editor' : 'writer')) {
+            return back()->with('error', "You are already assigned as {$targetRole}.");
         }
 
         RoleRequest::create([
             'user_id' => $user->id,
-            'role_name' => $request->role_name,
+            'role_name' => $targetRole,
+            'request_type' => $requestType,
             'justification' => $request->justification,
             'status' => 'pending',
         ]);
@@ -69,16 +97,50 @@ class RoleRequestController extends Controller
      */
     public function approve(RoleRequest $roleRequest)
     {
+        if ($roleRequest->status !== 'pending') {
+            return back()->with('error', 'This request has already been processed.');
+        }
+
+        $targetUser = $roleRequest->user;
+        $targetRole = $roleRequest->role_name;
+        $requestType = $roleRequest->request_type ?? 'add';
+
+        if ($requestType === 'step_down') {
+            $targetUser->removeRole('writer');
+            $targetUser->removeRole('editor');
+            if (! $targetUser->hasRole('student')) {
+                $targetUser->assignRole('student');
+            }
+        } elseif ($requestType === 'switch') {
+            $rolesToDrop = collect(['writer', 'editor'])->reject(fn (string $role) => $role === $targetRole);
+            foreach ($rolesToDrop as $roleToDrop) {
+                $targetUser->removeRole($roleToDrop);
+            }
+
+            if (! $targetUser->hasRole($targetRole)) {
+                $targetUser->assignRole($targetRole);
+            }
+        } else {
+            if (! $targetUser->hasRole($targetRole)) {
+                $targetUser->assignRole($targetRole);
+            }
+        }
+
         // 1. Mark as approved and record who did it
         $roleRequest->update([
             'status' => 'approved',
             'actioned_by' => Auth::id(),
         ]);
 
-        // 2. Actually assign the role to the user!
-        $roleRequest->user->assignRole($roleRequest->role_name);
+        if ($requestType === 'step_down') {
+            return back()->with('success', "Request approved. {$targetUser->name} has stepped down to student.");
+        }
 
-        return back()->with('success', "Application approved. {$roleRequest->user->name} is now a {$roleRequest->role_name}.");
+        if ($requestType === 'switch') {
+            return back()->with('success', "Request approved. {$targetUser->name} has switched to {$targetRole}.");
+        }
+
+        return back()->with('success', "Application approved. {$targetUser->name} now also has the {$targetRole} role.");
     }
 
     /**
@@ -86,6 +148,10 @@ class RoleRequestController extends Controller
      */
     public function reject(RoleRequest $roleRequest)
     {
+        if ($roleRequest->status !== 'pending') {
+            return back()->with('error', 'This request has already been processed.');
+        }
+
         $roleRequest->update([
             'status' => 'rejected',
             'actioned_by' => Auth::id(),

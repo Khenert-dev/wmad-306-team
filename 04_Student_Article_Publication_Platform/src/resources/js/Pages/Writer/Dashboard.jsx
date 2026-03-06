@@ -1,27 +1,25 @@
 import CoolButton from '@/Components/CoolButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { 
-    Alert, Box, Chip, MenuItem, Stack, TextField, Typography,
-    Dialog, DialogTitle, DialogContent, DialogActions, Button
+    Alert, Box, Button, Chip, MenuItem, Stack, TextField, Typography,
+    Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
-import JoditEditor from 'jodit-react';
 import { useMemo, useState } from 'react';
 
-export default function WriterDashboard({ articles, categories, flash }) {
-    // Article Creation Form
-    const createForm = useForm({
-        title: '',
-        content: '',
-        category_id: categories[0]?.id ?? '',
-    });
-
+export default function WriterDashboard({ articles, flash }) {
     // Role Request Form
     const roleForm = useForm({
-        role_name: 'editor', // Defaults to editor since they are already a writer
+        request_type: 'add',
+        role_name: 'editor',
         justification: '',
     });
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+    const requestTypeRoleOptions = {
+        add: [{ value: 'editor', label: 'Editor (Add)' }],
+        switch: [{ value: 'editor', label: 'Editor (Switch To)' }],
+        step_down: [{ value: 'student', label: 'Student (Step Down)' }],
+    };
 
     const [revisionDrafts, setRevisionDrafts] = useState(() => {
         const draftMap = {};
@@ -45,24 +43,16 @@ export default function WriterDashboard({ articles, categories, flash }) {
         return articles;
     }, [articles, drafts, submitted, needsRevision, statusFilter]);
 
-    const joditConfig = useMemo(() => ({
-        readonly: false, 
-        minHeight: 350, 
-        placeholder: 'Start writing your campus story here...',
-        style: { background: 'transparent' }
-    }), []);
-
-    const handleCreate = (event) => {
-        event.preventDefault();
-        createForm.post(route('articles.store'), { onSuccess: () => createForm.reset('title', 'content') });
-    };
-
     const handleRoleRequest = (event) => {
         event.preventDefault();
         roleForm.post(route('role-requests.store'), { 
             onSuccess: () => {
                 setIsRoleModalOpen(false);
-                roleForm.reset('justification');
+                roleForm.setData({
+                    request_type: 'add',
+                    role_name: 'editor',
+                    justification: '',
+                });
             } 
         });
     };
@@ -214,35 +204,24 @@ export default function WriterDashboard({ articles, categories, flash }) {
 
                     {/* MAIN CONTENT AREA */}
                     <div className="flex-1 min-w-0 space-y-8">
-                        {/* Create New Article Bento */}
-                        <div className="bg-white dark:bg-gray-800/80 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700/50 overflow-hidden animate-reveal-2">
-                            <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-gray-700/50">
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Start a New Article</h2>
-                            </div>
-                            <div className="p-6 sm:p-8">
-                                <Box component="form" onSubmit={handleCreate}>
-                                    <Stack spacing={3}>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <TextField label="Catchy Title" value={createForm.data.title} onChange={(event) => createForm.setData('title', event.target.value)} error={Boolean(createForm.errors.title)} helperText={createForm.errors.title} fullWidth />
-                                            <TextField select label="Category" value={createForm.data.category_id} onChange={(event) => createForm.setData('category_id', event.target.value)} error={Boolean(createForm.errors.category_id)} helperText={createForm.errors.category_id} fullWidth >
-                                                {categories.map((category) => (
-                                                    <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
-                                                ))}
-                                            </TextField>
-                                        </div>
-                                        <Box className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
-                                            <JoditEditor value={createForm.data.content} config={joditConfig} onBlur={(value) => createForm.setData('content', value)} />
-                                        </Box>
-                                        <CoolButton type="submit" disabled={createForm.processing} sx={{ alignSelf: 'flex-start' }}>Save Draft</CoolButton>
-                                    </Stack>
-                                </Box>
-                            </div>
-                        </div>
-
                         {/* Articles List */}
-                        {/* ... (Existing Articles List Mapping kept identical for brevity/space, assuming you retain the mapping block from previous code) ... */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-reveal-2 pt-4">
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your Articles Workspace</h2>
+                            <Button
+                                component={Link}
+                                href={route('writer.articles.create')}
+                                variant="contained"
+                                sx={{
+                                    bgcolor: '#2f6fdb',
+                                    borderRadius: '0.75rem',
+                                    textTransform: 'none',
+                                    fontWeight: 'bold',
+                                    px: 2.5,
+                                    '&:hover': { bgcolor: '#2157b4' },
+                                }}
+                            >
+                                New Article
+                            </Button>
                         </div>
                         <div className="space-y-6 animate-reveal-2">
                             {visibleArticles.length === 0 ? (
@@ -290,33 +269,54 @@ export default function WriterDashboard({ articles, categories, flash }) {
                 }}
             >
                 <Box component="form" onSubmit={handleRoleRequest}>
-                    <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>Request Additional Role</DialogTitle>
+                    <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>Role Change Request</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                            Apply to add a new role to your account. Approvals are managed by the campus Super Admins.
+                            Choose whether to add a role, switch roles, or step down. Requests are reviewed by Super Admins.
                         </Typography>
 
                         <Stack spacing={3}>
+                            <TextField
+                                select
+                                label="Request Type"
+                                value={roleForm.data.request_type}
+                                onChange={(e) => {
+                                    const nextType = e.target.value;
+                                    const nextRole = requestTypeRoleOptions[nextType]?.[0]?.value ?? 'editor';
+                                    roleForm.setData({
+                                        ...roleForm.data,
+                                        request_type: nextType,
+                                        role_name: nextRole,
+                                    });
+                                }}
+                                fullWidth
+                            >
+                                <MenuItem value="add">Add Role</MenuItem>
+                                <MenuItem value="switch">Change Role</MenuItem>
+                                <MenuItem value="step_down">Step Down</MenuItem>
+                            </TextField>
+
                             <TextField
                                 select
                                 label="Select Role"
                                 value={roleForm.data.role_name}
                                 onChange={(e) => roleForm.setData('role_name', e.target.value)}
                                 fullWidth
-                                disabled // Disabled because as a writer, they only have one logical path up: Editor
                             >
-                                <MenuItem value="editor">Editor</MenuItem>
+                                {(requestTypeRoleOptions[roleForm.data.request_type] ?? []).map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
                             </TextField>
 
                             <TextField
-                                label="Why should we add this role to your account?"
+                                label="Why should we approve this request?"
                                 multiline
                                 rows={4}
-                                placeholder="E.g., I'd like to help review submissions for the Sports section..."
+                                placeholder="Share your reason for this role change..."
                                 value={roleForm.data.justification}
                                 onChange={(e) => roleForm.setData('justification', e.target.value)}
                                 error={Boolean(roleForm.errors.justification)}
-                                helperText={roleForm.errors.justification}
+                                helperText={roleForm.errors.justification || roleForm.errors.request_type || roleForm.errors.role_name}
                                 fullWidth
                                 required
                             />
