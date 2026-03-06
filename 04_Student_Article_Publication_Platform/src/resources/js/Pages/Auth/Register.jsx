@@ -1,6 +1,6 @@
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Box, Button, Stack, TextField, Typography, MenuItem } from '@mui/material';
+import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 
 const authAnimations = `
     @keyframes auth-container-enter {
@@ -22,7 +22,6 @@ const authAnimations = `
     .auth-animate-reveal-2 { animation: auth-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
     .auth-animate-reveal-3 { animation: auth-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
     .auth-animate-reveal-4 { animation: auth-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both; }
-    .auth-animate-reveal-5 { animation: auth-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both; }
     .auth-animate-blob { animation: auth-float-blob 8s infinite ease-in-out; }
     .auth-animation-delay-2000 { animation-delay: 2s; }
     .auth-animation-delay-4000 { animation-delay: 4s; }
@@ -47,7 +46,7 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
-        role: 'student',
+        role: 'student', // Silently defaults to student
     });
 
     const submit = (event) => {
@@ -148,29 +147,17 @@ export default function Register() {
                             />
                         </Stack>
 
-                        <TextField
-                            className="auth-animate-reveal-3"
-                            select
-                            label="I am joining as a..."
-                            value={data.role}
-                            onChange={(event) => setData('role', event.target.value)}
-                            fullWidth
-                            required
-                            sx={textFieldSx}
-                        >
-                            <MenuItem value="student">Student (Reader & Commenter)</MenuItem>
-                            <MenuItem value="writer">Writer (Author Articles)</MenuItem>
-                            <MenuItem value="editor">Editor (Review & Publish)</MenuItem>
-                        </TextField>
+                        {/* Hidden role input - ensures the backend receives the 'student' default if required */}
+                        <input type="hidden" name="role" value="student" />
 
                         <Button
-                            className="auth-animate-reveal-4"
+                            className="auth-animate-reveal-3"
                             type="submit"
                             variant="contained"
                             disabled={processing}
                             fullWidth
                             sx={{ 
-                                mt: 1,
+                                mt: 2,
                                 borderRadius: '0.75rem', 
                                 py: 1.5, 
                                 fontSize: '1rem',
@@ -200,7 +187,7 @@ export default function Register() {
                         overflow: 'hidden'
                     }}
                 >
-                    {/* Floating blobs contained as artwork */}
+                    {/* Floating blobs */}
                     <Box sx={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
                         <Box
                             className="auth-animate-blob"
@@ -228,13 +215,13 @@ export default function Register() {
                         />
                     </Box>
 
-                    {/* Branding Text overlaying blobs */}
+                    {/* Branding Text */}
                     <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 360 }} className="auth-animate-reveal-3">
                         <Typography variant="h4" sx={{ fontWeight: 800, color: '#1e4b9b', mb: 2, lineHeight: 1.2 }}>
                             Shape the Narrative.
                         </Typography>
                         <Typography variant="body1" sx={{ color: '#2f6fdb', opacity: 0.85, fontWeight: 500 }}>
-                            Create your account today to start writing, reviewing, and publishing stories that matter to your campus.
+                            Create your account today to read the latest publications and join the campus conversation.
                         </Typography>
                     </Box>
                 </Box>

@@ -82,6 +82,32 @@ class User extends Authenticatable
         return $this->avatar_path ? Storage::disk('public')->url($this->avatar_path) : null;
     }
 
+    
+    // ROLE REQUESTS (New additions)
+    
+    /**
+     * Get the role applications submitted by the user.
+     */
+    public function roleRequests(): HasMany
+    {
+        return $this->hasMany(RoleRequest::class);
+    }
+
+    /**
+     * Helper to check if the user is currently waiting on an application for a specific role.
+     */
+    public function hasPendingRequestFor(string $roleName): bool
+    {
+        return $this->roleRequests()
+            ->where('role_name', $roleName)
+            ->where('status', 'pending')
+            ->exists();
+    }
+
+   
+    // EXISTING RELATIONSHIPS
+    
+
     public function writtenArticles(): HasMany
     {
         return $this->hasMany(Article::class, 'writer_id');

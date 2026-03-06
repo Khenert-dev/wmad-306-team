@@ -5,6 +5,7 @@ use App\Models\Article;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\WriterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoleRequestController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -58,14 +59,28 @@ Route::get('/dashboard', function () {
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Profile Management
+// Profile Management & General Authenticated Actions
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Role Application Submission
+    Route::post('/role-requests', [RoleRequestController::class, 'store'])->name('role-requests.store');
 });
 
-// Writer Workspace
+// ==========================================
+// SUPER ADMIN WORKSPACE
+// ==========================================
+Route::middleware(['auth', 'role:super-admin'])->group(function () {
+    Route::get('/admin/requests', [RoleRequestController::class, 'index'])->name('admin.requests');
+    Route::post('/admin/requests/{roleRequest}/approve', [RoleRequestController::class, 'approve'])->name('admin.requests.approve');
+    Route::post('/admin/requests/{roleRequest}/reject', [RoleRequestController::class, 'reject'])->name('admin.requests.reject');
+});
+
+// ==========================================
+// WRITER WORKSPACE
+// ==========================================
 Route::middleware(['auth', 'role:writer'])->group(function () {
     Route::get('/writer/dashboard', [WriterController::class, 'dashboard'])->name('writer.dashboard');
     Route::post('/articles', [WriterController::class, 'store'])->name('articles.store');
@@ -73,7 +88,9 @@ Route::middleware(['auth', 'role:writer'])->group(function () {
     Route::put('/articles/{article}/revise', [WriterController::class, 'revise'])->name('articles.revise');
 });
 
-// Editor Workspace
+// ==========================================
+// EDITOR WORKSPACE
+// ==========================================
 Route::middleware(['auth', 'role:editor'])->group(function () {
     Route::get('/editor/dashboard', [EditorController::class, 'review'])->name('editor.dashboard');
     Route::post('/articles/{article}/revision', [EditorController::class, 'requestRevision'])->name('articles.revision');
@@ -81,7 +98,9 @@ Route::middleware(['auth', 'role:editor'])->group(function () {
     Route::patch('/articles/{article}/cover-image', [EditorController::class, 'updateCoverImage'])->name('articles.cover-image');
 });
 
-// Student Workspace
+// ==========================================
+// STUDENT WORKSPACE
+// ==========================================
 Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/student/dashboard', [StudentController::class, 'studentDashboard'])->name('student.dashboard');
     Route::post('/articles/{article}/comment', [StudentController::class, 'comment'])->name('articles.comment');

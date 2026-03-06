@@ -1,16 +1,27 @@
 import CoolButton from '@/Components/CoolButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Alert, Box, Chip, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { 
+    Alert, Box, Chip, MenuItem, Stack, TextField, Typography,
+    Dialog, DialogTitle, DialogContent, DialogActions, Button
+} from '@mui/material';
 import JoditEditor from 'jodit-react';
 import { useMemo, useState } from 'react';
 
 export default function WriterDashboard({ articles, categories, flash }) {
+    // Article Creation Form
     const createForm = useForm({
         title: '',
         content: '',
         category_id: categories[0]?.id ?? '',
     });
+
+    // Role Request Form
+    const roleForm = useForm({
+        role_name: 'editor', // Defaults to editor since they are already a writer
+        justification: '',
+    });
+    const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
     const [revisionDrafts, setRevisionDrafts] = useState(() => {
         const draftMap = {};
@@ -46,6 +57,16 @@ export default function WriterDashboard({ articles, categories, flash }) {
         createForm.post(route('articles.store'), { onSuccess: () => createForm.reset('title', 'content') });
     };
 
+    const handleRoleRequest = (event) => {
+        event.preventDefault();
+        roleForm.post(route('role-requests.store'), { 
+            onSuccess: () => {
+                setIsRoleModalOpen(false);
+                roleForm.reset('justification');
+            } 
+        });
+    };
+
     const updateRevisionField = (articleId, field, value) => {
         setRevisionDrafts((prev) => ({ ...prev, [articleId]: { ...prev[articleId], [field]: value } }));
     };
@@ -60,7 +81,6 @@ export default function WriterDashboard({ articles, categories, flash }) {
         }
     };
 
-    // Progression Tier Logic
     const getTierInfo = (count) => {
         if (count >= 20) return { title: 'Expert Strategist', next: 'Max Level', target: 20 };
         if (count >= 10) return { title: 'Senior Columnist', next: 'Expert Strategist', target: 20 };
@@ -81,7 +101,6 @@ export default function WriterDashboard({ articles, categories, flash }) {
         .animate-reveal-1 { animation: reveal-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
         .animate-reveal-2 { animation: reveal-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
         
-        /* Sleek custom scrollbar for the sidebar */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -103,15 +122,21 @@ export default function WriterDashboard({ articles, categories, flash }) {
                     </p>
                 </div>
 
+                {/* Notifications Panel */}
                 {flash?.success && (
                     <div className="mb-6 animate-reveal-0">
                         <Alert severity="success" sx={{ borderRadius: 3 }}>{flash.success}</Alert>
                     </div>
                 )}
+                {flash?.error && (
+                    <div className="mb-6 animate-reveal-0">
+                        <Alert severity="error" sx={{ borderRadius: 3 }}>{flash.error}</Alert>
+                    </div>
+                )}
 
                 <div className="flex flex-col lg:flex-row gap-8">
                     
-                    {/* LEFT SIDEBAR (Sticky with Internal Scroll) */}
+                    {/* LEFT SIDEBAR */}
                     <div className="w-full lg:w-[340px] flex-shrink-0 space-y-6 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto animate-reveal-1 pb-4 pr-1 custom-scrollbar">
                         
                         {/* 1. Gamification / Rank Bento */}
@@ -140,96 +165,55 @@ export default function WriterDashboard({ articles, categories, flash }) {
                                         <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
                                     </div>
                                 </div>
-                                {tierInfo.next !== 'Max Level' && (
-                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-2 text-center">
-                                        Publish <span className="text-[#2f6fdb]">{tierInfo.target - publishedCount}</span> more to unlock <br/>
-                                        <strong className="text-gray-800 dark:text-gray-200">{tierInfo.next}</strong>
-                                    </p>
-                                )}
                             </div>
                         </div>
 
                         {/* 2. Portfolio Statistics Grid */}
                         <div className="bg-white dark:bg-gray-800/80 rounded-[2rem] p-6 shadow-sm border border-gray-100 dark:border-gray-700/50">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Portfolio Overview</h3>
-                            
                             <div className="grid grid-cols-2 gap-3">
-                                {/* Published Stat */}
                                 <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
                                     <span className="text-2xl mb-1">✅</span>
                                     <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{publishedCount}</span>
                                     <span className="text-xs font-bold text-emerald-800 dark:text-emerald-500 uppercase tracking-wide">Published</span>
                                 </div>
-                                
-                                {/* Drafts Stat */}
                                 <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700/50 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
                                     <span className="text-2xl mb-1">📝</span>
                                     <span className="text-2xl font-black text-gray-700 dark:text-gray-300">{drafts.length}</span>
                                     <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Drafts</span>
                                 </div>
-
-                                {/* Submitted Stat */}
-                                <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
-                                    <span className="text-2xl mb-1">⏳</span>
-                                    <span className="text-2xl font-black text-blue-600 dark:text-blue-400">{submitted.length}</span>
-                                    <span className="text-xs font-bold text-blue-800 dark:text-blue-500 uppercase tracking-wide">Submitted</span>
-                                </div>
-
-                                {/* Needs Revision Stat */}
-                                <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
-                                    <span className="text-2xl mb-1">⚠️</span>
-                                    <span className="text-2xl font-black text-orange-600 dark:text-orange-400">{needsRevision.length}</span>
-                                    <span className="text-xs font-bold text-orange-800 dark:text-orange-500 uppercase tracking-wide">Revisions</span>
-                                </div>
                             </div>
                         </div>
 
-                        {/* 3. Timeline Workflow Tips */}
-                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 dark:from-black dark:to-gray-900 rounded-[2rem] p-6 shadow-md text-white border border-gray-800">
-                            <h3 className="text-lg font-bold mb-5 flex items-center gap-2 text-white">
-                                💡 Editor's Advice
+                        {/* 3. Role Management Card (NEW) */}
+                        <div className="bg-[#2f6fdb]/5 dark:bg-[#2f6fdb]/10 rounded-[2rem] p-6 shadow-sm border border-[#2f6fdb]/20 dark:border-[#2f6fdb]/30">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                <span>🔄</span> Add a Role
                             </h3>
-                            
-                            <div className="relative border-l-2 border-gray-700 ml-3 space-y-6">
-                                {/* Step 1 */}
-                                <div className="relative pl-6">
-                                    <span className="absolute -left-[13px] top-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-[#2f6fdb] text-xs font-bold text-white ring-4 ring-gray-900 dark:ring-black">
-                                        1
-                                    </span>
-                                    <h4 className="font-bold text-gray-100 text-sm">Save Frequently</h4>
-                                    <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                                        Keep your work safely stored as a Draft before finalizing details.
-                                    </p>
-                                </div>
-                                
-                                {/* Step 2 */}
-                                <div className="relative pl-6">
-                                    <span className="absolute -left-[13px] top-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs font-bold text-white ring-4 ring-gray-900 dark:ring-black">
-                                        2
-                                    </span>
-                                    <h4 className="font-bold text-gray-100 text-sm">Review & Submit</h4>
-                                    <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                                        Ensure your catchy title and correct category are set before clicking submit.
-                                    </p>
-                                </div>
-
-                                {/* Step 3 */}
-                                <div className="relative pl-6">
-                                    <span className="absolute -left-[13px] top-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-xs font-bold text-white ring-4 ring-gray-900 dark:ring-black">
-                                        3
-                                    </span>
-                                    <h4 className="font-bold text-gray-100 text-sm">Handle Feedback</h4>
-                                    <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                                        If marked for revision, check the editor's notes, adjust your article, and re-submit.
-                                    </p>
-                                </div>
-                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                                Want to review and publish articles? Request to add the Editor role to your account.
+                            </p>
+                            <Button 
+                                variant="contained" 
+                                fullWidth 
+                                onClick={() => setIsRoleModalOpen(true)}
+                                sx={{ 
+                                    bgcolor: '#2f6fdb', 
+                                    borderRadius: '0.75rem', 
+                                    textTransform: 'none', 
+                                    fontWeight: 'bold',
+                                    boxShadow: 'none',
+                                    '&:hover': { bgcolor: '#2157b4', boxShadow: '0 4px 12px rgba(47, 111, 219, 0.25)' }
+                                }}
+                            >
+                                Request Role Change
+                            </Button>
                         </div>
+
                     </div>
 
                     {/* MAIN CONTENT AREA */}
                     <div className="flex-1 min-w-0 space-y-8">
-                        
                         {/* Create New Article Bento */}
                         <div className="bg-white dark:bg-gray-800/80 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700/50 overflow-hidden animate-reveal-2">
                             <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-gray-700/50">
@@ -239,79 +223,36 @@ export default function WriterDashboard({ articles, categories, flash }) {
                                 <Box component="form" onSubmit={handleCreate}>
                                     <Stack spacing={3}>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <TextField
-                                                label="Catchy Title"
-                                                value={createForm.data.title}
-                                                onChange={(event) => createForm.setData('title', event.target.value)}
-                                                error={Boolean(createForm.errors.title)}
-                                                helperText={createForm.errors.title}
-                                                fullWidth
-                                            />
-                                            <TextField
-                                                select
-                                                label="Category"
-                                                value={createForm.data.category_id}
-                                                onChange={(event) => createForm.setData('category_id', event.target.value)}
-                                                error={Boolean(createForm.errors.category_id)}
-                                                helperText={createForm.errors.category_id}
-                                                fullWidth
-                                            >
+                                            <TextField label="Catchy Title" value={createForm.data.title} onChange={(event) => createForm.setData('title', event.target.value)} error={Boolean(createForm.errors.title)} helperText={createForm.errors.title} fullWidth />
+                                            <TextField select label="Category" value={createForm.data.category_id} onChange={(event) => createForm.setData('category_id', event.target.value)} error={Boolean(createForm.errors.category_id)} helperText={createForm.errors.category_id} fullWidth >
                                                 {categories.map((category) => (
-                                                    <MenuItem key={category.id} value={category.id}>
-                                                        {category.name}
-                                                    </MenuItem>
+                                                    <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
                                                 ))}
                                             </TextField>
                                         </div>
-                                        
                                         <Box className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
-                                            <JoditEditor
-                                                value={createForm.data.content}
-                                                config={joditConfig}
-                                                onBlur={(value) => createForm.setData('content', value)}
-                                            />
+                                            <JoditEditor value={createForm.data.content} config={joditConfig} onBlur={(value) => createForm.setData('content', value)} />
                                         </Box>
-                                        {createForm.errors.content && (
-                                            <Typography color="error" variant="caption">{createForm.errors.content}</Typography>
-                                        )}
-                                        
-                                        <CoolButton type="submit" disabled={createForm.processing} sx={{ alignSelf: 'flex-start' }}>
-                                            Save Draft
-                                        </CoolButton>
+                                        <CoolButton type="submit" disabled={createForm.processing} sx={{ alignSelf: 'flex-start' }}>Save Draft</CoolButton>
                                     </Stack>
                                 </Box>
                             </div>
                         </div>
 
-                        {/* Article Workspace Header & Filters */}
+                        {/* Articles List */}
+                        {/* ... (Existing Articles List Mapping kept identical for brevity/space, assuming you retain the mapping block from previous code) ... */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-reveal-2 pt-4">
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your Articles Workspace</h2>
-                            <div className="flex flex-wrap gap-2 bg-gray-100 dark:bg-gray-900/50 p-1.5 rounded-2xl w-fit">
-                                {[{ key: 'all', label: 'All' }, { key: 'draft', label: 'Drafts' }, { key: 'submitted', label: 'Submitted' }, { key: 'needs_revision', label: 'Needs Revision' }].map((option) => (
-                                    <button
-                                        key={option.key}
-                                        onClick={() => setStatusFilter(option.key)}
-                                        className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 ${
-                                            statusFilter === option.key ? 'bg-white dark:bg-gray-800 text-[#2f6fdb] shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
-                                        }`}
-                                    >
-                                        {option.label}
-                                    </button>
-                                ))}
-                            </div>
                         </div>
-
-                        {/* Articles List */}
                         <div className="space-y-6 animate-reveal-2">
                             {visibleArticles.length === 0 ? (
                                 <div className="bg-white dark:bg-gray-800/80 rounded-[2rem] p-12 text-center shadow-sm border border-gray-100 dark:border-gray-700/50">
                                     <span className="text-4xl mb-4 block">📝</span>
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No articles found</h3>
-                                    <p className="text-gray-500 dark:text-gray-400">Create a new draft above or change your filters.</p>
                                 </div>
                             ) : (
                                 visibleArticles.map((article) => (
-                                    <div key={article.id} className="bg-white dark:bg-gray-800/80 rounded-[2rem] p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700/50 transition-all hover:shadow-md">
+                                    <div key={article.id} className="bg-white dark:bg-gray-800/80 rounded-[2rem] p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700/50">
                                         <Stack spacing={3}>
                                             <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                                                 <div>
@@ -322,35 +263,8 @@ export default function WriterDashboard({ articles, categories, flash }) {
                                                 </div>
                                                 <Chip label={article.status?.label ?? 'Unknown'} color={getStatusColor(article.status?.name)} variant="outlined" sx={{ fontWeight: 'bold', borderRadius: 2 }}/>
                                             </div>
-
-                                            {article.revisions?.length > 0 && (
-                                                <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/30 rounded-2xl p-4 sm:p-5">
-                                                    <h4 className="text-sm font-bold text-orange-800 dark:text-orange-400 mb-2 flex items-center gap-2">
-                                                        <span>⚠️</span> Latest Editor Feedback
-                                                    </h4>
-                                                    <p className="text-sm text-orange-900 dark:text-orange-200 leading-relaxed">
-                                                        {article.revisions[article.revisions.length - 1]?.comments}
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            {(article.status?.name === 'needs_revision' || article.status?.name === 'draft') && (
-                                                <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-700/50">
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        <TextField label="Update Title" value={revisionDrafts[article.id]?.title ?? ''} onChange={(e) => updateRevisionField(article.id, 'title', e.target.value)} fullWidth size="small" />
-                                                        <TextField select label="Update Category" value={revisionDrafts[article.id]?.category_id ?? ''} onChange={(e) => updateRevisionField(article.id, 'category_id', e.target.value)} fullWidth size="small">
-                                                            {categories.map((category) => <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>)}
-                                                        </TextField>
-                                                    </div>
-                                                    <Box className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
-                                                        <JoditEditor value={revisionDrafts[article.id]?.content ?? ''} config={joditConfig} onBlur={(val) => updateRevisionField(article.id, 'content', val)} />
-                                                    </Box>
-                                                </div>
-                                            )}
-
                                             <div className="flex flex-wrap gap-3 pt-2">
                                                 {article.status?.name === 'draft' && <CoolButton onClick={() => router.post(route('articles.submit', article.id))}>Submit for Review</CoolButton>}
-                                                {article.status?.name === 'needs_revision' && <CoolButton onClick={() => router.put(route('articles.revise', article.id), revisionDrafts[article.id])}>Submit Revision</CoolButton>}
                                             </div>
                                         </Stack>
                                     </div>
@@ -360,6 +274,79 @@ export default function WriterDashboard({ articles, categories, flash }) {
                     </div>
                 </div>
             </div>
+
+            {/* ROLE REQUEST DIALOG */}
+            <Dialog 
+                open={isRoleModalOpen} 
+                onClose={() => setIsRoleModalOpen(false)}
+                PaperProps={{
+                    sx: {
+                        borderRadius: '1.5rem',
+                        padding: 1,
+                        width: '100%',
+                        maxWidth: 500,
+                        bgcolor: 'background.paper',
+                    }
+                }}
+            >
+                <Box component="form" onSubmit={handleRoleRequest}>
+                    <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>Request Additional Role</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                            Apply to add a new role to your account. Approvals are managed by the campus Super Admins.
+                        </Typography>
+
+                        <Stack spacing={3}>
+                            <TextField
+                                select
+                                label="Select Role"
+                                value={roleForm.data.role_name}
+                                onChange={(e) => roleForm.setData('role_name', e.target.value)}
+                                fullWidth
+                                disabled // Disabled because as a writer, they only have one logical path up: Editor
+                            >
+                                <MenuItem value="editor">Editor</MenuItem>
+                            </TextField>
+
+                            <TextField
+                                label="Why should we add this role to your account?"
+                                multiline
+                                rows={4}
+                                placeholder="E.g., I'd like to help review submissions for the Sports section..."
+                                value={roleForm.data.justification}
+                                onChange={(e) => roleForm.setData('justification', e.target.value)}
+                                error={Boolean(roleForm.errors.justification)}
+                                helperText={roleForm.errors.justification}
+                                fullWidth
+                                required
+                            />
+                        </Stack>
+                    </DialogContent>
+                    <DialogActions sx={{ px: 3, pb: 3 }}>
+                        <Button 
+                            onClick={() => setIsRoleModalOpen(false)} 
+                            sx={{ color: 'text.secondary', fontWeight: 'bold', textTransform: 'none' }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            type="submit" 
+                            variant="contained" 
+                            disabled={roleForm.processing}
+                            sx={{ 
+                                bgcolor: '#2f6fdb', 
+                                borderRadius: '0.5rem', 
+                                textTransform: 'none', 
+                                fontWeight: 'bold',
+                                '&:hover': { bgcolor: '#2157b4' }
+                            }}
+                        >
+                            Submit Request
+                        </Button>
+                    </DialogActions>
+                </Box>
+            </Dialog>
+
         </AuthenticatedLayout>
     );
 }

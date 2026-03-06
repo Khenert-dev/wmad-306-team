@@ -10,7 +10,6 @@ import {
     Button,
     Chip,
     Container,
-    Divider,
     Drawer,
     IconButton,
     List,
@@ -27,37 +26,62 @@ import { useMemo, useState } from 'react';
 export default function AuthenticatedLayout({ header, children, fullWidth = false }) {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    
     const { auth } = usePage().props;
     const user = auth?.user;
-    const roles = auth?.roles ?? [];
+    
+    // SAFE ARRAY FIX: Ensures Laravel's roles are always read as a JavaScript Array
+    const rawRoles = auth?.roles ?? [];
+    const roles = Array.isArray(rawRoles) ? rawRoles : Object.values(rawRoles);
+    
     const [mobileOpen, setMobileOpen] = useState(false);
+
+    // 1. Determine the highest ranking role to display on the Badge
     const roleMeta = useMemo(() => {
-        if (roles.includes('writer')) {
-            return { label: 'Writer', tone: 'info', home: { label: 'Writer Dashboard', href: route('writer.dashboard'), name: 'writer.dashboard' } };
+        if (roles.includes('super-admin')) {
+            return { label: 'Super Admin', tone: 'error', homeHref: route('admin.requests') };
         }
         if (roles.includes('editor')) {
-            return { label: 'Editor', tone: 'secondary', home: { label: 'Editor Dashboard', href: route('editor.dashboard'), name: 'editor.dashboard' } };
+            return { label: 'Editor', tone: 'secondary', homeHref: route('editor.dashboard') };
+        }
+        if (roles.includes('writer')) {
+            return { label: 'Writer', tone: 'info', homeHref: route('writer.dashboard') };
         }
         if (roles.includes('student')) {
-            return { label: 'Student', tone: 'success', home: { label: 'Student Dashboard', href: route('student.dashboard'), name: 'student.dashboard' } };
+            return { label: 'Student', tone: 'success', homeHref: route('student.dashboard') };
         }
-        return { label: 'Member', tone: 'default', home: { label: 'Dashboard', href: route('dashboard'), name: 'dashboard' } };
+        return { label: 'Member', tone: 'default', homeHref: route('dashboard') };
     }, [roles]);
 
+    // 2. Build the Navigation array dynamically based on ALL roles the user has
     const navItems = useMemo(() => {
-        const items = [roleMeta.home];
-        if (roleMeta.home.name !== 'dashboard') {
-            items.push({ label: 'Home', href: route('dashboard'), name: 'dashboard' });
+        const items = [];
+        
+        if (roles.includes('super-admin')) {
+            items.push({ label: 'Admin Panel', href: route('admin.requests'), name: 'admin.requests' });
         }
+        if (roles.includes('editor')) {
+            items.push({ label: 'Editor Desk', href: route('editor.dashboard'), name: 'editor.dashboard' });
+        }
+        if (roles.includes('writer')) {
+            items.push({ label: 'Writer Hub', href: route('writer.dashboard'), name: 'writer.dashboard' });
+        }
+        
+        // Everyone gets the Student dashboard to read articles
+        if (roles.includes('student') || items.length === 0) {
+            items.push({ label: 'Campus Journals', href: route('student.dashboard'), name: 'student.dashboard' });
+        }
+
         items.push({ label: 'Profile', href: route('profile.edit'), name: 'profile.edit' });
+        
         return items;
-    }, [roleMeta]);
+    }, [roles]);
 
     const navList = (
         <Box sx={{ width: 300, minWidth: 300, height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
             <Stack
                 component={Link}
-                href={roleMeta.home.href}
+                href={roleMeta.homeHref}
                 direction="row"
                 spacing={1.5}
                 alignItems="center"
@@ -140,7 +164,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                 <Toolbar sx={{ minHeight: { xs: 64, md: 72 }, px: { xs: 1.5, md: 2 } }}>
                     <IconButton
                         aria-label="Open menu"
-                        sx={{ display: { md: 'none' }, mr: 0.5, color: 'text.primary' }}
+                        sx={{ display: { lg: 'none' }, mr: 0.5, color: 'text.primary' }}
                         onClick={() => setMobileOpen(true)}
                     >
                         <MenuIcon />
@@ -148,23 +172,20 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
 
                     <Stack
                         component={Link}
-                        href={roleMeta.home.href}
+                        href={roleMeta.homeHref}
                         direction="row"
                         spacing={1.5}
-                        sx={{ textDecoration: 'none', alignItems: 'center', color: 'text.primary', flexGrow: 1, minWidth: 0 }}
+                        sx={{ textDecoration: 'none', alignItems: 'center', color: 'text.primary', flexGrow: { xs: 1, lg: 0 }, minWidth: 0, mr: { lg: 4 } }}
                     >
                         <ApplicationLogo style={{ width: 32, height: 32, color: '#2f6fdb', flexShrink: 0 }} />
                         <Box sx={{ minWidth: 0 }}>
                             <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2, letterSpacing: '-0.02em' }}>
                                 Campus Press
                             </Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>
-                                Student Journal Platform
-                            </Typography>
                         </Box>
                     </Stack>
 
-                    <Stack direction="row" spacing={0.25} sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
+                    <Stack direction="row" spacing={0.5} sx={{ display: { xs: 'none', lg: 'flex' }, flexGrow: 1, alignItems: 'center' }}>
                         {navItems.map((item) => {
                             const isActive = route().current(item.name);
                             return (
@@ -176,7 +197,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                                         px: 2,
                                         py: 1,
                                         borderRadius: '0.75rem',
-                                        fontWeight: isActive ? 700 : 600,
+                                        fontWeight: isActive ? 800 : 600,
                                         color: isActive ? '#2f6fdb' : 'text.primary',
                                         bgcolor: isActive ? alpha('#2f6fdb', 0.08) : 'transparent',
                                         '&:hover': {
@@ -198,7 +219,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                             label={roleMeta.label}
                             color={roleMeta.tone}
                             variant="outlined"
-                            sx={{ fontWeight: 700, borderRadius: '0.5rem' }}
+                            sx={{ fontWeight: 800, borderRadius: '0.5rem', display: { xs: 'none', sm: 'flex' } }}
                         />
                         <Avatar
                             src={user?.avatar_url ?? undefined}
@@ -207,13 +228,13 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                         >
                             {!user?.avatar_url ? (user?.name?.[0] ?? 'U') : null}
                         </Avatar>
-                        <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, fontWeight: 700 }} noWrap>
+                        <Typography variant="body2" sx={{ display: { xs: 'none', md: 'block' }, fontWeight: 700 }} noWrap>
                             {user?.name}
                         </Typography>
                         <Button
                             variant="outlined"
                             sx={{
-                                display: { xs: 'none', md: 'inline-flex' },
+                                display: { xs: 'none', lg: 'inline-flex' },
                                 borderRadius: '0.75rem',
                                 fontWeight: 700,
                                 borderColor: alpha('#2f6fdb', 0.4),
@@ -231,7 +252,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                 anchor="left"
                 open={mobileOpen}
                 onClose={() => setMobileOpen(false)}
-                sx={{ display: { md: 'none' } }}
+                sx={{ display: { lg: 'none' } }}
                 PaperProps={{
                     sx: {
                         width: 300,

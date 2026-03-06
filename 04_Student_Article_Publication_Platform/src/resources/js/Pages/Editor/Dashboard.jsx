@@ -1,14 +1,20 @@
 import ActionButtonGroup from '@/Components/ActionButtonGroup';
 import CoolButton from '@/Components/CoolButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router, usePage, useForm } from '@inertiajs/react';
 import {
     Alert,
     Box,
+    Button,
     Card,
     CardContent,
     Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Divider,
+    MenuItem,
     Stack,
     TextField,
     Typography,
@@ -32,20 +38,10 @@ const editorAnimations = `
         0% { transform: translateY(80px); opacity: 0; filter: blur(8px); }
         100% { transform: translateY(0); opacity: 1; filter: blur(0); }
     }
-    @keyframes editor-float-blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-    }
     .editor-animate-reveal-0 { animation: editor-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
     .editor-animate-reveal-1 { animation: editor-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
     .editor-animate-reveal-2 { animation: editor-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
     .editor-animate-reveal-3 { animation: editor-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
-    .editor-animate-reveal-4 { animation: editor-reveal-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both; }
-    .editor-animate-blob { animation: editor-float-blob 8s infinite ease-in-out; }
-    .editor-animation-delay-2000 { animation-delay: 2s; }
-    .editor-animation-delay-4000 { animation-delay: 4s; }
     .editor-container-enter { animation: editor-container-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
 `;
 
@@ -59,6 +55,14 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
     const isDark = theme.palette.mode === 'dark';
     const { errors = {} } = usePage().props;
     const [revisionComments, setRevisionComments] = useState({});
+    
+    // Role Request Form
+    const roleForm = useForm({
+        role_name: 'writer', // Defaults to writer since they are already an editor
+        justification: '',
+    });
+    const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+
     const [coverImageDrafts, setCoverImageDrafts] = useState(() => {
         const map = {};
         for (const article of [...(submittedArticles ?? []), ...(publishedArticles ?? [])]) {
@@ -73,6 +77,16 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
             cover_image_url: normalizedCoverImageUrl === '' ? null : normalizedCoverImageUrl,
         }, {
             preserveScroll: true,
+        });
+    };
+
+    const handleRoleRequest = (event) => {
+        event.preventDefault();
+        roleForm.post(route('role-requests.store'), { 
+            onSuccess: () => {
+                setIsRoleModalOpen(false);
+                roleForm.reset('justification');
+            } 
         });
     };
 
@@ -126,8 +140,13 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
             <style>{editorAnimations}</style>
 
             <Box className="editor-container-enter" sx={{ maxWidth: 1280, mx: 'auto', px: { xs: 2, lg: 3 }, py: { xs: 2.5, lg: 4 } }}>
+                
+                {/* Notifications Panel */}
                 {flash?.success && (
                     <Alert severity="success" className="editor-animate-reveal-0" sx={{ borderRadius: '1rem', mb: 2 }}>{flash.success}</Alert>
+                )}
+                {flash?.error && (
+                    <Alert severity="error" className="editor-animate-reveal-0" sx={{ borderRadius: '1rem', mb: 2 }}>{flash.error}</Alert>
                 )}
                 {errors?.cover_image_url && (
                     <Alert severity="error" className="editor-animate-reveal-0" sx={{ borderRadius: '1rem', mb: 2 }}>
@@ -138,6 +157,7 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
                 <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', lg: 'row' } }}>
                     {/* LEFT SIDEBAR (Sticky) */}
                     <Stack spacing={3} sx={{ width: { xs: '100%', lg: 320 }, alignSelf: 'flex-start', position: { lg: 'sticky' }, top: { lg: 92 } }} className="editor-animate-reveal-1">
+                        
                         {/* Queue Stats Bento */}
                         <Box sx={{ ...bentoCardSx(true), p: 3 }}>
                             <Typography variant="h6" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -161,9 +181,35 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
                                 <span>🎨</span> Image Curation
                             </Typography>
                             <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', lineHeight: 1.6 }}>
-                                Strong visuals lead to higher reader engagement. Test your cover image URLs in the live preview box before publishing to ensure they load correctly on the student homepage.
+                                Strong visuals lead to higher reader engagement. Test your cover image URLs in the live preview box before publishing to ensure they load correctly.
                             </Typography>
                         </Box>
+
+                        {/* Role Management Card (NEW) */}
+                        <Box sx={{ ...bentoCardSx(true), p: 3, bgcolor: isDark ? 'rgba(47, 111, 219, 0.1)' : 'rgba(47, 111, 219, 0.05)', borderColor: 'rgba(47, 111, 219, 0.2)' }}>
+                            <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <span>🔄</span> Add a Role
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3, lineHeight: 1.6 }}>
+                                Want to draft your own campus stories? Request to add the Writer role to your account.
+                            </Typography>
+                            <Button 
+                                variant="contained" 
+                                fullWidth 
+                                onClick={() => setIsRoleModalOpen(true)}
+                                sx={{ 
+                                    bgcolor: '#2f6fdb', 
+                                    borderRadius: '0.75rem', 
+                                    textTransform: 'none', 
+                                    fontWeight: 'bold',
+                                    boxShadow: 'none',
+                                    '&:hover': { bgcolor: '#2157b4', boxShadow: '0 4px 12px rgba(47, 111, 219, 0.25)' }
+                                }}
+                            >
+                                Request Role Change
+                            </Button>
+                        </Box>
+
                     </Stack>
 
                     {/* MAIN CONTENT AREA */}
@@ -310,6 +356,79 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
                     </Stack>
                 </Box>
             </Box>
+
+            {/* ROLE REQUEST DIALOG */}
+            <Dialog 
+                open={isRoleModalOpen} 
+                onClose={() => setIsRoleModalOpen(false)}
+                PaperProps={{
+                    sx: {
+                        borderRadius: '1.5rem',
+                        padding: 1,
+                        width: '100%',
+                        maxWidth: 500,
+                        bgcolor: 'background.paper',
+                    }
+                }}
+            >
+                <Box component="form" onSubmit={handleRoleRequest}>
+                    <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>Request Additional Role</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                            Apply to add a new role to your account. Approvals are managed by the campus Super Admins.
+                        </Typography>
+
+                        <Stack spacing={3}>
+                            <TextField
+                                select
+                                label="Select Role"
+                                value={roleForm.data.role_name}
+                                onChange={(e) => roleForm.setData('role_name', e.target.value)}
+                                fullWidth
+                                disabled 
+                            >
+                                <MenuItem value="writer">Writer</MenuItem>
+                            </TextField>
+
+                            <TextField
+                                label="Why should we add this role to your account?"
+                                multiline
+                                rows={4}
+                                placeholder="E.g., I'd love to start drafting my own articles in addition to editing..."
+                                value={roleForm.data.justification}
+                                onChange={(e) => roleForm.setData('justification', e.target.value)}
+                                error={Boolean(roleForm.errors.justification)}
+                                helperText={roleForm.errors.justification}
+                                fullWidth
+                                required
+                            />
+                        </Stack>
+                    </DialogContent>
+                    <DialogActions sx={{ px: 3, pb: 3 }}>
+                        <Button 
+                            onClick={() => setIsRoleModalOpen(false)} 
+                            sx={{ color: 'text.secondary', fontWeight: 'bold', textTransform: 'none' }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            type="submit" 
+                            variant="contained" 
+                            disabled={roleForm.processing}
+                            sx={{ 
+                                bgcolor: '#2f6fdb', 
+                                borderRadius: '0.5rem', 
+                                textTransform: 'none', 
+                                fontWeight: 'bold',
+                                '&:hover': { bgcolor: '#2157b4' }
+                            }}
+                        >
+                            Submit Request
+                        </Button>
+                    </DialogActions>
+                </Box>
+            </Dialog>
+
         </AuthenticatedLayout>
     );
 }
