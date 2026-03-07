@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RoleRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -86,9 +87,16 @@ class RoleRequestController extends Controller
             ->latest()
             ->get();
 
+        $manageableUsers = User::query()
+            ->with('roles:id,name')
+            ->whereHas('roles', fn ($query) => $query->whereIn('name', ['student', 'writer', 'editor']))
+            ->orderBy('name')
+            ->get();
+
         // FIX #2: Updated this string to exactly match your React file: Admin/RoleRequests
         return Inertia::render('Admin/RoleRequests', [
-            'pendingRequests' => $pendingRequests
+            'pendingRequests' => $pendingRequests,
+            'manageableUsers' => $manageableUsers,
         ]);
     }
 
@@ -158,5 +166,43 @@ class RoleRequestController extends Controller
         ]);
 
         return back()->with('success', 'Application has been rejected.');
+    }
+
+    /**
+     * SUPER ADMIN: Remove a role directly from a user.
+     */
+    public function removeRole(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'role_name' => ['required', 'in:student,writer,editor'],
+        ]);
+
+        $roleName = $validated['role_name'];
+
+        if (! $user->hasRole($roleName)) {
+            return back()->with('error', "{$user->name} does not currently have the {$roleName} role.");
+        }
+
+        if (
+            $roleName === 'student'
+            && ! $user->hasRole('writer')
+            && ! $user->hasRole('editor')
+            && ! $user->hasAnyRole(['superadmin', 'super-admin'])
+        ) {
+            return back()->with('error', "Cannot remove student from {$user->name}; they must keep at least one platform role.");
+        }
+
+        $user->removeRole($roleName);
+
+        if (
+            ! $user->hasAnyRole(['student', 'writer', 'editor'])
+            && ! $user->hasAnyRole(['superadmin', 'super-admin'])
+        ) {
+            $user->assignRole('student');
+
+            return back()->with('success', "Removed {$roleName} from {$user->name}. Student role was auto-assigned to keep account access.");
+        }
+
+        return back()->with('success', "Removed {$roleName} role from {$user->name}.");
     }
 }

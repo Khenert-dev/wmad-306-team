@@ -95,7 +95,7 @@ class EditorController extends Controller
 
         $validated = $request->validate([
             'cover_image_url' => ['nullable', 'url', 'max:5000', 'required_without:cover_image_file'],
-            'cover_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120', 'required_without:cover_image_url'],
+            'cover_image_file' => ['nullable', 'file', 'image', 'max:5120', 'required_without:cover_image_url'],
         ]);
 
         $newCoverImageUrl = $validated['cover_image_url'] ?? null;

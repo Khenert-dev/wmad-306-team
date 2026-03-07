@@ -78,6 +78,7 @@ Route::middleware(['auth', 'role:superadmin|super-admin'])->group(function () {
     Route::get('/admin/requests', [RoleRequestController::class, 'index'])->name('admin.requests');
     Route::post('/admin/requests/{roleRequest}/approve', [RoleRequestController::class, 'approve'])->name('admin.requests.approve');
     Route::post('/admin/requests/{roleRequest}/reject', [RoleRequestController::class, 'reject'])->name('admin.requests.reject');
+    Route::post('/admin/users/{user}/roles/remove', [RoleRequestController::class, 'removeRole'])->name('admin.users.roles.remove');
 
     // Content Moderation
     Route::get('/admin/content', [AdminContentController::class, 'index'])->name('admin.content');
@@ -93,6 +94,7 @@ Route::middleware(['auth', 'role:writer'])->group(function () {
     Route::get('/writer/dashboard', [WriterController::class, 'dashboard'])->name('writer.dashboard');
     Route::get('/writer/articles/create', [WriterController::class, 'create'])->name('writer.articles.create');
     Route::post('/articles', [WriterController::class, 'store'])->name('articles.store');
+    Route::patch('/writer/articles/{article}/cover-image', [WriterController::class, 'updateCoverImage'])->name('writer.articles.cover-image');
     Route::post('/articles/{article}/submit', [WriterController::class, 'submit'])->name('articles.submit');
     Route::put('/articles/{article}/revise', [WriterController::class, 'revise'])->name('articles.revise');
 });

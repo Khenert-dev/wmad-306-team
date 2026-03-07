@@ -24,7 +24,7 @@ const adminAnimations = `
     .admin-animation-delay-4000 { animation-delay: 4s; }
 `;
 
-export default function RoleRequests({ pendingRequests, flash }) {
+export default function RoleRequests({ pendingRequests, manageableUsers = [], flash }) {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
     const roleLabelMap = { writer: 'Writer', editor: 'Editor', student: 'Student' };
@@ -41,6 +41,14 @@ export default function RoleRequests({ pendingRequests, flash }) {
     const handleReject = (id) => {
         if (confirm('Are you sure you want to reject this application?')) {
             router.post(route('admin.requests.reject', id), {}, { preserveScroll: true });
+        }
+    };
+
+    const handleRemoveRole = (userId, roleName, userName) => {
+        if (confirm(`Remove ${roleName} role from ${userName}?`)) {
+            router.post(route('admin.users.roles.remove', userId), {
+                role_name: roleName,
+            }, { preserveScroll: true });
         }
     };
 
@@ -92,6 +100,11 @@ export default function RoleRequests({ pendingRequests, flash }) {
                 {flash?.success && (
                     <Alert severity="success" className="admin-animate-reveal-0" sx={{ borderRadius: '1rem' }}>
                         {flash.success}
+                    </Alert>
+                )}
+                {flash?.error && (
+                    <Alert severity="error" className="admin-animate-reveal-0" sx={{ borderRadius: '1rem' }}>
+                        {flash.error}
                     </Alert>
                 )}
 
@@ -273,6 +286,61 @@ export default function RoleRequests({ pendingRequests, flash }) {
                                                 </Stack>
                                             </Stack>
 
+                                        </Stack>
+                                    </Box>
+                                );
+                            })}
+                        </Stack>
+                    )}
+                </Box>
+
+                <Box className="admin-animate-reveal-3">
+                    <Typography variant="h5" sx={{ fontWeight: 800, mb: 3 }}>
+                        Current Role Assignments
+                    </Typography>
+
+                    {(manageableUsers?.length ?? 0) === 0 ? (
+                        <Box sx={{ ...bentoCardSx(false), p: 6, textAlign: 'center', borderStyle: 'dashed' }}>
+                            <Typography color="text.secondary">No role assignments found.</Typography>
+                        </Box>
+                    ) : (
+                        <Stack spacing={2}>
+                            {manageableUsers.map((user) => {
+                                const userRoles = (user.roles ?? [])
+                                    .map((role) => role.name)
+                                    .filter((roleName) => ['student', 'writer', 'editor'].includes(roleName));
+
+                                return (
+                                    <Box key={user.id} sx={bentoCardSx(true)}>
+                                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }} justifyContent="space-between">
+                                            <Stack direction="row" spacing={2} alignItems="center" sx={{ minWidth: 0 }}>
+                                                <Avatar src={user.avatar_url} sx={{ width: 44, height: 44, bgcolor: '#2f6fdb', fontWeight: 'bold' }}>
+                                                    {user.name?.charAt(0)}
+                                                </Avatar>
+                                                <Box sx={{ minWidth: 0 }}>
+                                                    <Typography sx={{ fontWeight: 800 }} noWrap>{user.name}</Typography>
+                                                    <Typography variant="caption" color="text.secondary" noWrap>{user.email}</Typography>
+                                                </Box>
+                                            </Stack>
+
+                                            <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                                                {userRoles.length === 0 ? (
+                                                    <Chip label="No removable roles" size="small" variant="outlined" />
+                                                ) : (
+                                                    userRoles.map((roleName) => (
+                                                        <Button
+                                                            key={`${user.id}-${roleName}`}
+                                                            color="error"
+                                                            variant="outlined"
+                                                            size="small"
+                                                            onClick={() => handleRemoveRole(user.id, roleName, user.name)}
+                                                            sx={{ borderRadius: '0.75rem', textTransform: 'none', fontWeight: 700 }}
+                                                        >
+                                                            Remove {roleLabelMap[roleName] ?? roleName}
+                                                        </Button>
+                                                    ))
+                                                )}
+                                            </Stack>
                                         </Stack>
                                     </Box>
                                 );

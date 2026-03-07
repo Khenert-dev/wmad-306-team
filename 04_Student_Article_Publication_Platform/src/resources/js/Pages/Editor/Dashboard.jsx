@@ -20,7 +20,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 const getReadingMetrics = (htmlContent) => {
     const plainText = htmlContent?.replace(/<[^>]*>?/gm, '') || '';
@@ -69,14 +69,31 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
         step_down: [{ value: 'student', label: 'Student (Step Down)' }],
     };
 
+    const allArticles = useMemo(
+        () => [...(submittedArticles ?? []), ...(publishedArticles ?? [])],
+        [submittedArticles, publishedArticles],
+    );
     const [coverImageDrafts, setCoverImageDrafts] = useState(() => {
         const map = {};
-        for (const article of [...(submittedArticles ?? []), ...(publishedArticles ?? [])]) {
+        for (const article of allArticles) {
             map[article.id] = article.cover_image_url ?? '';
         }
         return map;
     });
     const [coverImageFiles, setCoverImageFiles] = useState({});
+    const [coverImagePreviews, setCoverImagePreviews] = useState({});
+
+    const syncDraftsFromPageProps = (page) => {
+        const nextSubmitted = page?.props?.submittedArticles ?? [];
+        const nextPublished = page?.props?.publishedArticles ?? [];
+        const nextMap = {};
+
+        for (const article of [...nextSubmitted, ...nextPublished]) {
+            nextMap[article.id] = article.cover_image_url ?? '';
+        }
+
+        setCoverImageDrafts((prev) => ({ ...prev, ...nextMap }));
+    };
 
     const saveCoverImage = (articleId) => {
         const normalizedCoverImageUrl = (coverImageDrafts[articleId] ?? '').trim();
@@ -93,8 +110,10 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
         router.post(route('articles.cover-image', articleId), payload, {
             preserveScroll: true,
             forceFormData: true,
-            onSuccess: () => {
+            onSuccess: (page) => {
+                syncDraftsFromPageProps(page);
                 setCoverImageFiles((prev) => ({ ...prev, [articleId]: null }));
+                setCoverImagePreviews((prev) => ({ ...prev, [articleId]: null }));
             },
         });
     };
@@ -257,7 +276,7 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
                                         const comments = revisionComments[article.id] ?? '';
                                         const commentsError = comments.trim().length === 0;
                                         const metrics = getReadingMetrics(article.content);
-                                        const imageUrl = coverImageDrafts[article.id];
+                                        const imageUrl = coverImagePreviews[article.id] ?? coverImageDrafts[article.id];
 
                                         return (
                                             <Card key={article.id} sx={{ ...bentoCardSx(true), boxShadow: 'none' }}>
@@ -307,6 +326,14 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
                                                                             onChange={(event) => {
                                                                                 const file = event.target.files?.[0] ?? null;
                                                                                 setCoverImageFiles((prev) => ({ ...prev, [article.id]: file }));
+                                                                                if (!file) {
+                                                                                    setCoverImagePreviews((prev) => ({ ...prev, [article.id]: null }));
+                                                                                    return;
+                                                                                }
+                                                                                setCoverImagePreviews((prev) => ({
+                                                                                    ...prev,
+                                                                                    [article.id]: URL.createObjectURL(file),
+                                                                                }));
                                                                             }}
                                                                         />
                                                                     </Button>
@@ -369,8 +396,8 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
                                                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems="center">
                                                     <Box sx={{ width: { xs: '100%', sm: 192 }, flexShrink: 0 }}>
                                                         <Box sx={{ ...imagePreviewSx, height: 100 }}>
-                                                            {coverImageDrafts[article.id] ? (
-                                                                <img src={coverImageDrafts[article.id]} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                            {(coverImagePreviews[article.id] ?? coverImageDrafts[article.id]) ? (
+                                                                <img src={coverImagePreviews[article.id] ?? coverImageDrafts[article.id]} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                             ) : (
                                                                 <Typography variant="caption" color="text.secondary">No Image</Typography>
                                                             )}
@@ -399,6 +426,14 @@ export default function EditorDashboard({ submittedArticles, publishedArticles, 
                                                                     onChange={(event) => {
                                                                         const file = event.target.files?.[0] ?? null;
                                                                         setCoverImageFiles((prev) => ({ ...prev, [article.id]: file }));
+                                                                        if (!file) {
+                                                                            setCoverImagePreviews((prev) => ({ ...prev, [article.id]: null }));
+                                                                            return;
+                                                                        }
+                                                                        setCoverImagePreviews((prev) => ({
+                                                                            ...prev,
+                                                                            [article.id]: URL.createObjectURL(file),
+                                                                        }));
                                                                     }}
                                                                 />
                                                             </Button>

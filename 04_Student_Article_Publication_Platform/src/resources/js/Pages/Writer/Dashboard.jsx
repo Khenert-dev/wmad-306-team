@@ -28,6 +28,15 @@ export default function WriterDashboard({ articles, flash }) {
         }
         return draftMap;
     });
+    const [coverImageDrafts, setCoverImageDrafts] = useState(() => {
+        const draftMap = {};
+        for (const article of articles) {
+            draftMap[article.id] = article.cover_image_url ?? '';
+        }
+        return draftMap;
+    });
+    const [coverImageFiles, setCoverImageFiles] = useState({});
+    const [coverImagePreviews, setCoverImagePreviews] = useState({});
 
     const drafts = articles.filter((article) => article.status?.name === 'draft');
     const submitted = articles.filter((article) => article.status?.name === 'submitted');
@@ -59,6 +68,42 @@ export default function WriterDashboard({ articles, flash }) {
 
     const updateRevisionField = (articleId, field, value) => {
         setRevisionDrafts((prev) => ({ ...prev, [articleId]: { ...prev[articleId], [field]: value } }));
+    };
+
+    const syncCoverImageDraftsFromPage = (page) => {
+        const nextArticles = page?.props?.articles ?? [];
+        const nextCoverMap = {};
+
+        for (const article of nextArticles) {
+            nextCoverMap[article.id] = article.cover_image_url ?? '';
+        }
+
+        setCoverImageDrafts((prev) => ({ ...prev, ...nextCoverMap }));
+    };
+
+    const saveDraftCoverImage = (articleId) => {
+        const selectedFile = coverImageFiles[articleId] ?? null;
+        const normalizedCoverImageUrl = (coverImageDrafts[articleId] ?? '').trim();
+        const payload = {
+            cover_image_url: normalizedCoverImageUrl === '' ? null : normalizedCoverImageUrl,
+        };
+
+        if (selectedFile) {
+            payload.cover_image_file = selectedFile;
+        }
+
+        router.post(route('writer.articles.cover-image', articleId), {
+            _method: 'patch',
+            ...payload,
+        }, {
+            preserveScroll: true,
+            forceFormData: true,
+            onSuccess: (page) => {
+                syncCoverImageDraftsFromPage(page);
+                setCoverImageFiles((prev) => ({ ...prev, [articleId]: null }));
+                setCoverImagePreviews((prev) => ({ ...prev, [articleId]: null }));
+            },
+        });
     };
 
     const getStatusColor = (statusName) => {
@@ -242,6 +287,75 @@ export default function WriterDashboard({ articles, flash }) {
                                                 </div>
                                                 <Chip label={article.status?.label ?? 'Unknown'} color={getStatusColor(article.status?.name)} variant="outlined" sx={{ fontWeight: 'bold', borderRadius: 2 }}/>
                                             </div>
+                                            {(article.status?.name === 'draft' || article.status?.name === 'needs_revision') && (
+                                                <Stack spacing={1.5}>
+                                                    <Box
+                                                        sx={{
+                                                            width: '100%',
+                                                            maxWidth: 420,
+                                                            height: 180,
+                                                            borderRadius: '1rem',
+                                                            overflow: 'hidden',
+                                                            border: '1px dashed',
+                                                            borderColor: 'divider',
+                                                            bgcolor: 'action.hover',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                        }}
+                                                    >
+                                                        {(coverImagePreviews[article.id] ?? coverImageDrafts[article.id]) ? (
+                                                            <Box
+                                                                component="img"
+                                                                src={coverImagePreviews[article.id] ?? coverImageDrafts[article.id]}
+                                                                alt="Draft cover"
+                                                                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                            />
+                                                        ) : (
+                                                            <Typography variant="caption" color="text.secondary">No Image</Typography>
+                                                        )}
+                                                    </Box>
+                                                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ xs: 'stretch', sm: 'center' }}>
+                                                        <TextField
+                                                            label="Cover Image URL"
+                                                            placeholder="https://images.unsplash.com/..."
+                                                            value={coverImageDrafts[article.id] ?? ''}
+                                                            onChange={(event) => setCoverImageDrafts((prev) => ({ ...prev, [article.id]: event.target.value }))}
+                                                            fullWidth
+                                                            size="small"
+                                                        />
+                                                        <Button component="label" variant="outlined" sx={{ textTransform: 'none', fontWeight: 'bold' }}>
+                                                            Upload File
+                                                            <input
+                                                                hidden
+                                                                type="file"
+                                                                accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                                                                onChange={(event) => {
+                                                                    const file = event.target.files?.[0] ?? null;
+                                                                    setCoverImageFiles((prev) => ({ ...prev, [article.id]: file }));
+
+                                                                    if (!file) {
+                                                                        setCoverImagePreviews((prev) => ({ ...prev, [article.id]: null }));
+                                                                        return;
+                                                                    }
+
+                                                                    setCoverImagePreviews((prev) => ({ ...prev, [article.id]: URL.createObjectURL(file) }));
+                                                                }}
+                                                            />
+                                                        </Button>
+                                                    </Stack>
+                                                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+                                                        {coverImageFiles[article.id] && (
+                                                            <Typography variant="caption" color="text.secondary">
+                                                                {coverImageFiles[article.id].name}
+                                                            </Typography>
+                                                        )}
+                                                        <CoolButton tone="outline" onClick={() => saveDraftCoverImage(article.id)}>
+                                                            Save Image
+                                                        </CoolButton>
+                                                    </Stack>
+                                                </Stack>
+                                            )}
                                             <div className="flex flex-wrap gap-3 pt-2">
                                                 {article.status?.name === 'draft' && <CoolButton onClick={() => router.post(route('articles.submit', article.id))}>Submit for Review</CoolButton>}
                                             </div>
